@@ -1,0 +1,661 @@
+- id: '1776408030042'
+  alias: Bathroom Light Button
+  description: ''
+  triggers:
+  - device_id: a9c9721f8724b07803dbc20a347b0c18
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_1
+    trigger: device
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.bathroom_lights
+        state:
+        - 'on'
+        alias: Check if on
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.bathroom_lights
+        data: {}
+        alias: Turn off
+      alias: Turn off if on
+    - conditions:
+      - condition: time
+        after: 06:30:00
+        before: '19:00:00'
+        alias: Check if during day time
+      sequence:
+      - parallel:
+        - device_id: caf17996aca7abf82b9eb2ea16946eb3
+          domain: select
+          entity_id: 0d2a512807d1c9863a53416e3719a446
+          type: select_option
+          option: Light preset 1
+        - device_id: 7884050c9ea19192bad3f25478d2b1b6
+          domain: select
+          entity_id: 1fa68bcb749cd6e0e3b5eb65ceff4bcd
+          type: select_option
+          option: Light preset 1
+      alias: Day time turn on
+    - conditions:
+      - alias: Check if during night time
+        condition: time
+        after: '19:00:00'
+        before: 06:30:00
+      sequence:
+      - device_id: caf17996aca7abf82b9eb2ea16946eb3
+        domain: select
+        entity_id: 0d2a512807d1c9863a53416e3719a446
+        type: select_option
+        option: Light preset 2
+      alias: Night time turn on
+  mode: single
+- id: '1776847607367'
+  alias: Turn of bathroom after being on for 20 mins
+  description: ''
+  triggers:
+  - type: turned_on
+    device_id: caf17996aca7abf82b9eb2ea16946eb3
+    entity_id: 6cd7028bdb4385e4df49eea832249c0d
+    domain: light
+    trigger: device
+    for:
+      hours: 0
+      minutes: 20
+      seconds: 0
+  conditions: []
+  actions:
+  - action: light.turn_off
+    target:
+      entity_id: light.bathroom_lights
+    data: {}
+    alias: Turn off
+  mode: restart
+- id: '1776902865605'
+  alias: Kitchen Light Button 1 - On / Off
+  description: ''
+  triggers:
+  - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_1
+    trigger: device
+  - device_id: 147f7064dad611670e7a0cff50d04ace
+    domain: zha
+    type: remote_button_short_press
+    subtype: right
+    trigger: device
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - alias: Check if on
+        condition: state
+        entity_id: light.kitchen_lights
+        state:
+        - 'on'
+      sequence:
+      - alias: Turn off
+        action: light.turn_off
+        target:
+          entity_id: light.kitchen_lights
+        data: {}
+      alias: Turn off if on
+    - conditions:
+      - condition: time
+        after: 06:30:00
+        before: '19:00:00'
+        alias: Check if during day time
+      sequence:
+      - parallel:
+        - device_id: a938000327305a704032109b9bc49791
+          domain: select
+          entity_id: 10fe1bcfe0113b605a54f8333a228309
+          type: select_option
+          option: Light preset 1
+        - device_id: 65565ad7ba46fbfd58a5daf8f6799f1f
+          domain: select
+          entity_id: 7ddc3159997afee761bd15e7400a1c04
+          type: select_option
+          option: Light preset 1
+        - device_id: 76cd2d70c308cfdb9ecc789230ee8ee7
+          domain: select
+          entity_id: 3b487767c170aec13581f3c652ace7b6
+          type: select_option
+          option: Light preset 1
+        - device_id: 9e2a84a8ea9a4b432f9ec92e585b2970
+          domain: select
+          entity_id: 50cb2e4926bae1c1881a5101a6500bcd
+          type: select_option
+          option: Light preset 1
+        - device_id: 7c8ef6da8e41ff831cbe31ca0e1388c3
+          domain: select
+          entity_id: db6a26abd09d99882acbedeeea08611c
+          type: select_option
+          option: Light preset 1
+      alias: Day time turn on
+    - conditions:
+      - alias: Check if during night time
+        condition: time
+        after: '19:00:00'
+        before: 06:30:00
+      sequence:
+      - parallel:
+        - device_id: a938000327305a704032109b9bc49791
+          domain: select
+          entity_id: 10fe1bcfe0113b605a54f8333a228309
+          type: select_option
+          option: Light preset 2
+        - device_id: 65565ad7ba46fbfd58a5daf8f6799f1f
+          domain: select
+          entity_id: 7ddc3159997afee761bd15e7400a1c04
+          type: select_option
+          option: Light preset 2
+        - device_id: 76cd2d70c308cfdb9ecc789230ee8ee7
+          domain: select
+          entity_id: 3b487767c170aec13581f3c652ace7b6
+          type: select_option
+          option: Light preset 2
+        - device_id: 9e2a84a8ea9a4b432f9ec92e585b2970
+          domain: select
+          entity_id: 50cb2e4926bae1c1881a5101a6500bcd
+          type: select_option
+          option: Light preset 2
+        - device_id: 7c8ef6da8e41ff831cbe31ca0e1388c3
+          domain: select
+          entity_id: db6a26abd09d99882acbedeeea08611c
+          type: select_option
+          option: Light preset 2
+      alias: Night time turn on
+  mode: single
+- id: '1776907540528'
+  alias: Ensuite Lights Button
+  description: ''
+  triggers:
+  - device_id: 4aefb13b13f7607fb692558b43a14c3c
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_1
+    trigger: device
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - alias: Check if on
+        condition: state
+        entity_id: light.ensuite_lights
+        state:
+        - 'on'
+      sequence:
+      - alias: Turn off
+        action: light.turn_off
+        target:
+          entity_id: light.ensuite_lights
+        data: {}
+      alias: Turn off if on
+    - conditions:
+      - condition: time
+        after: 06:30:00
+        before: '19:00:00'
+        alias: Check if during day time
+      sequence:
+      - parallel:
+        - device_id: d77a6b4cc9900ae96c624623077d9b96
+          domain: select
+          entity_id: 96bdd94962051673bac31c936cd470c3
+          type: select_option
+          option: Light preset 1
+        - device_id: 22e85c3e7050d0c31b0b0400e49df23f
+          domain: select
+          entity_id: 78c1acd798f8af82ecb8c66ba65fa99e
+          type: select_option
+          option: Light preset 1
+        - device_id: 3b9ac98ab23e1eb81be4420a0ced4ad3
+          domain: select
+          entity_id: 5e0e2a8bf8fce574d7dcd1c7a8272c36
+          type: select_option
+          option: Light preset 1
+      alias: Day time turn on
+    - conditions:
+      - alias: Check if during night time
+        condition: time
+        after: '19:00:00'
+        before: 06:30:00
+      sequence:
+      - device_id: d77a6b4cc9900ae96c624623077d9b96
+        domain: select
+        entity_id: 96bdd94962051673bac31c936cd470c3
+        type: select_option
+        option: Light preset 2
+      alias: Night time turn on
+  mode: single
+- id: '1776907846108'
+  alias: Turn off ensuite lihts
+  description: ''
+  triggers:
+  - type: changed_states
+    device_id: d77a6b4cc9900ae96c624623077d9b96
+    entity_id: eec68c9ab1b0bf3863db9910193d1105
+    domain: light
+    trigger: device
+    for:
+      hours: 0
+      minutes: 20
+      seconds: 0
+  conditions: []
+  actions:
+  - alias: Turn off
+    action: light.turn_off
+    target:
+      entity_id: light.ensuite_lights
+    data: {}
+  mode: restart
+- id: '1776909347862'
+  alias: Kitchen Lights Brighter
+  description: ''
+  triggers:
+  - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_2
+    trigger: device
+  - device_id: 147f7064dad611670e7a0cff50d04ace
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_on
+    trigger: device
+  conditions: []
+  actions:
+  - parallel:
+    - device_id: a938000327305a704032109b9bc49791
+      domain: light
+      entity_id: e138bdbff08c7d9667b484c214f15acf
+      type: brightness_increase
+    - device_id: 65565ad7ba46fbfd58a5daf8f6799f1f
+      domain: light
+      entity_id: 11892f0c85ce26b647b6afb17885ab51
+      type: brightness_increase
+    - device_id: 76cd2d70c308cfdb9ecc789230ee8ee7
+      domain: light
+      entity_id: 89f2e76babdf9c9c5b061042e20697ec
+      type: brightness_increase
+    - device_id: 9e2a84a8ea9a4b432f9ec92e585b2970
+      domain: light
+      entity_id: bc42a80d8760b89efa80d273740c6868
+      type: brightness_increase
+    - device_id: 7c8ef6da8e41ff831cbe31ca0e1388c3
+      domain: light
+      entity_id: 5a1986bc1f829b9c2d8f00fc4416d138
+      type: brightness_increase
+  mode: queued
+  max: 10
+- id: '1776914306829'
+  alias: Kitchen Lights Dimmer
+  description: ''
+  triggers:
+  - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_4
+    trigger: device
+  - device_id: 147f7064dad611670e7a0cff50d04ace
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_off
+    trigger: device
+  conditions: []
+  actions:
+  - parallel:
+    - device_id: a938000327305a704032109b9bc49791
+      domain: light
+      entity_id: e138bdbff08c7d9667b484c214f15acf
+      type: brightness_decrease
+    - device_id: 65565ad7ba46fbfd58a5daf8f6799f1f
+      domain: light
+      entity_id: 11892f0c85ce26b647b6afb17885ab51
+      type: brightness_decrease
+    - device_id: 76cd2d70c308cfdb9ecc789230ee8ee7
+      domain: light
+      entity_id: 89f2e76babdf9c9c5b061042e20697ec
+      type: brightness_decrease
+    - device_id: 9e2a84a8ea9a4b432f9ec92e585b2970
+      domain: light
+      entity_id: bc42a80d8760b89efa80d273740c6868
+      type: brightness_decrease
+    - device_id: 7c8ef6da8e41ff831cbe31ca0e1388c3
+      domain: light
+      entity_id: 5a1986bc1f829b9c2d8f00fc4416d138
+      type: brightness_decrease
+  mode: queued
+  max: 10
+- id: '1776926001082'
+  alias: Send alert when washing done
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.washer_current_status
+    to:
+    - end
+    - refreshing
+  conditions: []
+  actions:
+  - device_id: 61185b5f8bda2ae7fbe4a9de61336341
+    domain: mobile_app
+    type: notify
+    message: There's a hot load in the laundry!
+  - device_id: b6f6b98b1768e11216c3e0c2e987d29f
+    domain: mobile_app
+    type: notify
+    message: Washing done
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.laundry_led_strip
+    data:
+      brightness_pct: 20
+      rgbw_color:
+      - 255
+      - 0
+      - 0
+      - 0
+      flash: long
+  mode: single
+- id: '1779313442200'
+  alias: Kitchen Button 3 - Kids TV On / Off
+  description: ''
+  triggers:
+  - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
+    domain: zha
+    type: remote_button_short_press
+    subtype: button_3
+    trigger: device
+  - device_id: 147f7064dad611670e7a0cff50d04ace
+    domain: zha
+    type: remote_button_short_press
+    subtype: left
+    trigger: device
+  conditions: []
+  actions:
+  - type: toggle
+    device_id: c86a41dabebd3d75787ea15978e49c72
+    entity_id: 1018f87764bb3bbbad6419a31277b4e7
+    domain: switch
+  mode: single
+- id: '1779601332480'
+  alias: Turn off kids tv at night
+  description: ''
+  triggers:
+  - trigger: time
+    at: '19:30:00'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id:
+      - switch.kids_room_kids_tv_plug
+    data: {}
+  mode: single
+- id: '1779601398261'
+  alias: Turn on kids tv in morning
+  description: ''
+  triggers:
+  - trigger: time
+    at: 05:45:00
+  conditions: []
+  actions:
+  - action: switch.turn_on
+    metadata: {}
+    target:
+      entity_id:
+      - switch.kids_room_kids_tv_plug
+    data: {}
+  mode: single
+- id: '1780877933325'
+  alias: Stop the blinds
+  description: ''
+  triggers:
+  - device_id: dabd67a3ab58281966c467f50cb5e11d
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_off
+    trigger: device
+  conditions: []
+  actions:
+  - action: cover.stop_cover
+    metadata: {}
+    target:
+      entity_id: cover.living_room_blinds
+    data: {}
+  mode: single
+- id: '1780877997664'
+  alias: Toggle blinds
+  description: ''
+  triggers:
+  - device_id: dabd67a3ab58281966c467f50cb5e11d
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_on
+    trigger: device
+  conditions: []
+  actions:
+  - action: cover.toggle
+    metadata: {}
+    target:
+      entity_id: cover.living_room_blinds
+    data: {}
+  mode: single
+- id: '1781747009381'
+  alias: Kitchen Button 2.1-4.1 - Lights Brighter/Dimmer - Slide
+  description: ''
+  triggers:
+  - device_id: 147f7064dad611670e7a0cff50d04ace
+    domain: zha
+    type: remote_button_long_press
+    subtype: dim_up
+    trigger: device
+    id: dim_up
+  - device_id: 147f7064dad611670e7a0cff50d04ace
+    domain: zha
+    type: remote_button_long_press
+    subtype: dim_down
+    trigger: device
+    id: dim_down
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: dim_up
+      sequence:
+      - repeat:
+          sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.kitchen_lights
+            data:
+              brightness_step_pct: 4
+              transition: 0.2
+          - wait_for_trigger:
+            - device_id: 147f7064dad611670e7a0cff50d04ace
+              domain: zha
+              type: remote_button_long_release
+              subtype: dim_up
+              trigger: device
+            timeout:
+              milliseconds: 500
+            continue_on_timeout: true
+          until:
+          - condition: template
+            value_template: '{{ wait.completed }}'
+    - conditions:
+      - condition: trigger
+        id: dim_down
+      sequence:
+      - condition: state
+        entity_id: light.kitchen_lights
+        state: 'on'
+      - repeat:
+          sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.kitchen_lights
+            data:
+              brightness_step_pct: -4
+              transition: 0.2
+          - wait_for_trigger:
+            - device_id: 147f7064dad611670e7a0cff50d04ace
+              domain: zha
+              type: remote_button_long_release
+              subtype: dim_down
+              trigger: device
+            timeout:
+              milliseconds: 500
+            continue_on_timeout: true
+          until:
+          - condition: template
+            value_template: '{{ wait.completed }}'
+  mode: restart
+- id: '1786045283876'
+  alias: Laundry switch controls LED strip
+  description: 'IKEA RODRET controls the laundry Hue strip. Short presses turn it
+    on in cool white or off. Long presses smoothly adjust brightness.
+
+    '
+  triggers:
+  - trigger: device
+    device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_on
+    id: turn_on
+  - trigger: device
+    device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_off
+    id: turn_off
+  - trigger: device
+    device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
+    domain: zha
+    type: remote_button_long_press
+    subtype: dim_down
+    id: dim_down
+  - trigger: device
+    device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
+    domain: zha
+    type: remote_button_long_press
+    subtype: dim_up
+    id: dim_up
+  - trigger: device
+    device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
+    domain: zha
+    type: remote_button_long_release
+    subtype: dim_down
+    id: dim_down_release
+  - trigger: device
+    device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
+    domain: zha
+    type: remote_button_long_release
+    subtype: dim_up
+    id: dim_up_release
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: turn_on
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.laundry_led_strip
+        data:
+          color_temp_kelvin: 4000
+          transition: 0.3
+    - conditions:
+      - condition: trigger
+        id: turn_off
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.laundry_led_strip
+        data:
+          transition: 0.3
+    - conditions:
+      - condition: trigger
+        id: dim_up
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.laundry_led_strip
+        data:
+          color_temp_kelvin: 4000
+          transition: 0.2
+      - repeat:
+          while:
+          - condition: template
+            value_template: '{{ true }}'
+          sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.laundry_led_strip
+            data:
+              brightness_step_pct: 3
+              transition: 0.12
+          - delay:
+              milliseconds: 120
+    - conditions:
+      - condition: trigger
+        id: dim_down
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.laundry_led_strip
+        data:
+          color_temp_kelvin: 4000
+          transition: 0.2
+      - repeat:
+          while:
+          - condition: template
+            value_template: '{{ true }}'
+          sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.laundry_led_strip
+            data:
+              brightness_step_pct: -3
+              transition: 0.12
+          - delay:
+              milliseconds: 120
+  mode: restart
+- id: '1786235041388'
+  alias: Power cycle NBN box and router
+  description: Power cycle NBN equipment after internet has been offline for 2 minutes
+  triggers:
+  - trigger: device
+    type: not_connected
+    device_id: 0955d986c1796c6b7d2da97a2ae48d3e
+    entity_id: 7a5da70fec5144b4f4541b4bc15c1e56
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: 8796afb272572ae5eacb54718546e70b
+    entity_id: ebe9bb5bf6ae19170fc2b814f5c87095
+    domain: switch
+  - delay:
+      minutes: 1
+  - type: turn_on
+    device_id: 8796afb272572ae5eacb54718546e70b
+    entity_id: ebe9bb5bf6ae19170fc2b814f5c87095
+    domain: switch
+  mode: single

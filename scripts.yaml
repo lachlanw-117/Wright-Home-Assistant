@@ -1,0 +1,90 @@
+dyson_heat_25:
+  alias: Dyson Warm Room
+  mode: single
+  sequence:
+  - if:
+    - condition: state
+      entity_id: switch.purifier_hot_cool_de_nox_power
+      state: 'off'
+    then:
+    - action: switch.turn_on
+      target:
+        entity_id: switch.purifier_hot_cool_de_nox_power
+    - delay:
+        seconds: 3
+  - action: climate.set_temperature
+    target:
+      entity_id: climate.purifier_hot_cool_de_nox
+    data:
+      hvac_mode: heat
+      temperature: 25
+  - delay:
+      seconds: 1
+  - action: fan.set_direction
+    target:
+      entity_id: fan.purifier_hot_cool_de_nox
+    data:
+      direction: forward
+  - action: fan.set_preset_mode
+    target:
+      entity_id: fan.purifier_hot_cool_de_nox
+    data:
+      preset_mode: auto
+dyson_off:
+  alias: Dyson Off
+  mode: single
+  sequence:
+  - action: switch.turn_off
+    target:
+      entity_id: switch.purifier_hot_cool_de_nox_power
+  description: ''
+dyson_quiet_fan:
+  alias: Dyson Quiet Fan
+  mode: single
+  sequence:
+  - if:
+    - condition: state
+      entity_id: switch.purifier_hot_cool_de_nox_power
+      state: 'off'
+    then:
+    - action: switch.turn_on
+      target:
+        entity_id: switch.purifier_hot_cool_de_nox_power
+  - delay:
+      seconds: 2
+  - action: fan.set_direction
+    target:
+      entity_id: fan.purifier_hot_cool_de_nox
+    data:
+      direction: reverse
+  - action: fan.set_preset_mode
+    target:
+      entity_id: fan.purifier_hot_cool_de_nox
+    data:
+      preset_mode: high
+  description: ''
+dyson_fan_high:
+  alias: Dyson Fan High
+  mode: single
+  sequence:
+  - if:
+    - condition: state
+      entity_id: switch.purifier_hot_cool_de_nox_power
+      state: 'off'
+    then:
+    - action: switch.turn_on
+      target:
+        entity_id: switch.purifier_hot_cool_de_nox_power
+  - delay:
+      seconds: 2
+  - action: fan.set_direction
+    target:
+      entity_id: fan.purifier_hot_cool_de_nox
+    data:
+      direction: forward
+  - action: fan.set_preset_mode
+    target:
+      entity_id: fan.purifier_hot_cool_de_nox
+    data:
+      preset_mode: high
+  description: ''

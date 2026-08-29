@@ -1,15 +1,22 @@
-# Home Assistant secrets
+# Secrets
 secrets.yaml
 
-# Home Assistant runtime/state
+# Home Assistant managed/runtime folders
 .storage/
-.homeassistant/
+.cloud/
+.cache/
+deps/
+tts/
+
+# Runtime files
+.HA_VERSION
+.ha_run.lock
 *.log
 *.log.*
-home-assistant_v2.db
-home-assistant_v2.db-*
-home-assistant_v2.db-shm
-home-assistant_v2.db-wal
+
+# Databases
+home-assistant_v2.db*
+zigbee.db*
 
 # Backups
 backups/
@@ -22,3 +29,7 @@ __pycache__/
 # OS/editor junk
 .DS_Store
 Thumbs.db
+
+# HACS-managed content
+custom_components/hacs/
+www/community/
