@@ -659,3 +659,95 @@
     entity_id: ebe9bb5bf6ae19170fc2b814f5c87095
     domain: switch
   mode: single
+- id: '1787972678123'
+  alias: Bedroom Button - Control Lights
+  description: Control bedroom lights with IKEA RODRET wireless dimmer
+  triggers:
+  - device_id: 7f36fdde3a71493ed74f8712b36d8642
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_on
+    trigger: device
+    id: turn_on
+  - device_id: 7f36fdde3a71493ed74f8712b36d8642
+    domain: zha
+    type: remote_button_short_press
+    subtype: turn_off
+    trigger: device
+    id: turn_off
+  - device_id: 7f36fdde3a71493ed74f8712b36d8642
+    domain: zha
+    type: remote_button_long_press
+    subtype: dim_up
+    trigger: device
+    id: dim_up
+  - device_id: 7f36fdde3a71493ed74f8712b36d8642
+    domain: zha
+    type: remote_button_long_press
+    subtype: dim_down
+    trigger: device
+    id: dim_down
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: turn_on
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.bedroom_lights
+    - conditions:
+      - condition: trigger
+        id: turn_off
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.bedroom_lights
+    - conditions:
+      - condition: trigger
+        id: dim_up
+      sequence:
+      - repeat:
+          sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.bedroom_lights
+            data:
+              brightness_step_pct: 5
+          - wait_for_trigger:
+            - device_id: 7f36fdde3a71493ed74f8712b36d8642
+              domain: zha
+              type: remote_button_long_release
+              subtype: dim_up
+              trigger: device
+            timeout:
+              milliseconds: 150
+            continue_on_timeout: true
+          until:
+          - condition: template
+            value_template: '{{ wait.trigger is not none }}'
+    - conditions:
+      - condition: trigger
+        id: dim_down
+      sequence:
+      - repeat:
+          sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.bedroom_lights
+            data:
+              brightness_step_pct: -5
+          - wait_for_trigger:
+            - device_id: 7f36fdde3a71493ed74f8712b36d8642
+              domain: zha
+              type: remote_button_long_release
+              subtype: dim_down
+              trigger: device
+            timeout:
+              milliseconds: 150
+            continue_on_timeout: true
+          until:
+          - condition: template
+            value_template: '{{ wait.trigger is not none }}'
+  mode: restart
