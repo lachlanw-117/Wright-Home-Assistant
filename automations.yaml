@@ -1,5 +1,5 @@
 - id: '1776408030042'
-  alias: Bathroom Light Button
+  alias: Toggle Bathroom Lights
   description: ''
   triggers:
   - device_id: a9c9721f8724b07803dbc20a347b0c18
@@ -15,19 +15,19 @@
         entity_id: light.bathroom_lights
         state:
         - 'on'
-        alias: Check if on
+        alias: Check if lights are on
       sequence:
       - action: light.turn_off
         target:
           entity_id: light.bathroom_lights
         data: {}
-        alias: Turn off
-      alias: Turn off if on
+        alias: Turn off bathroom lights
+      alias: Turn off lights if on
     - conditions:
       - condition: time
         after: 06:30:00
         before: '19:00:00'
-        alias: Check if during day time
+        alias: Check if it is daytime
       sequence:
       - parallel:
         - device_id: caf17996aca7abf82b9eb2ea16946eb3
@@ -40,9 +40,9 @@
           entity_id: 1fa68bcb749cd6e0e3b5eb65ceff4bcd
           type: select_option
           option: Light preset 1
-      alias: Day time turn on
+      alias: Set day preset
     - conditions:
-      - alias: Check if during night time
+      - alias: Check if it is nighttime
         condition: time
         after: '19:00:00'
         before: 06:30:00
@@ -52,10 +52,10 @@
         entity_id: 0d2a512807d1c9863a53416e3719a446
         type: select_option
         option: Light preset 2
-      alias: Night time turn on
+      alias: Set night preset
   mode: single
 - id: '1776847607367'
-  alias: Turn of bathroom after being on for 20 mins
+  alias: Auto Off Bathroom Lights
   description: ''
   triggers:
   - type: turned_on
@@ -76,7 +76,7 @@
     alias: Turn off
   mode: restart
 - id: '1776902865605'
-  alias: Kitchen Light Button 1 - On / Off
+  alias: Toggle Kitchen Lights
   description: ''
   triggers:
   - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
@@ -93,23 +93,23 @@
   actions:
   - choose:
     - conditions:
-      - alias: Check if on
+      - alias: Check if lights are on
         condition: state
         entity_id: light.kitchen_lights
         state:
         - 'on'
       sequence:
-      - alias: Turn off
+      - alias: Turn off kitchen lights
         action: light.turn_off
         target:
           entity_id: light.kitchen_lights
         data: {}
-      alias: Turn off if on
+      alias: Turn off lights if on
     - conditions:
       - condition: time
         after: 06:30:00
         before: '19:00:00'
-        alias: Check if during day time
+        alias: Check if it is daytime
       sequence:
       - parallel:
         - device_id: a938000327305a704032109b9bc49791
@@ -137,9 +137,9 @@
           entity_id: db6a26abd09d99882acbedeeea08611c
           type: select_option
           option: Light preset 1
-      alias: Day time turn on
+      alias: Set day preset
     - conditions:
-      - alias: Check if during night time
+      - alias: Check if it is nighttime
         condition: time
         after: '19:00:00'
         before: 06:30:00
@@ -170,10 +170,10 @@
           entity_id: db6a26abd09d99882acbedeeea08611c
           type: select_option
           option: Light preset 2
-      alias: Night time turn on
+      alias: Set night preset
   mode: single
 - id: '1776907540528'
-  alias: Ensuite Lights Button
+  alias: Toggle Ensuite Lights
   description: ''
   triggers:
   - device_id: 4aefb13b13f7607fb692558b43a14c3c
@@ -185,23 +185,23 @@
   actions:
   - choose:
     - conditions:
-      - alias: Check if on
+      - alias: Check if lights are on
         condition: state
         entity_id: light.ensuite_lights
         state:
         - 'on'
       sequence:
-      - alias: Turn off
+      - alias: Turn off ensuite lights
         action: light.turn_off
         target:
           entity_id: light.ensuite_lights
         data: {}
-      alias: Turn off if on
+      alias: Turn off lights if on
     - conditions:
       - condition: time
         after: 06:30:00
         before: '19:00:00'
-        alias: Check if during day time
+        alias: Check if it is daytime
       sequence:
       - parallel:
         - device_id: d77a6b4cc9900ae96c624623077d9b96
@@ -219,9 +219,9 @@
           entity_id: 5e0e2a8bf8fce574d7dcd1c7a8272c36
           type: select_option
           option: Light preset 1
-      alias: Day time turn on
+      alias: Set day preset
     - conditions:
-      - alias: Check if during night time
+      - alias: Check if it is nighttime
         condition: time
         after: '19:00:00'
         before: 06:30:00
@@ -231,17 +231,15 @@
         entity_id: 96bdd94962051673bac31c936cd470c3
         type: select_option
         option: Light preset 2
-      alias: Night time turn on
+      alias: Set night preset
   mode: single
 - id: '1776907846108'
-  alias: Turn off ensuite lihts
+  alias: Auto Off Ensuite Lights
   description: ''
   triggers:
-  - type: changed_states
-    device_id: d77a6b4cc9900ae96c624623077d9b96
-    entity_id: eec68c9ab1b0bf3863db9910193d1105
-    domain: light
-    trigger: device
+  - trigger: state
+    entity_id: light.ensuite_lights
+    to: 'on'
     for:
       hours: 0
       minutes: 20
@@ -255,7 +253,7 @@
     data: {}
   mode: restart
 - id: '1776909347862'
-  alias: Kitchen Lights Brighter
+  alias: Brighten Kitchen Lights
   description: ''
   triggers:
   - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
@@ -294,7 +292,7 @@
   mode: queued
   max: 10
 - id: '1776914306829'
-  alias: Kitchen Lights Dimmer
+  alias: Dim Kitchen Lights
   description: ''
   triggers:
   - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
@@ -333,7 +331,7 @@
   mode: queued
   max: 10
 - id: '1776926001082'
-  alias: Send alert when washing done
+  alias: Notify Washing Done
   description: ''
   triggers:
   - trigger: state
@@ -366,7 +364,7 @@
       flash: long
   mode: single
 - id: '1779313442200'
-  alias: Kitchen Button 3 - Kids TV On / Off
+  alias: Toggle Kids TV
   description: ''
   triggers:
   - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
@@ -387,7 +385,7 @@
     domain: switch
   mode: single
 - id: '1779601332480'
-  alias: Turn off kids tv at night
+  alias: Power Off Kids TV At Night
   description: ''
   triggers:
   - trigger: time
@@ -402,7 +400,7 @@
     data: {}
   mode: single
 - id: '1779601398261'
-  alias: Turn on kids tv in morning
+  alias: Power On Kids TV In Morning
   description: ''
   triggers:
   - trigger: time
@@ -417,7 +415,7 @@
     data: {}
   mode: single
 - id: '1780877933325'
-  alias: Stop the blinds
+  alias: Stop Living Room Blinds
   description: ''
   triggers:
   - device_id: dabd67a3ab58281966c467f50cb5e11d
@@ -434,7 +432,7 @@
     data: {}
   mode: single
 - id: '1780877997664'
-  alias: Toggle blinds
+  alias: Toggle Living Room Blinds
   description: ''
   triggers:
   - device_id: dabd67a3ab58281966c467f50cb5e11d
@@ -451,7 +449,7 @@
     data: {}
   mode: single
 - id: '1781747009381'
-  alias: Kitchen Button 2.1-4.1 - Lights Brighter/Dimmer - Slide
+  alias: Slide Dim Kitchen Lights
   description: ''
   triggers:
   - device_id: 147f7064dad611670e7a0cff50d04ace
@@ -522,7 +520,7 @@
             value_template: '{{ wait.completed }}'
   mode: restart
 - id: '1786045283876'
-  alias: Laundry switch controls LED strip
+  alias: Toggle Laundry LED Strip
   description: 'IKEA RODRET controls the laundry Hue strip. Short presses turn it
     on in cool white or off. Long presses smoothly adjust brightness.
 
@@ -597,9 +595,6 @@
           color_temp_kelvin: 4000
           transition: 0.2
       - repeat:
-          while:
-          - condition: template
-            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
@@ -607,8 +602,18 @@
             data:
               brightness_step_pct: 3
               transition: 0.12
-          - delay:
-              milliseconds: 120
+          - wait_for_trigger:
+            - device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
+              domain: zha
+              type: remote_button_long_release
+              subtype: dim_up
+              trigger: device
+            timeout:
+              milliseconds: 200
+            continue_on_timeout: true
+          until:
+          - condition: template
+            value_template: '{{ wait.trigger is not none }}'
     - conditions:
       - condition: trigger
         id: dim_down
@@ -620,9 +625,6 @@
           color_temp_kelvin: 4000
           transition: 0.2
       - repeat:
-          while:
-          - condition: template
-            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
@@ -630,11 +632,21 @@
             data:
               brightness_step_pct: -3
               transition: 0.12
-          - delay:
-              milliseconds: 120
+          - wait_for_trigger:
+            - device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
+              domain: zha
+              type: remote_button_long_release
+              subtype: dim_down
+              trigger: device
+            timeout:
+              milliseconds: 200
+            continue_on_timeout: true
+          until:
+          - condition: template
+            value_template: '{{ wait.trigger is not none }}'
   mode: restart
 - id: '1786235041388'
-  alias: Power cycle NBN box and router
+  alias: Power Cycle Internet
   description: Power cycle NBN equipment after internet has been offline for 2 minutes
   triggers:
   - trigger: device
@@ -660,7 +672,7 @@
     domain: switch
   mode: single
 - id: '1787972678123'
-  alias: Bedroom Button - Control Lights
+  alias: Control Bedroom Lights
   description: Control bedroom lights with IKEA RODRET wireless dimmer
   triggers:
   - device_id: 7f36fdde3a71493ed74f8712b36d8642
