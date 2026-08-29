@@ -25,8 +25,8 @@
       alias: Turn off lights if on
     - conditions:
       - condition: time
-        after: 06:30:00
-        before: '19:00:00'
+        after: input_datetime.lighting_day_start
+        before: input_datetime.lighting_night_start
         alias: Check if it is daytime
       sequence:
       - parallel:
@@ -44,8 +44,8 @@
     - conditions:
       - alias: Check if it is nighttime
         condition: time
-        after: '19:00:00'
-        before: 06:30:00
+        after: input_datetime.lighting_night_start
+        before: input_datetime.lighting_day_start
       sequence:
       - device_id: caf17996aca7abf82b9eb2ea16946eb3
         domain: select
@@ -58,22 +58,20 @@
   alias: Auto Off Bathroom Lights
   description: ''
   triggers:
-  - type: turned_on
-    device_id: caf17996aca7abf82b9eb2ea16946eb3
-    entity_id: 6cd7028bdb4385e4df49eea832249c0d
-    domain: light
-    trigger: device
+  - trigger: state
+    entity_id: light.bathroom_lights
+    to: 'on'
     for:
       hours: 0
       minutes: 20
       seconds: 0
   conditions: []
   actions:
-  - action: light.turn_off
+  - alias: Turn off
+    action: light.turn_off
     target:
       entity_id: light.bathroom_lights
     data: {}
-    alias: Turn off
   mode: restart
 - id: '1776902865605'
   alias: Toggle Kitchen Lights
@@ -107,8 +105,8 @@
       alias: Turn off lights if on
     - conditions:
       - condition: time
-        after: 06:30:00
-        before: '19:00:00'
+        after: input_datetime.lighting_day_start
+        before: input_datetime.lighting_night_start
         alias: Check if it is daytime
       sequence:
       - parallel:
@@ -141,8 +139,8 @@
     - conditions:
       - alias: Check if it is nighttime
         condition: time
-        after: '19:00:00'
-        before: 06:30:00
+        after: input_datetime.lighting_night_start
+        before: input_datetime.lighting_day_start
       sequence:
       - parallel:
         - device_id: a938000327305a704032109b9bc49791
@@ -199,8 +197,8 @@
       alias: Turn off lights if on
     - conditions:
       - condition: time
-        after: 06:30:00
-        before: '19:00:00'
+        after: input_datetime.lighting_day_start
+        before: input_datetime.lighting_night_start
         alias: Check if it is daytime
       sequence:
       - parallel:
@@ -223,8 +221,8 @@
     - conditions:
       - alias: Check if it is nighttime
         condition: time
-        after: '19:00:00'
-        before: 06:30:00
+        after: input_datetime.lighting_night_start
+        before: input_datetime.lighting_day_start
       sequence:
       - device_id: d77a6b4cc9900ae96c624623077d9b96
         domain: select
@@ -395,7 +393,7 @@
   description: ''
   triggers:
   - trigger: time
-    at: '19:30:00'
+    at: input_datetime.lighting_night_start
   conditions: []
   actions:
   - action: switch.turn_off
