@@ -29,17 +29,7 @@
         before: input_datetime.lighting_night_start
         alias: Check if it is daytime
       sequence:
-      - parallel:
-        - device_id: caf17996aca7abf82b9eb2ea16946eb3
-          domain: select
-          entity_id: 0d2a512807d1c9863a53416e3719a446
-          type: select_option
-          option: Light preset 1
-        - device_id: 7884050c9ea19192bad3f25478d2b1b6
-          domain: select
-          entity_id: 1fa68bcb749cd6e0e3b5eb65ceff4bcd
-          type: select_option
-          option: Light preset 1
+      - action: script.bathroom_day
       alias: Set day preset
     - conditions:
       - alias: Check if it is nighttime
@@ -47,11 +37,7 @@
         after: input_datetime.lighting_night_start
         before: input_datetime.lighting_day_start
       sequence:
-      - device_id: caf17996aca7abf82b9eb2ea16946eb3
-        domain: select
-        entity_id: 0d2a512807d1c9863a53416e3719a446
-        type: select_option
-        option: Light preset 2
+      - action: script.bathroom_night
       alias: Set night preset
   mode: single
 - id: '1776847607367'
@@ -109,32 +95,7 @@
         before: input_datetime.lighting_night_start
         alias: Check if it is daytime
       sequence:
-      - parallel:
-        - device_id: a938000327305a704032109b9bc49791
-          domain: select
-          entity_id: 10fe1bcfe0113b605a54f8333a228309
-          type: select_option
-          option: Light preset 1
-        - device_id: 65565ad7ba46fbfd58a5daf8f6799f1f
-          domain: select
-          entity_id: 7ddc3159997afee761bd15e7400a1c04
-          type: select_option
-          option: Light preset 1
-        - device_id: 76cd2d70c308cfdb9ecc789230ee8ee7
-          domain: select
-          entity_id: 3b487767c170aec13581f3c652ace7b6
-          type: select_option
-          option: Light preset 1
-        - device_id: 9e2a84a8ea9a4b432f9ec92e585b2970
-          domain: select
-          entity_id: 50cb2e4926bae1c1881a5101a6500bcd
-          type: select_option
-          option: Light preset 1
-        - device_id: 7c8ef6da8e41ff831cbe31ca0e1388c3
-          domain: select
-          entity_id: db6a26abd09d99882acbedeeea08611c
-          type: select_option
-          option: Light preset 1
+      - action: script.kitchen_day
       alias: Set day preset
     - conditions:
       - alias: Check if it is nighttime
@@ -142,32 +103,7 @@
         after: input_datetime.lighting_night_start
         before: input_datetime.lighting_day_start
       sequence:
-      - parallel:
-        - device_id: a938000327305a704032109b9bc49791
-          domain: select
-          entity_id: 10fe1bcfe0113b605a54f8333a228309
-          type: select_option
-          option: Light preset 2
-        - device_id: 65565ad7ba46fbfd58a5daf8f6799f1f
-          domain: select
-          entity_id: 7ddc3159997afee761bd15e7400a1c04
-          type: select_option
-          option: Light preset 2
-        - device_id: 76cd2d70c308cfdb9ecc789230ee8ee7
-          domain: select
-          entity_id: 3b487767c170aec13581f3c652ace7b6
-          type: select_option
-          option: Light preset 2
-        - device_id: 9e2a84a8ea9a4b432f9ec92e585b2970
-          domain: select
-          entity_id: 50cb2e4926bae1c1881a5101a6500bcd
-          type: select_option
-          option: Light preset 2
-        - device_id: 7c8ef6da8e41ff831cbe31ca0e1388c3
-          domain: select
-          entity_id: db6a26abd09d99882acbedeeea08611c
-          type: select_option
-          option: Light preset 2
+      - action: script.kitchen_night
       alias: Set night preset
   mode: single
 - id: '1776907540528'
@@ -201,22 +137,7 @@
         before: input_datetime.lighting_night_start
         alias: Check if it is daytime
       sequence:
-      - parallel:
-        - device_id: d77a6b4cc9900ae96c624623077d9b96
-          domain: select
-          entity_id: 96bdd94962051673bac31c936cd470c3
-          type: select_option
-          option: Light preset 1
-        - device_id: 22e85c3e7050d0c31b0b0400e49df23f
-          domain: select
-          entity_id: 78c1acd798f8af82ecb8c66ba65fa99e
-          type: select_option
-          option: Light preset 1
-        - device_id: 3b9ac98ab23e1eb81be4420a0ced4ad3
-          domain: select
-          entity_id: 5e0e2a8bf8fce574d7dcd1c7a8272c36
-          type: select_option
-          option: Light preset 1
+      - action: script.ensuite_day
       alias: Set day preset
     - conditions:
       - alias: Check if it is nighttime
@@ -224,11 +145,7 @@
         after: input_datetime.lighting_night_start
         before: input_datetime.lighting_day_start
       sequence:
-      - device_id: d77a6b4cc9900ae96c624623077d9b96
-        domain: select
-        entity_id: 96bdd94962051673bac31c936cd470c3
-        type: select_option
-        option: Light preset 2
+      - action: script.ensuite_night
       alias: Set night preset
   mode: single
 - id: '1776907846108'
