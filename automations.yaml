@@ -253,7 +253,7 @@
     data: {}
   mode: restart
 - id: '1776909347862'
-  alias: Brighten Kitchen Lights
+  alias: Brighten Kitchen Lights - Steps
   description: ''
   triggers:
   - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
@@ -292,7 +292,7 @@
   mode: queued
   max: 10
 - id: '1776914306829'
-  alias: Dim Kitchen Lights
+  alias: Dim Kitchen Lights - Steps
   description: ''
   triggers:
   - device_id: 6b1760dc0561bf1e78733cf1bcf6fa59
