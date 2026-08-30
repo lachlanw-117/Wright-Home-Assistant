@@ -1,0 +1,193 @@
+views:
+  - title: Home
+    path: home
+    type: sections
+    max_columns: 1
+    sections:
+      - type: grid
+        cards:
+          - show_name: true
+            show_icon: true
+            type: button
+            name: Bathroom
+            icon: mdi:bathtub-outline
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id: automation.bathroom_toggle_bathroom_lights
+              data:
+                skip_condition: true
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 2
+          - show_name: true
+            show_icon: true
+            type: button
+            name: Ensuite
+            icon: mdi:shower-head
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id: automation.ensuite_toggle_ensuite_lights
+              data:
+                skip_condition: true
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 2
+          - show_name: true
+            show_icon: true
+            type: button
+            name: Kitchen
+            icon: mdi:fridge-outline
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id: automation.kitchen_toggle_kitchen_lights
+              data:
+                skip_condition: true
+            hold_action:
+              action: none
+            grid_options:
+              columns: 4
+              rows: 2
+          - show_name: true
+            show_icon: true
+            type: button
+            name: Brighter
+            icon: mdi:arrow-up-bold
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id: automation.kitchen_brighten_kitchen_lights_steps
+              data:
+                skip_condition: true
+            hold_action:
+              action: none
+            grid_options:
+              columns: 4
+              rows: 2
+          - show_name: true
+            show_icon: true
+            type: button
+            name: Dimmer
+            icon: mdi:arrow-down-bold
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id: automation.kitchen_dim_kitchen_lights_steps
+              data:
+                skip_condition: true
+            hold_action:
+              action: none
+            grid_options:
+              columns: 4
+              rows: 2
+          - show_name: false
+            show_icon: true
+            type: button
+            icon: mdi:skull-crossbones-outline
+            color: red
+            tap_action:
+              action: perform-action
+              perform_action: automation.trigger
+              target:
+                entity_id: automation.kitchen_toggle_kids_tv
+              data:
+                skip_condition: true
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 1
+          - type: tile
+            entity: switch.split_system_finger_bot
+            name: Heater/Aircon
+            icon: mdi:heat-pump-outline
+            vertical: false
+            features_position: bottom
+          - type: tile
+            grid_options:
+              columns: 12
+              rows: 2
+            entity: cover.living_room_living_room_blinds
+            hide_state: true
+            vertical: false
+            features:
+              - type: cover-open-close
+            features_position: bottom
+          - type: button
+            name: 'Off'
+            icon: mdi:power
+            show_name: true
+            show_icon: true
+            tap_action:
+              action: perform-action
+              perform_action: script.dyson_off
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 2
+          - type: button
+            name: Heat 25°
+            icon: mdi:fire
+            show_name: true
+            show_icon: true
+            tap_action:
+              action: perform-action
+              perform_action: script.dyson_heat_25
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 2
+          - type: button
+            name: Breeze
+            icon: mdi:fan
+            show_name: true
+            show_icon: true
+            tap_action:
+              action: perform-action
+              perform_action: script.dyson_fan_high
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 2
+          - type: button
+            name: Night
+            icon: mdi:weather-night
+            show_name: true
+            show_icon: true
+            tap_action:
+              action: perform-action
+              perform_action: script.dyson_quiet_fan
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 2
+          - type: tile
+            entity: light.bedroom_lights
+            vertical: false
+            features_position: bottom
+          - type: tile
+            grid_options:
+              columns: 6
+              rows: 1
+            entity: sensor.washer_remaining_text
+            name: Washing Machine
+            icon: mdi:clock-time-eight-outline
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: light.laundry_led_strip
