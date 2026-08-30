@@ -8,12 +8,7 @@ views:
       - type: grid
         cards:
 
-          # -------------------------------------------------
-          # Bathroom / Ensuite
-          # State comes from the light group.
-          # Tap still runs your day/night automation.
-          # -------------------------------------------------
-
+          # Bathroom
           - type: tile
             entity: light.bathroom_lights
             name: Bathroom
@@ -38,6 +33,7 @@ views:
               columns: 6
               rows: 1
 
+          # Ensuite
           - type: tile
             entity: light.ensuite_lights
             name: Ensuite
@@ -62,10 +58,7 @@ views:
               columns: 6
               rows: 1
 
-          # -------------------------------------------------
           # Kitchen
-          # -------------------------------------------------
-
           - type: tile
             entity: light.kitchen_lights
             name: Kitchen
@@ -87,14 +80,12 @@ views:
             hold_action:
               action: more-info
             grid_options:
-              columns: 4
+              columns: 6
               rows: 1
 
-          - type: button
-            name: Brighter
+          - type: shortcut
+            label: Up
             icon: mdi:arrow-up-bold
-            show_name: true
-            show_icon: true
             tap_action:
               action: perform-action
               perform_action: automation.trigger
@@ -102,17 +93,13 @@ views:
                 entity_id: automation.kitchen_brighten_kitchen_lights_steps
               data:
                 skip_condition: true
-            hold_action:
-              action: none
             grid_options:
-              columns: 4
+              columns: 3
               rows: 1
 
-          - type: button
-            name: Dimmer
+          - type: shortcut
+            label: Down
             icon: mdi:arrow-down-bold
-            show_name: true
-            show_icon: true
             tap_action:
               action: perform-action
               perform_action: automation.trigger
@@ -120,17 +107,114 @@ views:
                 entity_id: automation.kitchen_dim_kitchen_lights_steps
               data:
                 skip_condition: true
-            hold_action:
-              action: none
             grid_options:
-              columns: 4
+              columns: 3
               rows: 1
 
-          # -------------------------------------------------
-          # Kids TV
-          # Now state-aware, but still runs your automation.
-          # -------------------------------------------------
+          # Living Room - overall
+          - type: tile
+            entity: light.living_room_living_room_lights
+            name: Living Room
+            icon: mdi:lightbulb-group-outline
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            grid_options:
+              columns: 6
+              rows: 1
 
+          # Dining Table
+          - type: tile
+            entity: light.living_room_dining_table_light
+            name: Dining
+            icon: mdi:ceiling-light
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            grid_options:
+              columns: 6
+              rows: 1
+
+          # TV Light
+          - type: tile
+            entity: light.living_room_tv_light
+            name: TV Light
+            icon: mdi:television-ambient-light
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            grid_options:
+              columns: 6
+              rows: 1
+
+          # Basketball Hoop
+          - type: tile
+            entity: light.living_room_basketball_hoop_light
+            name: Hoop
+            icon: mdi:basketball
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            grid_options:
+              columns: 6
+              rows: 1
+
+          # Living Room Blinds
+          - type: tile
+            entity: cover.living_room_living_room_blinds
+            name: Living Room Blinds
+            hide_state: true
+            vertical: false
+            features:
+              - type: cover-open-close
+            features_position: inline
+            grid_options:
+              columns: 12
+              rows: 1
+
+          # Main Bedroom
+          - type: tile
+            entity: light.bedroom_lights
+            name: Bedroom
+            icon: mdi:bed-king-outline
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            grid_options:
+              columns: 6
+              rows: 1
+
+          # Kids Bedroom
+          - type: tile
+            entity: light.kids_room_kids_bedroom_light
+            name: Kids Bedroom
+            icon: mdi:bed-single-outline
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            grid_options:
+              columns: 6
+              rows: 1
+
+          # Kids TV
           - type: tile
             entity: switch.kids_room_kids_tv_plug
             name: Kids TV
@@ -156,16 +240,11 @@ views:
               columns: 6
               rows: 1
 
-          # -------------------------------------------------
           # Heater / Aircon
-          # -------------------------------------------------
-
           - type: tile
             entity: switch.split_system_finger_bot
             name: Heater/Aircon
             icon: mdi:heat-pump-outline
-            vertical: false
-            features_position: bottom
             tap_action:
               action: toggle
             icon_tap_action:
@@ -176,179 +255,51 @@ views:
               columns: 6
               rows: 1
 
-          # -------------------------------------------------
-          # Living Room Matter groups
-          # -------------------------------------------------
-
-          - type: tile
-            entity: light.living_room_living_room_lights
-            name: Living Room
-            icon: mdi:lightbulb-group-outline
-            tap_action:
-              action: toggle
-            icon_tap_action:
-              action: toggle
-            hold_action:
-              action: more-info
-            grid_options:
-              columns: 6
-              rows: 1
-
-          - type: tile
-            entity: light.living_room_dining_table_light
-            name: Dining
-            icon: mdi:ceiling-light
-            tap_action:
-              action: toggle
-            icon_tap_action:
-              action: toggle
-            hold_action:
-              action: more-info
-            grid_options:
-              columns: 6
-              rows: 1
-
-          - type: tile
-            entity: light.living_room_tv_light
-            name: TV Light
-            icon: mdi:television-ambient-light
-            tap_action:
-              action: toggle
-            icon_tap_action:
-              action: toggle
-            hold_action:
-              action: more-info
-            grid_options:
-              columns: 6
-              rows: 1
-
-          - type: tile
-            entity: light.living_room_basketball_hoop_light
-            name: Hoop
-            icon: mdi:basketball
-            tap_action:
-              action: toggle
-            icon_tap_action:
-              action: toggle
-            hold_action:
-              action: more-info
-            grid_options:
-              columns: 6
-              rows: 1
-
-          # -------------------------------------------------
-          # Living Room blinds
-          # No state needed.
-          # -------------------------------------------------
-
-          - type: tile
-            entity: cover.living_room_living_room_blinds
-            hide_state: true
-            vertical: false
-            features_position: bottom
-            features:
-              - type: cover-open-close
-            grid_options:
-              columns: 12
-              rows: 2
-
-          # -------------------------------------------------
-          # Bedrooms
-          # -------------------------------------------------
-
-          - type: tile
-            entity: light.bedroom_lights
-            name: Bedroom
-            icon: mdi:bed-king-outline
-            tap_action:
-              action: toggle
-            icon_tap_action:
-              action: toggle
-            hold_action:
-              action: more-info
-            grid_options:
-              columns: 6
-              rows: 1
-
-          - type: tile
-            entity: light.kids_room_kids_bedroom_light
-            name: Kids Bedroom
-            icon: mdi:bed-single-outline
-            tap_action:
-              action: toggle
-            icon_tap_action:
-              action: toggle
-            hold_action:
-              action: more-info
-            grid_options:
-              columns: 6
-              rows: 1
-
-          # -------------------------------------------------
-          # Dyson
-          # Stateless buttons intentionally retained.
-          # -------------------------------------------------
-
-          - type: button
-            name: "Off"
+          # Dyson Off
+          - type: shortcut
+            label: "Off"
             icon: mdi:power
-            show_name: true
-            show_icon: true
             tap_action:
               action: perform-action
               perform_action: script.dyson_off
-            hold_action:
-              action: none
             grid_options:
               columns: 6
               rows: 1
 
-          - type: button
-            name: Heat 25°
+          # Dyson Heat
+          - type: shortcut
+            label: Heat 25°
             icon: mdi:fire
-            show_name: true
-            show_icon: true
             tap_action:
               action: perform-action
               perform_action: script.dyson_heat_25
-            hold_action:
-              action: none
             grid_options:
               columns: 6
               rows: 1
 
-          - type: button
-            name: Breeze
+          # Dyson Breeze
+          - type: shortcut
+            label: Breeze
             icon: mdi:fan
-            show_name: true
-            show_icon: true
             tap_action:
               action: perform-action
               perform_action: script.dyson_fan_high
-            hold_action:
-              action: none
             grid_options:
               columns: 6
               rows: 1
 
-          - type: button
-            name: Night
+          # Dyson Night
+          - type: shortcut
+            label: Night
             icon: mdi:weather-night
-            show_name: true
-            show_icon: true
             tap_action:
               action: perform-action
               perform_action: script.dyson_quiet_fan
-            hold_action:
-              action: none
             grid_options:
               columns: 6
               rows: 1
 
-          # -------------------------------------------------
-          # Laundry
-          # -------------------------------------------------
-
+          # Washing Machine
           - type: tile
             entity: sensor.washer_remaining_text
             name: Washing Machine
@@ -359,6 +310,7 @@ views:
               columns: 6
               rows: 1
 
+          # Laundry LED Strip
           - type: tile
             entity: light.laundry_led_strip
             name: Laundry
