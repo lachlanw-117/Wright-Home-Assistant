@@ -1,94 +1,150 @@
+dyson_control:
+  alias: Dyson Control
+  description: Central controller for Dyson modes
+  mode: restart
+
+  fields:
+    command:
+      name: Command
+      required: true
+      selector:
+        select:
+          options:
+            - heat_25
+            - quiet_fan
+            - fan_high
+            - "off"
+
+  sequence:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ command == 'off' }}"
+          sequence:
+            - action: switch.turn_off
+              target:
+                entity_id: switch.purifier_hot_cool_de_nox_power
+
+      default:
+        # Turn Dyson on if required
+        - if:
+            - condition: state
+              entity_id: switch.purifier_hot_cool_de_nox_power
+              state: "off"
+          then:
+            - action: switch.turn_on
+              target:
+                entity_id: switch.purifier_hot_cool_de_nox_power
+
+            - wait_template: >
+                {{ is_state('switch.purifier_hot_cool_de_nox_power', 'on') }}
+              timeout: "00:00:10"
+              continue_on_timeout: false
+
+            # Give the Dyson electronics time to initialise
+            - delay:
+                seconds: 2
+
+        # Now apply requested mode
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ command == 'heat_25' }}"
+              sequence:
+                - action: climate.set_temperature
+                  target:
+                    entity_id: climate.purifier_hot_cool_de_nox
+                  data:
+                    hvac_mode: heat
+                    temperature: 25
+
+                - delay:
+                    seconds: 1
+
+                - action: fan.set_direction
+                  target:
+                    entity_id: fan.purifier_hot_cool_de_nox
+                  data:
+                    direction: forward
+
+                - action: fan.set_preset_mode
+                  target:
+                    entity_id: fan.purifier_hot_cool_de_nox
+                  data:
+                    preset_mode: auto
+
+            - conditions:
+                - condition: template
+                  value_template: "{{ command == 'quiet_fan' }}"
+              sequence:
+                - action: fan.set_direction
+                  target:
+                    entity_id: fan.purifier_hot_cool_de_nox
+                  data:
+                    direction: reverse
+
+                - action: fan.set_preset_mode
+                  target:
+                    entity_id: fan.purifier_hot_cool_de_nox
+                  data:
+                    preset_mode: high
+
+            - conditions:
+                - condition: template
+                  value_template: "{{ command == 'fan_high' }}"
+              sequence:
+                - action: fan.set_direction
+                  target:
+                    entity_id: fan.purifier_hot_cool_de_nox
+                  data:
+                    direction: forward
+
+                - action: fan.set_preset_mode
+                  target:
+                    entity_id: fan.purifier_hot_cool_de_nox
+                  data:
+                    preset_mode: high
+
+
 dyson_heat_25:
   alias: Dyson Warm Room
+  description: ""
   mode: single
   sequence:
-  - if:
-    - condition: state
-      entity_id: switch.purifier_hot_cool_de_nox_power
-      state: 'off'
-    then:
-    - action: switch.turn_on
-      target:
-        entity_id: switch.purifier_hot_cool_de_nox_power
-    - delay:
-        seconds: 3
-  - action: climate.set_temperature
-    target:
-      entity_id: climate.purifier_hot_cool_de_nox
-    data:
-      hvac_mode: heat
-      temperature: 25
-  - delay:
-      seconds: 1
-  - action: fan.set_direction
-    target:
-      entity_id: fan.purifier_hot_cool_de_nox
-    data:
-      direction: forward
-  - action: fan.set_preset_mode
-    target:
-      entity_id: fan.purifier_hot_cool_de_nox
-    data:
-      preset_mode: auto
+    - action: script.dyson_control
+      data:
+        command: heat_25
+
+
 dyson_off:
   alias: Dyson Off
+  description: ""
   mode: single
   sequence:
-  - action: switch.turn_off
-    target:
-      entity_id: switch.purifier_hot_cool_de_nox_power
-  description: ''
+    - action: script.dyson_control
+      data:
+        command: "off"
+
+
 dyson_quiet_fan:
   alias: Dyson Quiet Fan
+  description: ""
   mode: single
   sequence:
-  - if:
-    - condition: state
-      entity_id: switch.purifier_hot_cool_de_nox_power
-      state: 'off'
-    then:
-    - action: switch.turn_on
-      target:
-        entity_id: switch.purifier_hot_cool_de_nox_power
-  - delay:
-      seconds: 2
-  - action: fan.set_direction
-    target:
-      entity_id: fan.purifier_hot_cool_de_nox
-    data:
-      direction: reverse
-  - action: fan.set_preset_mode
-    target:
-      entity_id: fan.purifier_hot_cool_de_nox
-    data:
-      preset_mode: high
-  description: ''
+    - action: script.dyson_control
+      data:
+        command: quiet_fan
+
+
 dyson_fan_high:
   alias: Dyson Fan High
+  description: ""
   mode: single
   sequence:
-  - if:
-    - condition: state
-      entity_id: switch.purifier_hot_cool_de_nox_power
-      state: 'off'
-    then:
-    - action: switch.turn_on
-      target:
-        entity_id: switch.purifier_hot_cool_de_nox_power
-  - delay:
-      seconds: 2
-  - action: fan.set_direction
-    target:
-      entity_id: fan.purifier_hot_cool_de_nox
-    data:
-      direction: forward
-  - action: fan.set_preset_mode
-    target:
-      entity_id: fan.purifier_hot_cool_de_nox
-    data:
-      preset_mode: high
-  description: ''
-  
+    - action: script.dyson_control
+      data:
+        command: fan_high
+
 bathroom_day:
   alias: Bathroom Day
   description: Apply Tapo daytime presets to all bathroom lights

@@ -385,6 +385,18 @@
     subtype: dim_down
     trigger: device
     id: dim_down
+  - device_id: 147f7064dad611670e7a0cff50d04ace
+    domain: zha
+    type: remote_button_long_release
+    subtype: dim_up
+    trigger: device
+    id: dim_stop
+  - device_id: 147f7064dad611670e7a0cff50d04ace
+    domain: zha
+    type: remote_button_long_release
+    subtype: dim_down
+    trigger: device
+    id: dim_stop
   conditions: []
   actions:
   - choose:
@@ -393,6 +405,9 @@
         id: dim_up
       sequence:
       - repeat:
+          while:
+          - condition: template
+            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
@@ -400,18 +415,8 @@
             data:
               brightness_step_pct: 4
               transition: 0.2
-          - wait_for_trigger:
-            - device_id: 147f7064dad611670e7a0cff50d04ace
-              domain: zha
-              type: remote_button_long_release
-              subtype: dim_up
-              trigger: device
-            timeout:
+          - delay:
               milliseconds: 500
-            continue_on_timeout: true
-          until:
-          - condition: template
-            value_template: '{{ wait.completed }}'
     - conditions:
       - condition: trigger
         id: dim_down
@@ -420,6 +425,9 @@
         entity_id: light.kitchen_lights
         state: 'on'
       - repeat:
+          while:
+          - condition: template
+            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
@@ -427,18 +435,13 @@
             data:
               brightness_step_pct: -4
               transition: 0.2
-          - wait_for_trigger:
-            - device_id: 147f7064dad611670e7a0cff50d04ace
-              domain: zha
-              type: remote_button_long_release
-              subtype: dim_down
-              trigger: device
-            timeout:
+          - delay:
               milliseconds: 500
-            continue_on_timeout: true
-          until:
-          - condition: template
-            value_template: '{{ wait.completed }}'
+    - conditions:
+      - condition: trigger
+        id: dim_stop
+      sequence:
+      - stop: Dimmer released
   mode: restart
 - id: '1786045283876'
   alias: Toggle Laundry LED Strip
@@ -476,13 +479,13 @@
     domain: zha
     type: remote_button_long_release
     subtype: dim_down
-    id: dim_down_release
+    id: dim_stop
   - trigger: device
     device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
     domain: zha
     type: remote_button_long_release
     subtype: dim_up
-    id: dim_up_release
+    id: dim_stop
   conditions: []
   actions:
   - choose:
@@ -516,6 +519,9 @@
           color_temp_kelvin: 4000
           transition: 0.2
       - repeat:
+          while:
+          - condition: template
+            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
@@ -523,18 +529,8 @@
             data:
               brightness_step_pct: 3
               transition: 0.12
-          - wait_for_trigger:
-            - device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
-              domain: zha
-              type: remote_button_long_release
-              subtype: dim_up
-              trigger: device
-            timeout:
+          - delay:
               milliseconds: 200
-            continue_on_timeout: true
-          until:
-          - condition: template
-            value_template: '{{ wait.trigger is not none }}'
     - conditions:
       - condition: trigger
         id: dim_down
@@ -546,6 +542,9 @@
           color_temp_kelvin: 4000
           transition: 0.2
       - repeat:
+          while:
+          - condition: template
+            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
@@ -553,18 +552,13 @@
             data:
               brightness_step_pct: -3
               transition: 0.12
-          - wait_for_trigger:
-            - device_id: fdd3cacb7aad644ba3cbbe0ef569bbfd
-              domain: zha
-              type: remote_button_long_release
-              subtype: dim_down
-              trigger: device
-            timeout:
+          - delay:
               milliseconds: 200
-            continue_on_timeout: true
-          until:
-          - condition: template
-            value_template: '{{ wait.trigger is not none }}'
+    - conditions:
+      - condition: trigger
+        id: dim_stop
+      sequence:
+      - stop: Dimmer released
   mode: restart
 - id: '1786235041388'
   alias: Power Cycle Internet
@@ -620,6 +614,18 @@
     subtype: dim_down
     trigger: device
     id: dim_down
+  - device_id: 7f36fdde3a71493ed74f8712b36d8642
+    domain: zha
+    type: remote_button_long_release
+    subtype: dim_up
+    trigger: device
+    id: dim_stop
+  - device_id: 7f36fdde3a71493ed74f8712b36d8642
+    domain: zha
+    type: remote_button_long_release
+    subtype: dim_down
+    trigger: device
+    id: dim_stop
   conditions: []
   actions:
   - choose:
@@ -642,45 +648,38 @@
         id: dim_up
       sequence:
       - repeat:
+          while:
+          - condition: template
+            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
               entity_id: light.bedroom_lights
             data:
               brightness_step_pct: 5
-          - wait_for_trigger:
-            - device_id: 7f36fdde3a71493ed74f8712b36d8642
-              domain: zha
-              type: remote_button_long_release
-              subtype: dim_up
-              trigger: device
-            timeout:
+              transition: 0.15
+          - delay:
               milliseconds: 150
-            continue_on_timeout: true
-          until:
-          - condition: template
-            value_template: '{{ wait.trigger is not none }}'
     - conditions:
       - condition: trigger
         id: dim_down
       sequence:
       - repeat:
+          while:
+          - condition: template
+            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
               entity_id: light.bedroom_lights
             data:
               brightness_step_pct: -5
-          - wait_for_trigger:
-            - device_id: 7f36fdde3a71493ed74f8712b36d8642
-              domain: zha
-              type: remote_button_long_release
-              subtype: dim_down
-              trigger: device
-            timeout:
+              transition: 0.15
+          - delay:
               milliseconds: 150
-            continue_on_timeout: true
-          until:
-          - condition: template
-            value_template: '{{ wait.trigger is not none }}'
+    - conditions:
+      - condition: trigger
+        id: dim_stop
+      sequence:
+      - stop: Dimmer released
   mode: restart
