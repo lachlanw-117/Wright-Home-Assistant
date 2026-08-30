@@ -13,3 +13,15 @@ scene: !include scenes.yaml
 #for the stupid tuya blinds
 zha:
   custom_quirks_path: /config/custom_zha_quirks
+
+
+# for version controlled dashboard
+lovelace:
+  mode: storage
+  dashboards:
+    our-home-v2:
+      mode: yaml
+      title: Our Home V2
+      icon: mdi:home
+      show_in_sidebar: true
+      filename: dashboards/our_home_v2.yaml
