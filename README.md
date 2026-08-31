@@ -1,15 +1,15 @@
 # Wright Home Assistant
 
-This is the version-controlled part of the Home Assistant setup running in our home.
+This is the version-controlled portion of the Home Assistant setup running in our home.
 
-It brings together Zigbee, Matter, Thread and Wi-Fi devices across lighting, heating, blinds, appliances and network recovery.
+It brings together Zigbee, Matter, Thread and Wi-Fi devices across lighting, temperature control, blinds, appliances and network recovery.
 
 The basic approach is:
 
-- Physical controls for things we use all the time
+- Physical controls for most things
 - Automations where they remove effort or make devices behave more intelligently
 - The Home Assistant app for quick changes, detailed controls and anything less routine
-- YAML, Git and Visual Studio Code for configuration that benefits from being readable and version controlled
+- AI first development, either into HA directly, or Git and Visual Studio Code for configuration that benefits from being readable and version controlled
 
 This is a real, working configuration. It is not intended to be a polished set of universal templates or something another person can install unchanged.
 
@@ -17,7 +17,7 @@ This is a real, working configuration. It is not intended to be a polished set o
 
 Home Assistant runs on a Raspberry Pi 5 with SSD storage.
 
-The current environment includes:
+The current environment includes, whatever is on special, specifically::
 
 - IKEA Zigbee remotes, lights and outlets
 - Tapo smart lighting
@@ -26,7 +26,7 @@ The current environment includes:
 - Tuya Zigbee blind motors
 - Dyson heating and air purification
 - LG washer-dryer
-- Local network and NBN monitoring
+- Local network and internet status monitoring
 
 Zigbee devices are managed locally through ZHA. Matter, Thread and Wi-Fi integrations are used where they make sense.
 
@@ -38,7 +38,7 @@ For everyday tasks, nobody should need to find a phone, open an app and navigate
 
 The app and dashboard are still useful for:
 
-- Quick changes
+- Quick changes to configuration
 - Detailed device controls
 - Checking status
 - Less common actions
@@ -77,11 +77,13 @@ Depending on the room, they support:
 
 The continuous dimming automations use restart mode so the release event can interrupt the active loop.
 
+This works great for the Ikea Zigbee and Matter bulbs, less so for the Tapo bulbs.
+
 ### Tapo presets
 
 Tapo handles the actual preset details for its lights.
 
-Home Assistant decides which preset is appropriate and calls a central script to apply it. This keeps the automation logic separate from the Tapo-specific implementation.
+Home Assistant decides which preset is appropriate and calls a central script to apply it. This keeps the automation logic separate from the Tapo-specific implementation. It kinda sucks. I'm looking forward to replacing the Tapo bulbs.
 
 ## Dyson control
 
@@ -107,7 +109,7 @@ When a cycle finishes:
 
 - Mobile notifications are sent.
 - The laundry LED strip turns red and flashes.
-- Everyone loses the ability to claim they did not know the washing was finished.
+- Everyone loses the ability to claim they did not know the washing was finished. And it sends annoying messages to my wife!
 
 ## Internet recovery
 
@@ -150,7 +152,7 @@ It provides access to:
 - Washing-machine status
 - Laundry lighting
 
-Common actions are available directly from the dashboard. Tapping the main part of a card opens the normal Home Assistant controls when more detail is needed.
+Common actions are available directly from the dashboard. Tapping the main part of a card opens the normal Home Assistant controls when more detail is needed. It could be prettier but it is extremly functional.
 
 ## Repository structure
 
@@ -164,22 +166,6 @@ Common actions are available directly from the dashboard. Tapping the main part 
 | `custom_zha_quirks/` | Custom Zigbee device support |
 | `blueprints/` | Home Assistant automation, script and template blueprints |
 | `.gitignore` | Exclusions for secrets, runtime state, databases, logs and backups |
-
-## Making changes
-
-Configuration changes are managed through Visual Studio Code and Git.
-
-The usual process is:
-
-1. Edit the relevant YAML or Python file.
-2. Review the Git diff.
-3. Commit and push the change.
-4. Pull the updated configuration into Home Assistant.
-5. Reload the relevant configuration or restart Home Assistant when required.
-6. Test it against the real devices.
-7. Work out why the physical device has interpreted a perfectly reasonable command in the least helpful way possible.
-
-Device pairing, integration setup and quick configuration changes still happen through the Home Assistant interface.
 
 ## Reusing anything from here
 
@@ -195,7 +181,7 @@ Anyone borrowing an automation will generally need to replace its:
 - Integration-specific actions
 - Tapo preset names
 
-The patterns should still be useful even when the identifiers and devices are different.
+The patterns could still be useful even when the identifiers and devices are different.
 
 ## Security
 
