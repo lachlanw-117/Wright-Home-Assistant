@@ -17,7 +17,7 @@ This is a real, working configuration. It is not intended to be a polished set o
 
 Home Assistant runs on a Raspberry Pi 5 with SSD storage.
 
-The current environment includes, whatever is on special, specifically::
+The current environment includes, whatever is on special, specifically:
 
 - IKEA Zigbee remotes, lights and outlets
 - Tapo smart lighting
