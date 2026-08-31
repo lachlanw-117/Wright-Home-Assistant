@@ -1,0 +1,16 @@
+Wright Home Assistant
+Copyright 2026 Lachlan Wright
+
+This repository includes material derived from:
+
+Home Assistant Core blueprint files
+https://github.com/home-assistant/core
+
+Tuya TS0601 cover quirks from zigpy/zha-device-handlers
+https://github.com/zigpy/zha-device-handlers
+
+Both upstream projects distribute the relevant material under the
+Apache License, Version 2.0.
+
+The Tuya cover quirk has been adapted for the
+_TZE284_2gi1hy8s / TS0601 device combination.
