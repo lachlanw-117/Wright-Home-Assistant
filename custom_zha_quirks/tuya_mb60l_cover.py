@@ -1,9 +1,14 @@
-"""Custom ZHA quirk for Tuya TS0601 chain blind motor.
+# SPDX-FileCopyrightText: 2026 Lachlan Wright
+# SPDX-License-Identifier: Apache-2.0
+#
+# Adapted from the Tuya TS0601 cover quirks in zigpy/zha-device-handlers:
+# https://github.com/zigpy/zha-device-handlers/blob/dev/zhaquirks/tuya/ts0601_cover.py
+#
+# Device-specific changes for _TZE284_2gi1hy8s / TS0601.
 
-Device:
-  Model: TS0601
-  Manufacturer: _TZE284_2gi1hy8s
-  Manual model: MB60L-ZIG-AT-TY
+"""Device-specific ZHA quirk for the Tuya MB60L-ZIG-AT-TY chain blind motor.
+
+This is a local adaptation of the upstream ZHA Tuya TS0601 cover quirk pattern.
 """
 
 from zigpy.profiles import zha
