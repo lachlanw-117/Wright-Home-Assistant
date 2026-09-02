@@ -349,7 +349,8 @@
   - action: cover.stop_cover
     metadata: {}
     target:
-      entity_id: cover.living_room_blinds
+      entity_id:
+      - cover.living_room_living_room_blinds
     data: {}
   mode: single
 - id: '1780877997664'
@@ -366,7 +367,8 @@
   - action: cover.toggle
     metadata: {}
     target:
-      entity_id: cover.living_room_blinds
+      entity_id:
+      - cover.living_room_living_room_blinds
     data: {}
   mode: single
 - id: '1781747009381'
@@ -683,7 +685,6 @@
       sequence:
       - stop: Dimmer released
   mode: restart
-
 - id: control_kids_bedroom_lights
   alias: Control Kids Bedroom Lights
   description: Control kids bedroom lights with IKEA RODRET wireless dimmer
@@ -694,44 +695,37 @@
     subtype: turn_on
     trigger: device
     id: turn_on
-
   - device_id: 38b7922570ae32776ecd0b575b331bb5
     domain: zha
     type: remote_button_short_press
     subtype: turn_off
     trigger: device
     id: turn_off
-
   - device_id: 38b7922570ae32776ecd0b575b331bb5
     domain: zha
     type: remote_button_long_press
     subtype: dim_up
     trigger: device
     id: dim_up
-
   - device_id: 38b7922570ae32776ecd0b575b331bb5
     domain: zha
     type: remote_button_long_press
     subtype: dim_down
     trigger: device
     id: dim_down
-
   - device_id: 38b7922570ae32776ecd0b575b331bb5
     domain: zha
     type: remote_button_long_release
     subtype: dim_up
     trigger: device
     id: dim_stop
-
   - device_id: 38b7922570ae32776ecd0b575b331bb5
     domain: zha
     type: remote_button_long_release
     subtype: dim_down
     trigger: device
     id: dim_stop
-
   conditions: []
-
   actions:
   - choose:
     - conditions:
@@ -741,7 +735,6 @@
       - action: light.turn_on
         target:
           entity_id: light.kids_room_kids_bedroom_light
-
     - conditions:
       - condition: trigger
         id: turn_off
@@ -749,7 +742,6 @@
       - action: light.turn_off
         target:
           entity_id: light.kids_room_kids_bedroom_light
-
     - conditions:
       - condition: trigger
         id: dim_up
@@ -757,7 +749,7 @@
       - repeat:
           while:
           - condition: template
-            value_template: "{{ true }}"
+            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
@@ -765,22 +757,19 @@
             data:
               brightness_step_pct: 5
               transition: 0.15
-
           - delay:
               milliseconds: 150
-
     - conditions:
       - condition: trigger
         id: dim_down
       sequence:
       - condition: state
         entity_id: light.kids_room_kids_bedroom_light
-        state: "on"
-
+        state: 'on'
       - repeat:
           while:
           - condition: template
-            value_template: "{{ true }}"
+            value_template: '{{ true }}'
           sequence:
           - action: light.turn_on
             target:
@@ -788,14 +777,11 @@
             data:
               brightness_step_pct: -5
               transition: 0.15
-
           - delay:
               milliseconds: 150
-
     - conditions:
       - condition: trigger
         id: dim_stop
       sequence:
       - stop: Dimmer released
-
   mode: restart
