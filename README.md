@@ -9,7 +9,7 @@ The basic approach is:
 - Physical controls for most things
 - Automations where they remove effort or make devices behave more intelligently
 - The Home Assistant app for quick changes, detailed controls and anything less routine
-- AI first development, either into HA directly, or Git and Visual Studio Code for configuration that benefits from being readable and version controlled
+- AI-first development, either directly in Home Assistant or through Git and Visual Studio Code when the configuration benefits from being readable and version controlled
 
 This is a real, working configuration. It is not intended to be a polished set of universal templates or something another person can install unchanged.
 
@@ -77,7 +77,7 @@ Depending on the room, they support:
 
 The continuous dimming automations use restart mode so the release event can interrupt the active loop.
 
-This works great for the Ikea Zigbee and Matter bulbs, less so for the Tapo bulbs.
+This works great for the IKEA Zigbee and Matter bulbs, less so for the Tapo bulbs.
 
 ### Tapo presets
 
@@ -109,7 +109,7 @@ When a cycle finishes:
 
 - Mobile notifications are sent.
 - The laundry LED strip turns red and flashes.
-- Everyone loses the ability to claim they did not know the washing was finished. And it sends annoying messages to my wife!
+- Everyone loses the ability to claim they did not know the washing was finished. It also sends annoying messages to my wife!
 
 ## Internet recovery
 
@@ -152,7 +152,7 @@ It provides access to:
 - Washing-machine status
 - Laundry lighting
 
-Common actions are available directly from the dashboard. Tapping the main part of a card opens the normal Home Assistant controls when more detail is needed. It could be prettier but it is extremly functional.
+Common actions are available directly from the dashboard. Tapping the main part of a card opens the normal Home Assistant controls when more detail is needed. It could be prettier but it is extremely functional.
 
 ## Repository structure
 
