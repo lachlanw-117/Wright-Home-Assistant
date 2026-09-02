@@ -154,9 +154,9 @@ It provides access to:
 
 Common actions are available directly from the dashboard. Tapping the main part of a card opens the normal Home Assistant controls when more detail is needed. It could be prettier but it is extremely functional.
 
-![Wright Home Assistant dashboard - Everything off](images/dashboard_all_off.jpg)
+![Wright Home Assistant dashboard - Everything off](Images/dashboard_all_off.jpg)
 
-![Wright Home Assistant dashboard - Somethings on](images/dashboard_some_on.jpg)
+![Wright Home Assistant dashboard - Somethings on](Images/dashboard_some_on.jpg)
 
 
 ## Repository structure
