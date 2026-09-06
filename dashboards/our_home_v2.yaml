@@ -379,3 +379,45 @@ views:
             grid_options:
               columns: 6
               rows: 1
+
+          # -------------------------------------------------
+          # Whole-house actions
+          # Card body = perform action
+          # Icon = native master light controls
+          # -------------------------------------------------
+
+          - type: tile
+            entity: light.light_master_switch
+            name: All Lights Off
+            icon: mdi:lightbulb-group-off-outline
+            color: red
+            hide_state: true
+            tap_action:
+              action: perform-action
+              perform_action: script.all_lights_off
+            icon_tap_action:
+              action: more-info
+              entity: light.light_master_switch
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 1
+
+          - type: tile
+            entity: binary_sensor.party_mode_active
+            name: Party Mode
+            icon: mdi:party-popper
+            color: purple
+            hide_state: true
+            tap_action:
+              action: perform-action
+              perform_action: script.party_mode_toggle
+            icon_tap_action:
+              action: more-info
+              entity: light.light_master_switch
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 1
