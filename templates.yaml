@@ -1,0 +1,32 @@
+# Derived Dyson modes for dashboard state feedback.
+# These report the device's actual state, including changes made outside Home Assistant.
+- binary_sensor:
+    - name: Dyson Off Active
+      unique_id: dyson_off_active
+      state: >
+        {{ is_state('fan.purifier_hot_cool_de_nox', 'off') }}
+
+    - name: Dyson Heat 25 Active
+      unique_id: dyson_heat_25_active
+      state: >
+        {{ is_state('fan.purifier_hot_cool_de_nox', 'on')
+           and is_state('climate.purifier_hot_cool_de_nox', 'heat')
+           and state_attr('climate.purifier_hot_cool_de_nox', 'temperature') | float(0) == 25
+           and state_attr('fan.purifier_hot_cool_de_nox', 'direction') == 'forward'
+           and state_attr('fan.purifier_hot_cool_de_nox', 'preset_mode') == 'auto' }}
+
+    - name: Dyson Breeze Active
+      unique_id: dyson_breeze_active
+      state: >
+        {{ is_state('fan.purifier_hot_cool_de_nox', 'on')
+           and is_state('climate.purifier_hot_cool_de_nox', 'off')
+           and state_attr('fan.purifier_hot_cool_de_nox', 'direction') == 'forward'
+           and state_attr('fan.purifier_hot_cool_de_nox', 'preset_mode') == 'high' }}
+
+    - name: Dyson Night Active
+      unique_id: dyson_night_active
+      state: >
+        {{ is_state('fan.purifier_hot_cool_de_nox', 'on')
+           and is_state('climate.purifier_hot_cool_de_nox', 'off')
+           and state_attr('fan.purifier_hot_cool_de_nox', 'direction') == 'reverse'
+           and state_attr('fan.purifier_hot_cool_de_nox', 'preset_mode') == 'high' }}
