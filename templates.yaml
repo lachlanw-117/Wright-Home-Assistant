@@ -30,3 +30,14 @@
            and is_state('climate.purifier_hot_cool_de_nox', 'off')
            and state_attr('fan.purifier_hot_cool_de_nox', 'direction') == 'reverse'
            and state_attr('fan.purifier_hot_cool_de_nox', 'preset_mode') == 'high' }}
+
+    - name: Party Mode Active
+      unique_id: party_mode_active
+      state: >
+        {{ is_state('script.party_bathroom', 'on')
+           or is_state('script.party_ensuite', 'on')
+           or is_state('script.party_kitchen', 'on')
+           or is_state('script.party_laundry', 'on')
+           or is_state('script.party_kids_room', 'on')
+           or is_state('script.party_living_room', 'on')
+           or is_state('script.party_bedroom', 'on') }}
