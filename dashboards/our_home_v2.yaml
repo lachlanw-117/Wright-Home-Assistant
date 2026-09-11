@@ -421,3 +421,18 @@ views:
             grid_options:
               columns: 6
               rows: 1
+
+          # Dad's desk plug
+          - type: tile
+            entity: switch.bedroom_dads_desk_plug
+            name: Dad's Desk
+            icon: mdi:desk
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 1
