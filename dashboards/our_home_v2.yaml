@@ -271,51 +271,77 @@ views:
 
           # -------------------------------------------------
           # Dyson
-          # Deliberately stateless one-tap shortcuts
+          # Card body = apply mode
+          # Icon = native Dyson controls
+          # Colour = actual reported mode
           # -------------------------------------------------
 
-          - type: shortcut
-            label: "Off"
+          - type: tile
+            entity: binary_sensor.dyson_off_active
+            name: "Off"
             icon: mdi:power
+            color: blue-grey
+            hide_state: true
             tap_action:
               action: perform-action
               perform_action: script.dyson_off
+            icon_tap_action:
+              action: more-info
+              entity: fan.purifier_hot_cool_de_nox
             hold_action:
               action: none
             grid_options:
               columns: 6
               rows: 1
 
-          - type: shortcut
-            label: Heat 25°
+          - type: tile
+            entity: binary_sensor.dyson_heat_25_active
+            name: Heat 25°
             icon: mdi:fire
+            color: orange
+            hide_state: true
             tap_action:
               action: perform-action
               perform_action: script.dyson_heat_25
+            icon_tap_action:
+              action: more-info
+              entity: climate.purifier_hot_cool_de_nox
             hold_action:
               action: none
             grid_options:
               columns: 6
               rows: 1
 
-          - type: shortcut
-            label: Breeze
+          - type: tile
+            entity: binary_sensor.dyson_breeze_active
+            name: Breeze
             icon: mdi:fan
+            color: light-blue
+            hide_state: true
             tap_action:
               action: perform-action
               perform_action: script.dyson_fan_high
+            icon_tap_action:
+              action: more-info
+              entity: fan.purifier_hot_cool_de_nox
             hold_action:
               action: none
             grid_options:
               columns: 6
               rows: 1
 
-          - type: shortcut
-            label: Night
+          - type: tile
+            entity: binary_sensor.dyson_night_active
+            name: Night
             icon: mdi:weather-night
+            color: indigo
+            hide_state: true
             tap_action:
               action: perform-action
               perform_action: script.dyson_quiet_fan
+            icon_tap_action:
+              action: more-info
+              entity: fan.purifier_hot_cool_de_nox
             hold_action:
               action: none
             grid_options:
@@ -344,6 +370,63 @@ views:
             entity: light.laundry_led_strip
             name: Laundry
             icon: mdi:led-strip-variant
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 1
+
+          # -------------------------------------------------
+          # Whole-house actions
+          # Card body = perform action
+          # Icon = native master light controls
+          # -------------------------------------------------
+
+          - type: tile
+            entity: light.light_master_switch
+            name: All Lights Off
+            icon: mdi:lightbulb-group-off-outline
+            color: red
+            hide_state: true
+            tap_action:
+              action: perform-action
+              perform_action: script.all_lights_off
+            icon_tap_action:
+              action: more-info
+              entity: light.light_master_switch
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 1
+
+          - type: tile
+            entity: binary_sensor.party_mode_active
+            name: Party Mode
+            icon: mdi:party-popper
+            color: purple
+            hide_state: true
+            tap_action:
+              action: perform-action
+              perform_action: script.party_mode_toggle
+            icon_tap_action:
+              action: more-info
+              entity: light.light_master_switch
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 1
+
+          # Dad's desk plug
+          - type: tile
+            entity: switch.bedroom_dads_desk_plug
+            name: Dad's Desk
+            icon: mdi:desk
             tap_action:
               action: more-info
             icon_tap_action:

@@ -298,3 +298,224 @@ kitchen_night:
           entity_id: db6a26abd09d99882acbedeeea08611c
           type: select_option
           option: Light preset 2
+
+# Whole-house and room-level party mode controllers.
+# Room scripts stay separate so individual room controls can be exposed later.
+all_lights_off:
+  alias: All Lights Off
+  description: Stop party mode before switching off the master light group
+  mode: restart
+  sequence:
+    - action: script.turn_off
+      target:
+        entity_id:
+          - script.party_bathroom
+          - script.party_ensuite
+          - script.party_kitchen
+          - script.party_laundry
+          - script.party_kids_room
+          - script.party_living_room
+          - script.party_bedroom
+
+    - action: light.turn_off
+      target:
+        entity_id: light.light_master_switch
+
+
+party_mode_toggle:
+  alias: Toggle Whole-House Party Mode
+  description: Start all room party effects, or stop them and turn all lights off
+  mode: restart
+  sequence:
+    - if:
+        - condition: template
+          value_template: >
+            {{ is_state('script.party_bathroom', 'on')
+               or is_state('script.party_ensuite', 'on')
+               or is_state('script.party_kitchen', 'on')
+               or is_state('script.party_laundry', 'on')
+               or is_state('script.party_kids_room', 'on')
+               or is_state('script.party_living_room', 'on')
+               or is_state('script.party_bedroom', 'on') }}
+      then:
+        - action: script.all_lights_off
+      else:
+        - action: script.turn_on
+          target:
+            entity_id:
+              - script.party_bathroom
+              - script.party_ensuite
+              - script.party_kitchen
+              - script.party_laundry
+              - script.party_kids_room
+              - script.party_living_room
+              - script.party_bedroom
+
+
+party_bathroom:
+  alias: Party - Bathroom
+  description: Use the Tapo lights' native Party effect
+  mode: restart
+  sequence:
+    - action: light.turn_on
+      target:
+        entity_id: light.bathroom_lights
+      data:
+        effect: Party
+        brightness_pct: 100
+
+    - repeat:
+        while:
+          - condition: template
+            value_template: "{{ true }}"
+        sequence:
+          - delay:
+              hours: 1
+
+
+party_ensuite:
+  alias: Party - Ensuite
+  description: Use the Tapo lights' native Party effect
+  mode: restart
+  sequence:
+    - action: light.turn_on
+      target:
+        entity_id: light.ensuite_lights
+      data:
+        effect: Party
+        brightness_pct: 100
+
+    - repeat:
+        while:
+          - condition: template
+            value_template: "{{ true }}"
+        sequence:
+          - delay:
+              hours: 1
+
+
+party_kitchen:
+  alias: Party - Kitchen
+  description: Use the Tapo lights' native Party effect
+  mode: restart
+  sequence:
+    - action: light.turn_on
+      target:
+        entity_id: light.kitchen_lights
+      data:
+        effect: Party
+        brightness_pct: 100
+
+    - repeat:
+        while:
+          - condition: template
+            value_template: "{{ true }}"
+        sequence:
+          - delay:
+              hours: 1
+
+
+party_laundry:
+  alias: Party - Laundry
+  description: Use the Hue strip's native color loop
+  mode: restart
+  sequence:
+    - action: light.turn_on
+      target:
+        entity_id: light.laundry_led_strip
+      data:
+        effect: colorloop
+        brightness_pct: 100
+
+    - repeat:
+        while:
+          - condition: template
+            value_template: "{{ true }}"
+        sequence:
+          - delay:
+              hours: 1
+
+
+party_kids_room:
+  alias: Party - Kids Room
+  description: Cycle the two full-colour Matter bulbs through offset colours
+  mode: restart
+  sequence:
+    - variables:
+        party_colours:
+          - [0, 100]
+          - [45, 100]
+          - [120, 100]
+          - [180, 100]
+          - [240, 100]
+          - [300, 100]
+
+    - repeat:
+        while:
+          - condition: template
+            value_template: "{{ true }}"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.kids_room_kids_bedroom_light_1
+            data:
+              hs_color: >
+                {{ party_colours[(repeat.index - 1) % (party_colours | count)] }}
+              brightness_pct: 100
+              transition: 0.7
+
+          - action: light.turn_on
+            target:
+              entity_id: light.kids_room_kids_bedroom_light_2
+            data:
+              hs_color: >
+                {{ party_colours[(repeat.index + 2) % (party_colours | count)] }}
+              brightness_pct: 100
+              transition: 0.7
+
+          - delay:
+              milliseconds: 850
+
+
+party_living_room:
+  alias: Party - Living Room
+  description: Pulse white-only lights through brightness and colour temperature
+  mode: restart
+  sequence:
+    - repeat:
+        while:
+          - condition: template
+            value_template: "{{ true }}"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.living_room_living_room_lights
+            data:
+              brightness_pct: "{{ 100 if repeat.index % 2 else 25 }}"
+              color_temp_kelvin: "{{ 4000 if repeat.index % 2 else 2700 }}"
+              transition: 0.8
+
+          - delay:
+              seconds: 1
+
+
+party_bedroom:
+  alias: Party - Bedroom
+  description: Pulse white-only lights through brightness and colour temperature
+  mode: restart
+  sequence:
+    - repeat:
+        while:
+          - condition: template
+            value_template: "{{ true }}"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.bedroom_lights
+            data:
+              brightness_pct: "{{ 25 if repeat.index % 2 else 100 }}"
+              color_temp_kelvin: "{{ 2700 if repeat.index % 2 else 4000 }}"
+              transition: 0.8
+
+          - delay:
+              seconds: 1
