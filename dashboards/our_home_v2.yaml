@@ -388,16 +388,12 @@ views:
 
           - type: tile
             entity: light.light_master_switch
-            name: All Lights Off
-            icon: mdi:lightbulb-group-off-outline
-            color: red
-            hide_state: true
+            name: All Lights
+            icon: mdi:lightbulb-group
             tap_action:
-              action: perform-action
-              perform_action: script.all_lights_off
-            icon_tap_action:
               action: more-info
-              entity: light.light_master_switch
+            icon_tap_action:
+              action: toggle
             hold_action:
               action: none
             grid_options:

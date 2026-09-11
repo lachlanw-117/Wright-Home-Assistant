@@ -45,6 +45,23 @@ dyson_control:
             - delay:
                 seconds: 2
 
+            # Fan-only modes must explicitly disable heating.
+            # Otherwise the climate entity can remain in heat mode and dashboard feedback will not match.
+            - if:
+                - condition: template
+                  value_template: "{{ command in ['quiet_fan', 'fan_high'] }}"
+              then:
+                - action: climate.set_hvac_mode
+                  target:
+                    entity_id: climate.purifier_hot_cool_de_nox
+                  data:
+                    hvac_mode: "off"
+
+                - wait_template: >
+                    {{ is_state('climate.purifier_hot_cool_de_nox', 'off') }}
+                  timeout: "00:00:05"
+                  continue_on_timeout: true
+
         # Now apply requested mode
         - choose:
             - conditions:
