@@ -432,3 +432,92 @@ views:
             grid_options:
               columns: 6
               rows: 1
+
+          # -------------------------------------------------
+          # Arlec / Tuya Black Fan
+          # Speed feedback = template binary sensors created in HA
+          # Tap = existing Tuya scene; see docs/arlec_black_fan_dashboard_notes.md
+          # -------------------------------------------------
+
+          - type: glance
+            title: Black Fan
+            show_state: false
+            show_icon: true
+            columns: 8
+            color: state
+            entities:
+              - entity: binary_sensor.black_fan_speed_1_active
+                name: '1'
+                icon: mdi:numeric-1-circle
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_1
+
+              - entity: binary_sensor.black_fan_speed_2_active
+                name: '2'
+                icon: mdi:numeric-2-circle
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_2
+
+              - entity: binary_sensor.black_fan_speed_3_active
+                name: '3'
+                icon: mdi:numeric-3-circle
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_3
+
+              - entity: binary_sensor.black_fan_speed_4_active
+                name: '4'
+                icon: mdi:numeric-4-circle
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_4
+
+              - entity: binary_sensor.black_fan_speed_5_active
+                name: '5'
+                icon: mdi:numeric-5-circle
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_5
+
+              - entity: binary_sensor.black_fan_speed_6_active
+                name: '6'
+                icon: mdi:numeric-6-circle
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_6
+
+              - entity: scene.fan_swing_on
+                name: '↔'
+                icon: mdi:arrow-oscillating
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_swing_on
+
+              - entity: fan.living_room_black_fan
+                name: 'Off'
+                icon: mdi:fan-off
+                color: none
+                tap_action:
+                  action: perform-action
+                  perform_action: fan.turn_off
+                  target:
+                    entity_id: fan.living_room_black_fan
+            grid_options:
+              columns: 12
+              rows: auto
