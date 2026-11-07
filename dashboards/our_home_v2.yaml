@@ -432,3 +432,109 @@ views:
             grid_options:
               columns: 6
               rows: 1
+
+          # -------------------------------------------------
+          # Arlec / Tuya Black Fan
+          # Speed feedback = binary sensors defined in templates.yaml
+          # Swing feedback = last requested scene, not physical oscillation state
+          # -------------------------------------------------
+
+          - type: horizontal-stack
+            cards:
+              - type: button
+                entity: binary_sensor.black_fan_speed_1_active
+                name: Speed 1
+                icon: mdi:numeric-1-circle
+                show_name: false
+                show_state: false
+                icon_height: 24px
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_1
+              - type: button
+                entity: binary_sensor.black_fan_speed_2_active
+                name: Speed 2
+                icon: mdi:numeric-2-circle
+                show_name: false
+                show_state: false
+                icon_height: 24px
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_2
+              - type: button
+                entity: binary_sensor.black_fan_speed_3_active
+                name: Speed 3
+                icon: mdi:numeric-3-circle
+                show_name: false
+                show_state: false
+                icon_height: 24px
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_3
+              - type: button
+                entity: binary_sensor.black_fan_speed_4_active
+                name: Speed 4
+                icon: mdi:numeric-4-circle
+                show_name: false
+                show_state: false
+                icon_height: 24px
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_4
+              - type: button
+                entity: binary_sensor.black_fan_speed_5_active
+                name: Speed 5
+                icon: mdi:numeric-5-circle
+                show_name: false
+                show_state: false
+                icon_height: 24px
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_5
+              - type: button
+                entity: binary_sensor.black_fan_speed_6_active
+                name: Speed 6
+                icon: mdi:numeric-6-circle
+                show_name: false
+                show_state: false
+                icon_height: 24px
+                tap_action:
+                  action: perform-action
+                  perform_action: scene.turn_on
+                  target:
+                    entity_id: scene.fan_speed_6
+              - type: button
+                entity: switch.black_fan_swing
+                name: Swing
+                icon: mdi:arrow-oscillating
+                show_name: false
+                show_state: false
+                icon_height: 24px
+                tap_action:
+                  action: toggle
+              - type: button
+                entity: fan.living_room_black_fan
+                name: Off
+                icon: mdi:fan-off
+                color: none
+                show_name: false
+                show_state: false
+                icon_height: 24px
+                tap_action:
+                  action: perform-action
+                  perform_action: fan.turn_off
+                  target:
+                    entity_id: fan.living_room_black_fan
+            grid_options:
+              columns: 12
+              rows: 1

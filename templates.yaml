@@ -41,3 +41,80 @@
            or is_state('script.party_kids_room', 'on')
            or is_state('script.party_living_room', 'on')
            or is_state('script.party_bedroom', 'on') }}
+
+# Black fan speed feedback; percentages verified live on 2026-11-07.
+- binary_sensor:
+    - name: Black Fan Speed 1 Active
+      unique_id: black_fan_speed_1_active
+      availability: >
+        {{ states('fan.living_room_black_fan') in ['on', 'off']
+           and state_attr('fan.living_room_black_fan', 'percentage') is number }}
+      state: >
+        {{ is_state('fan.living_room_black_fan', 'on')
+           and (state_attr('fan.living_room_black_fan', 'percentage') | int(0)) == 3 }}
+
+    - name: Black Fan Speed 2 Active
+      unique_id: black_fan_speed_2_active
+      availability: >
+        {{ states('fan.living_room_black_fan') in ['on', 'off']
+           and state_attr('fan.living_room_black_fan', 'percentage') is number }}
+      state: >
+        {{ is_state('fan.living_room_black_fan', 'on')
+           and (state_attr('fan.living_room_black_fan', 'percentage') | int(0)) == 7 }}
+
+    - name: Black Fan Speed 3 Active
+      unique_id: black_fan_speed_3_active
+      availability: >
+        {{ states('fan.living_room_black_fan') in ['on', 'off']
+           and state_attr('fan.living_room_black_fan', 'percentage') is number }}
+      state: >
+        {{ is_state('fan.living_room_black_fan', 'on')
+           and (state_attr('fan.living_room_black_fan', 'percentage') | int(0)) == 11 }}
+
+    - name: Black Fan Speed 4 Active
+      unique_id: black_fan_speed_4_active
+      availability: >
+        {{ states('fan.living_room_black_fan') in ['on', 'off']
+           and state_attr('fan.living_room_black_fan', 'percentage') is number }}
+      state: >
+        {{ is_state('fan.living_room_black_fan', 'on')
+           and (state_attr('fan.living_room_black_fan', 'percentage') | int(0)) == 15 }}
+
+    - name: Black Fan Speed 5 Active
+      unique_id: black_fan_speed_5_active
+      availability: >
+        {{ states('fan.living_room_black_fan') in ['on', 'off']
+           and state_attr('fan.living_room_black_fan', 'percentage') is number }}
+      state: >
+        {{ is_state('fan.living_room_black_fan', 'on')
+           and (state_attr('fan.living_room_black_fan', 'percentage') | int(0)) == 19 }}
+
+    - name: Black Fan Speed 6 Active
+      unique_id: black_fan_speed_6_active
+      availability: >
+        {{ states('fan.living_room_black_fan') in ['on', 'off']
+           and state_attr('fan.living_room_black_fan', 'percentage') is number }}
+      state: >
+        {{ is_state('fan.living_room_black_fan', 'on')
+           and (state_attr('fan.living_room_black_fan', 'percentage') | int(0)) == 23 }}
+
+# Tuya exposes no oscillation state. This tracks the last requested scene only.
+- switch:
+    - name: Black Fan Swing
+      unique_id: black_fan_swing
+      availability: >
+        {{ states('fan.living_room_black_fan') in ['on', 'off']
+           and as_timestamp(states('scene.fan_swing_on'), 0) > 0
+           and as_timestamp(states('scene.fan_swing_off'), 0) > 0 }}
+      state: >
+        {{ is_state('fan.living_room_black_fan', 'on')
+           and as_timestamp(states('scene.fan_swing_on'), 0)
+             > as_timestamp(states('scene.fan_swing_off'), 0) }}
+      turn_on:
+        - action: scene.turn_on
+          target:
+            entity_id: scene.fan_swing_on
+      turn_off:
+        - action: scene.turn_on
+          target:
+            entity_id: scene.fan_swing_off
