@@ -29,6 +29,8 @@ __pycache__/
 # OS/editor junk
 .DS_Store
 Thumbs.db
+.vscode/
+.codex/
 
 # HACS-managed content
 custom_components/hacs/
