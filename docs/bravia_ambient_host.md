@@ -34,6 +34,12 @@ Recorded checks at approximately 22:08–22:10 Australia/Sydney:
   **Weather: Feed received**, **15°C partlycloudy**, **High 15° Low 14°**.
   The rounded readings agree with the host. **No album cached** is expected here.
 
+At approximately 22:18 Australia/Sydney, the user-approved weather-label APK
+from companion commit `8e4e856` was installed over the existing TV app with ADB
+`install -r` (Success). Preview showed **Weather: Feed received**,
+**15°C Partly cloudy**, **High 15° Low 14°**. The saved connection survived the
+update. This TV-only change required no host update or HA core restart.
+
 A random 32-byte key was configured directly and transferred to the TV without
 printing it or committing it. No HA core restart, merge, photo import or cache
 implementation change was performed. Failure/recovery, system-picker availability
