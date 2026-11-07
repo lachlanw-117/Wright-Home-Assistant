@@ -50,6 +50,34 @@ The current app retains a photo cache on the TV. Persistent offline photo storag
 is no longer a user requirement; removing it is a future app change. The installed
 APK still uses the existing cache implementation.
 
+## First album deployment — 7 November 2026
+
+With explicit approval, host and TV were updated from source commit
+`3fbb12727382c538e43fdef125de39687d20bc07` to accept up to 250 photos.
+The 8 MiB per-photo and 256 MiB album limits and cache implementation are unchanged.
+All 11 synthetic host tests passed, including 147/250 acceptance and 251 rejection
+without replacing the last-good manifest. Android build, APK verification and the
+15 existing JVM assertions passed before deployment.
+
+The user's local export contained 147 still photos (65 JPEG and 82 HEIC) and
+29 MP4 files. HEICs were converted locally to oriented JPEG copies; existing JPEGs
+were copied byte-for-byte. MP4s were excluded; their possible Live Photo pairing
+was not independently confirmed. The source ZIP remains untouched outside Git.
+All 147 output photos decoded locally and are distinct: 219,526,548 bytes total
+(209.36 MiB), largest 5,986,670 bytes (5.71 MiB). No resizing was necessary.
+
+All 147 transferred files matched local SHA-256 checksums before publication to
+`/share/bravia-ambient`. The previous host package is preserved locally on the Pi
+at `/backup/bravia-package-b05ca1f`; a local app backup was created before rebuild.
+Only the Bravia app was stopped/rebuilt/started; HA core was not restarted.
+The matching TV APK installed with ADB `install -r` (Success).
+Authenticated host manifest and source folder both contain 147 photos, and the
+weather feed remained fresh. The first TV download took several minutes with the
+infrastructure waiting screen visible. The user then confirmed that photos were
+appearing. This confirms visible photo playback, not a complete review of all
+147 photos, orientation, crossfades or offline/failure recovery. Screenshot capture
+returned empty data during this phase, so playback confirmation is user-reported.
+
 ## Dependencies
 
 | Item | Required value or behaviour |
