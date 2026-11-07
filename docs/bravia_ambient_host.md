@@ -1,0 +1,97 @@
+# Bravia ambient display host
+
+The [Bravia Ambient Display](https://github.com/lachlanw-117/Bravia-Ambient-Display)
+is a separate companion project. It owns the Android TV app, photo/weather host,
+add-on packaging and tests. This repository records the household dependencies
+and deployment procedure rather than keeping another copy of that code.
+
+The TV owns screensaver entry and dismissal. No HA automation or timer is needed
+to launch it, and no TV-control service is required for the host.
+
+## Trial status
+
+On 7 November 2026, the debug APK was installed on the Sony TV through ADB.
+The user confirmed that the app was visible and the screensaver was working as
+expected. This is a user-reported result, not a recorded pass for every streaming,
+paused-video, HDMI, remote-button or power scenario.
+
+The Pi host has not been installed or started in this trial. Host connectivity,
+authentication, live HA weather and failure recovery remain unverified. No family
+photos are needed for those checks. Record the TV OS version, picker availability
+and individual acceptance results in the companion project's
+[trial guide](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/TRIAL.md).
+
+The current app retains a photo cache on the TV. Persistent offline photo storage
+is no longer a user requirement; removing it is a future app change. The installed
+APK still uses the existing cache implementation.
+
+## Dependencies
+
+| Item | Required value or behaviour |
+|---|---|
+| Host machine | Home Assistant OS on the household Raspberry Pi 5 |
+| App source | Companion repository; generate the local app package there |
+| Architecture | Package supports aarch64 and amd64; verify the host architecture before installation |
+| Weather entity | `weather.forecast_home`; verify it still exists before deployment |
+| Forecast | Daily forecast through `weather.get_forecasts`; current state alone does not prove today's high/low is available |
+| Timezone | `Australia/Sydney` |
+| LAN port | TCP 8099, reachable from the TV; check for conflicts before installation |
+| Source folder | `/share/bravia-ambient`, mounted read-only; leave empty for the infrastructure trial |
+| Host cache | App-private `/data/cache`; separate from source files and Git |
+| Access key | Random value of at least 24 characters, entered locally in app options and TV setup |
+| HA authentication | Supervisor-provided token, used only by the installed host; never entered on the TV |
+
+Keep photos, keys, app options, runtime data and signing material out of both
+repositories. Do not expose port 8099 to the internet. LAN HTTP sends the host key
+and feed without encryption; use an existing suitable HTTPS proxy if available.
+
+## Install and check
+
+Installation and starting the host were approved in the trial session on
+7 November 2026, along with keeping GitHub updated. The deployment is still
+pending. Future deployments, reloads and device actions require approval within
+their named scope; approval is not a completed deployment result.
+
+1. Review the selected companion source revision and record its commit ID and any
+   local changes. From that checkout, run `npm.cmd test` on Windows (`npm test` on
+   other platforms), then `node tools/package-addon.mjs`.
+2. Check the live host for existing installation files, port conflicts and the
+   weather entity. Preserve any existing installation before replacing files.
+3. Copy only the generated `build/bravia_ambient` directory into HA OS's
+   `/addons/` directory. Reload the local app inventory and install
+   **Bravia Ambient Photo Host**. This generated package stays outside this repo.
+4. Set `access_key` locally, `weather_entity: weather.forecast_home` and
+   `time_zone: Australia/Sydney` in app options. Start the host. Do not paste the
+   key or full options into chat, logs or version control.
+5. From a LAN browser, open `http://PI_ADDRESS:8099/health`. Expect
+   `{"ok":true}`. This proves reachability, not authentication or HA weather.
+   An absent photo folder may produce a photo-sync warning during this trial.
+6. Enter the host URL and key in Wright Ambient on the TV. Save and reopen
+   **Preview photos**. Expect **Weather: Feed received**. An empty photo feed may
+   still show **No album cached**; that is not an authentication result.
+7. Check real temperature, condition and today's high/low. Missing readings after
+   a received feed require checking the host-to-HA path. Avoid sharing raw logs
+   until reviewed for sensitive values.
+8. With separate approval for stop/start actions, check failure and recovery.
+   Clock/date should continue locally; aged cached weather must be marked stale.
+   Refresh runs on entry and every five minutes while the screen is running.
+
+Record each result before adding a small exported album. The photo-free trial
+does not validate photo decoding, crossfades or offline photo playback.
+
+## Update and roll back
+
+Review and test a specific companion revision before each update. Record the
+currently installed revision, preserve the previous generated package and use a
+local backup for app options/data. Backups may contain the access key and must
+stay outside Git. Recheck live drift before replacing anything.
+
+With approval, stop the host, replace only its reviewed package files, rebuild
+through HA's local app workflow as required, and start it. Repeat reachability,
+authenticated TV feed and weather checks. Configuration and data compatibility
+must be reviewed before restoring a previous package or app backup.
+
+To abandon the host trial, stop the app with approval. On the TV, restore the
+original system screensaver if desired. Uninstalling or clearing app data is a
+separate decision and can remove saved settings/cache. Source photos remain
+untouched. No HA core configuration change or core restart is part of this plan.

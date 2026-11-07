@@ -28,6 +28,16 @@ No input_boolean, input_number, input_text, input_select, input_button, counter
 or timer helpers were returned. Other helper types and integration settings still
 need a wider inventory.
 
+## Bravia ambient display
+
+The companion photo/weather host is planned as a local HA app, not an automation
+or core YAML integration. It expects `weather.forecast_home`, daily forecasts and
+`Australia/Sydney`. Its source and generated package belong in the separate
+[Bravia Ambient Display repository](https://github.com/lachlanw-117/Bravia-Ambient-Display).
+The [host notes](bravia_ambient_host.md) record installation, private options,
+folder/port requirements and trial status. The host has not been deployed in this
+trial; repository defaults do not establish live availability.
+
 ## Remaining comparisons
 
 The UI-managed Our Home and Fridge dashboards and full live script definitions
