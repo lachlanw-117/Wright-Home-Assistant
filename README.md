@@ -113,12 +113,13 @@ The feedback sensors and swing switch live in `templates.yaml`. No custom
 dashboard dependencies are needed. See the
 [black-fan notes](docs/arlec_black_fan_dashboard_notes.md) for the verified speed
 mapping, validation and rollback details, and the
-[local development workflow](docs/local_development_workflow.md) for how Git,
-Codex, MCP and SSH are used.
+[development workflow](docs/local_development_workflow.md) for review,
+deployment and rollback.
 
 ## Washing-machine notifications
 
-Washing completion can be detected through either the washer status sensor or its completion event.
+Washing completion notifications use the washer's completion event. The alternative
+status-sensor trigger remains in the automation but is disabled.
 
 When a cycle finishes:
 
@@ -175,6 +176,9 @@ Common actions are available directly from the dashboard. Tapping the main part 
 
 
 ## Repository structure
+
+See [TODO](TODO.md) for planned reliability improvements and remaining configuration
+coverage work.
 
 | Path | Contents |
 |---|---|

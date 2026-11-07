@@ -1,8 +1,7 @@
 # Arlec / Tuya Black Fan dashboard
 
 The Our Home V2 dashboard adds six speed buttons, a swing toggle and off after Dad's
-Desk. The scene actions and speed mapping came from cached
-`origin/feature/black-fan-dashboard`; the final layout uses native button cards.
+Desk. It reuses the existing Tuya scene actions; the layout uses native button cards.
 The six feedback binary sensors are defined in `templates.yaml`; do not create
 duplicate UI helpers.
 
@@ -89,15 +88,8 @@ at one grid row or produced a card taller than wanted at automatic height.
 The final native horizontal stack uses eight icon-only buttons, 24px icons and
 `grid_options: {columns: 12, rows: 1}`. No custom frontend dependencies were added.
 
-Backups are local to the setup computer under
-`%LOCALAPPDATA%\CodexHomeAssistant\backups\`, not in Git or on HA:
-
-| Backup directory (UTC) | Contents before the next deployment |
-|---|---|
-| `20261107T061334Z` | Original templates and dashboard, before any black-fan additions |
-| `20261107T062338Z` | Speed sensors and first Glance card, before the swing-switch revision |
-| `20261107T063051Z` | Dashboard before automatic Glance height |
-| `20261107T063551Z` | Dashboard before the final native-button row |
+Timestamped backups of the affected live files were kept outside Git before
+each deployment, including the original files and intermediate layouts.
 
 For layout-only rollback, restore the appropriate dashboard copy and refresh it.
 For full feature rollback, restore both original files and reload templates after
