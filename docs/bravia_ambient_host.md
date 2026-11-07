@@ -15,11 +15,30 @@ The user confirmed that the app was visible and the screensaver was working as
 expected. This is a user-reported result, not a recorded pass for every streaming,
 paused-video, HDMI, remote-button or power scenario.
 
-The Pi host has not been installed or started in this trial. Host connectivity,
-authentication, live HA weather and failure recovery remain unverified. No family
-photos are needed for those checks. Record the TV OS version, picker availability
-and individual acceptance results in the companion project's
-[trial guide](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/TRIAL.md).
+The Pi host was installed and started on 7 November 2026 from companion commit
+`b05ca1f6bbf3f8151c950150ac5cdd7bb5dbd826`, version 0.1.0, as
+`local_bravia_ambient`. The three generated package files were SHA-256 verified
+after transfer. Live inspection found no previous Bravia package or photo folder;
+no existing installation files were replaced. The Pi runs HA OS 18.4 on aarch64,
+with Core 2026.11.0. Its existing Terminal & SSH app supplied the deployment route;
+the connected HA tool's Supervisor requests returned 401.
+
+Recorded checks at approximately 22:08–22:10 Australia/Sydney:
+
+- LAN `http://192.168.0.142:8099/health`: HTTP 200, `{"ok":true}`.
+- Unauthenticated `/weather`: HTTP 401.
+- Authenticated `/weather`: 15.1°C, `partlycloudy`, today's high 15.1°C and
+  low 14.4°C for 7 November; `stale: false`, `forecastStale: false`.
+- `/share/bravia-ambient` and the authenticated photo manifest: zero photos.
+- TV at `192.168.0.152`, Android 12: host settings saved; Preview visibly showed
+  **Weather: Feed received**, **15°C partlycloudy**, **High 15° Low 14°**.
+  The rounded readings agree with the host. **No album cached** is expected here.
+
+A random 32-byte key was configured directly and transferred to the TV without
+printing it or committing it. No HA core restart, merge, photo import or cache
+implementation change was performed. Failure/recovery, system-picker availability
+and individual playback/HDMI/input acceptance checks remain unverified. See the
+companion project's [trial guide](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bravia-ambient/TRIAL.md).
 
 The current app retains a photo cache on the TV. Persistent offline photo storage
 is no longer a user requirement; removing it is a future app change. The installed
@@ -48,8 +67,8 @@ and feed without encryption; use an existing suitable HTTPS proxy if available.
 ## Install and check
 
 Installation and starting the host were approved in the trial session on
-7 November 2026, along with keeping GitHub updated. The deployment is still
-pending. Future deployments, reloads and device actions require approval within
+7 November 2026, along with keeping GitHub updated. The deployment completed as
+recorded above. Future deployments, reloads and device actions require approval within
 their named scope; approval is not a completed deployment result.
 
 1. Review the selected companion source revision and record its commit ID and any
@@ -58,7 +77,8 @@ their named scope; approval is not a completed deployment result.
 2. Check the live host for existing installation files, port conflicts and the
    weather entity. Preserve any existing installation before replacing files.
 3. Copy only the generated `build/bravia_ambient` directory into HA OS's
-   `/addons/` directory. Reload the local app inventory and install
+   local-app directory (`/local_apps/` in Terminal & SSH on HA OS 18.4; older
+   instructions refer to `/addons/`). Reload the local app inventory and install
    **Bravia Ambient Photo Host**. This generated package stays outside this repo.
 4. Set `access_key` locally, `weather_entity: weather.forecast_home` and
    `time_zone: Australia/Sydney` in app options. Start the host. Do not paste the
