@@ -10,6 +10,10 @@ to launch it, and no TV-control service is required for the host.
 
 ## Trial status
 
+The initial photo-free results below are historical. The later first-album
+deployment supersedes their zero-photo and source-revision details. These records
+do not prove the current live state.
+
 On 7 November 2026, the debug APK was installed on the Sony TV through ADB.
 The user confirmed that the app was visible and the screensaver was working as
 expected. This is a user-reported result, not a recorded pass for every streaming,
@@ -89,7 +93,7 @@ returned empty data during this phase, so playback confirmation is user-reported
 | Forecast | Daily forecast through `weather.get_forecasts`; current state alone does not prove today's high/low is available |
 | Timezone | `Australia/Sydney` |
 | LAN port | TCP 8099, reachable from the TV; check for conflicts before installation |
-| Source folder | `/share/bravia-ambient`, mounted read-only; leave empty for the infrastructure trial |
+| Source folder | `/share/bravia-ambient`, mounted read-only; 147 photos recorded at the first album deployment; an empty folder is only for a new photo-free trial |
 | Host cache | App-private `/data/cache`; separate from source files and Git |
 | Access key | Random value of at least 24 characters, entered locally in app options and TV setup |
 | HA authentication | Supervisor-provided token, used only by the installed host; never entered on the TV |
