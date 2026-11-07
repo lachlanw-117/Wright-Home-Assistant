@@ -524,7 +524,7 @@ views:
                   action: toggle
               - type: button
                 entity: fan.living_room_black_fan
-                name: Off
+                name: 'Off'
                 icon: mdi:fan-off
                 color: none
                 show_name: false

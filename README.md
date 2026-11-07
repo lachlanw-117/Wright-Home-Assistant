@@ -180,6 +180,10 @@ Common actions are available directly from the dashboard. Tapping the main part 
 See [TODO](TODO.md) for planned reliability improvements and remaining configuration
 coverage work.
 
+The Sony Bravia ambient display is a separate companion project. It can use
+Home Assistant for weather and host its photo service as an HA app, while the
+Android TV screensaver owns the display and idle lifecycle.
+
 | Path | Contents |
 |---|---|
 | `configuration.yaml` | Core configuration, dashboard registration and custom ZHA quirk path |

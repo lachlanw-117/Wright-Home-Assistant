@@ -798,17 +798,47 @@
   mode: restart
 - id: "1789173535286"
   alias: Manage Living Room Kiosk Phone Charging
-  description: Keep the kiosk iPhone between 40% and 80%, with fail-safe charging if the phone stops reporting.
+  description: Keep the kiosk iPhone between 40% and 80%. Prefer charging after one hour without battery telemetry or ten minutes of unavailable feedback.
   triggers:
     - trigger: state
-      entity_id: sensor.iphone_8_battery_level
+      entity_id:
+        - sensor.iphone_8_battery_level
+        - switch.living_room_kiosk_phone_charger
+      to: null
     - trigger: time_pattern
       minutes: /5
     - trigger: homeassistant
       event: start
   conditions: []
   actions:
+    - variables:
+        battery: "{{ states('sensor.iphone_8_battery_level') }}"
+        feedback_age: >-
+          {% set s = states.sensor.iphone_8_battery_level %}
+          {{ (as_timestamp(now()) - as_timestamp(s.last_reported, 0))
+             if s is defined and s is not none else 999999 }}
+        unavailable_age: >-
+          {% set s = states.sensor.iphone_8_battery_level %}
+          {{ (as_timestamp(now()) - as_timestamp(s.last_changed, 0))
+             if s is defined and s is not none else 999999 }}
+    # An hour is a telemetry watchdog, not proof that the phone is disconnected.
+    # Evaluate the fallback first; stale high values must never switch charging off.
     - choose:
+        - conditions:
+            - condition: template
+              value_template: >-
+                {{ (feedback_age | float(999999)) >= 3600
+                   or (not is_number(battery)
+                       and (unavailable_age | float(999999)) >= 600) }}
+          sequence:
+            - if:
+                - condition: state
+                  entity_id: switch.living_room_kiosk_phone_charger
+                  state: 'off'
+              then:
+                - action: switch.turn_on
+                  target:
+                    entity_id: switch.living_room_kiosk_phone_charger
         - conditions:
             - condition: numeric_state
               entity_id: sensor.iphone_8_battery_level
@@ -831,21 +861,6 @@
             - action: switch.turn_off
               target:
                 entity_id: switch.living_room_kiosk_phone_charger
-        - conditions:
-            - condition: template
-              value_template: |-
-                {{ states('sensor.iphone_8_battery_level') in
-                   ['unknown', 'unavailable']
-                   and (as_timestamp(now()) -
-                   as_timestamp(states.sensor.iphone_8_battery_level.last_changed))
-                   >= 600 }}
-            - condition: state
-              entity_id: switch.living_room_kiosk_phone_charger
-              state: 'off'
-          sequence:
-            - action: switch.turn_on
-              target:
-                entity_id: switch.living_room_kiosk_phone_charger
   mode: restart
 - id: "1792576854357"
   alias: Notify Washer Cycles ready for clean
@@ -853,17 +868,24 @@
   triggers:
     - trigger: state
       entity_id: sensor.washer_cycles
+      to: null
   conditions:
-    - condition: numeric_state
-      entity_id: sensor.washer_cycles
-      above: 29
+    - condition: template
+      value_template: >-
+        {{ trigger.from_state is not none and trigger.to_state is not none
+           and is_number(trigger.from_state.state)
+           and is_number(trigger.to_state.state)
+           and (trigger.to_state.state | float) >= 30
+           and (trigger.to_state.state | float) > (trigger.from_state.state | float) }}
   actions:
     - device_id: 61185b5f8bda2ae7fbe4a9de61336341
       domain: mobile_app
       type: notify
       message: Tell your husband you love him and to clean the washing machine
+      continue_on_error: true
     - device_id: b6f6b98b1768e11216c3e0c2e987d29f
       domain: mobile_app
       type: notify
       message: Clean the washing machine
+      continue_on_error: true
   mode: single
