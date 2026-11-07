@@ -101,9 +101,25 @@ Smaller wrapper scripts provide straightforward actions for heating, high fan, q
 
 This avoids repeating the same startup and sequencing logic across every dashboard action.
 
+## Black fan control
+
+The black Arlec fan uses existing Tuya scenes for its six speeds and swing.
+Our Home V2 has a compact row of eight native icon buttons: speeds 1-6, swing
+toggle and off. Speed highlighting follows the fan's reported percentage.
+Swing highlighting tracks the last requested scene because Tuya does not expose
+the physical oscillation state.
+
+The feedback sensors and swing switch live in `templates.yaml`. No custom
+dashboard dependencies are needed. See the
+[black-fan notes](docs/arlec_black_fan_dashboard_notes.md) for the verified speed
+mapping, validation and rollback details, and the
+[development workflow](docs/local_development_workflow.md) for review,
+deployment and rollback.
+
 ## Washing-machine notifications
 
-Washing completion can be detected through either the washer status sensor or its completion event.
+Washing completion notifications use the washer's completion event. The alternative
+status-sensor trigger remains in the automation but is disabled.
 
 When a cycle finishes:
 
@@ -160,6 +176,9 @@ Common actions are available directly from the dashboard. Tapping the main part 
 
 
 ## Repository structure
+
+See [TODO](TODO.md) for planned reliability improvements and remaining configuration
+coverage work.
 
 | Path | Contents |
 |---|---|

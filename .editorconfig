@@ -1,0 +1,3 @@
+# Shared line endings; personal IDE settings stay local.
+[*]
+end_of_line = lf
