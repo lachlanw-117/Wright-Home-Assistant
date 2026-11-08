@@ -455,3 +455,18 @@ Phase 2 PRs are now merged. Weather-refinement PRs remain separate and will stay
 open during their trial; their merge is not yet approved. The companion host needs
 a feed update for both forecast days; its named rebuild/restart has been requested
 separately. No deployment is claimed by this approval record.
+
+## Weather trial progress and playback continuation
+
+The approved photo-host rebuild and TV installation completed. Host health and
+authentication rejection checks passed. The TV displayed both forecast days and
+retained pairing and scene timing. No HA Core restart or Thread change occurred.
+Detailed private trial evidence and recovery inventory stay outside version control.
+
+During review the user rejected technical cache wording and requested photo
+continuation. The revised candidate remembers the next photo after a displayed
+scene, preserving static order and wrapping. Preview and screensaver share progress;
+removed items have a safe fallback. First updated run starts once at the beginning
+because the old app recorded no cursor. Local build passed 240 JVM assertions.
+Final device acceptance and debugging closeout remain pending. Weather PRs remain
+open until acceptance and separate merge approval. No runtime cursor IDs are tracked.
