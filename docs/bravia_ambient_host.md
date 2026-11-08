@@ -87,7 +87,7 @@ This supersedes the earlier inability to verify the entity through the Superviso
 API. The browser check does not establish what the current Bravia host selects;
 saved host options were not read or changed. No HA configuration was changed.
 
-The reusable [Phase 1 implementation and acceptance record](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bom-weather/PHASE1.md)
+The reusable [Phase 1 implementation and acceptance record](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/PHASE1.md)
 contains the reviewed scope. It covers the local-date fix, cache source isolation,
 attribution decisions, live checks and rollback. Initial local validation passed 13 host tests,
 packaged-server syntax, Android build/signature verification and 15 JVM assertions.
@@ -194,7 +194,39 @@ and reinstall the preserved matching signed APK with `install -r`. Preserve app
 settings and album. The private app backup is retained if package rollback is
 insufficient; do not expose it or clear app data. Record rollback verification.
 
-## Historical trial status
+## Phase 1 merge and Phase 2 trial - 8 November 2026
+
+Phase 1 was accepted and merged following separate user approval. The user then
+approved Phase 2 implementation, its TV trial, commits, pushes and PRs.
+Bravia [PR #3](https://github.com/lachlanw-117/Bravia-Ambient-Display/pull/3)
+and companion [PR #6](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/6)
+remain open; Phase 2 merge is not approved.
+
+The photo-presentation trial is installed. The user liked the initial design and
+requested a brighter background and **60 seconds per scene**. Both adjustments
+are applied. The first brightness adjustment was still too dark, so the current
+trial uses a warm cream background and dark text, following user feedback. The
+interval remains configurable from 10 to 300 seconds. Portrait
+pairing is enabled. Landscape and square photographs continue to display alone,
+fitted in full. A live landscape scene is not yet explicitly recorded.
+
+Local build/signature checks, 215 Android assertions and runtime-source CI passed.
+Portrait pairs, single-photo mode and injected Back exit were checked on the TV.
+Short performance samples are encouraging but do not establish long-run stability.
+The user accepted the cream palette. Debugging was then disabled and its network
+port was confirmed closed. The user then confirmed ordinary idle entry and
+physical Back dismissal both work normally with debugging off. Relevant Phase 2
+acceptance is complete; separate merge approval is still required.
+Ordering remains by source filename, restarting at the beginning
+on each screensaver/Preview session; no shuffle or resume change was requested.
+
+No household configuration, host, photo-library or cache changes are part of this
+phase. Detailed source/artifact identities, private recovery inventory and measured
+trial evidence remain in the companion implementation record. No private photos
+or testing artifacts are published here. Keep both PRs open until acceptance,
+then request separate merge approval.
+
+## Historical initial trial status
 
 The initial photo-free results below are historical. The later first-album
 deployment supersedes their zero-photo and source-revision details. These records
