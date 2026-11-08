@@ -1,6 +1,7 @@
 """Exercise actual YAML/Jinja branches with synthetic HA states. No HA connection."""
 import datetime as dt
 import math
+import os
 import pathlib
 import subprocess
 import types
@@ -105,7 +106,8 @@ class ReliabilityTests(unittest.TestCase):
         self.assertTrue(all(a.get('continue_on_error') for a in auto['actions']))
 
     def test_unrelated_automations_preserved(self):
-        previous = yaml.safe_load(subprocess.check_output(['git','show','main:automations.yaml'],cwd=ROOT,encoding='utf8'))
+        baseline = os.environ.get('HA_AUTOMATION_BASE_REF', 'main')
+        previous = yaml.safe_load(subprocess.check_output(['git','show',f'{baseline}:automations.yaml'],cwd=ROOT,encoding='utf8'))
         old = {str(a['id']):a for a in previous}
         self.assertEqual(set(old),set(BY_ID))
         for key in old.keys()-{'1789173535286','1792576854357'}:

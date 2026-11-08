@@ -1,0 +1,232 @@
+# Bravia ambient display host
+
+The [Bravia Ambient Display](https://github.com/lachlanw-117/Bravia-Ambient-Display)
+is a separate companion project. It owns the Android TV app, photo/weather host,
+add-on packaging and tests. This repository records the household dependencies
+and deployment procedure rather than keeping another copy of that code.
+
+The TV owns screensaver entry and dismissal. No HA automation or timer is needed
+to launch it, and no TV-control service is required for the host.
+
+## Enhancement phases and current scope
+
+On 8 November 2026, the user selected separately approved implementation phases.
+The companion [roadmap](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/ROADMAP.md),
+[decision log](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/DECISIONS.md)
+and [maintenance procedure](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/MAINTENANCE.md)
+own the phase definitions and rationale. The user separately approved committing,
+pushing and merging this documentation during repository consolidation. Bravia
+remains private; those links require access. Publishing is a separate decision.
+
+Phase 0 is repository documentation only. BOM weather, the design B photo layout,
+native HA notice foundation, TV interactions, phone migration and additional
+attention sources remain later phases requiring their own authorisation. Design C
+aircraft work requires a separate implementation plan. No automatic progression,
+live change, device cleanup, commit, push or merge is implied by accepting the
+roadmap. Keep household entity/routing definitions here and reusable source in
+Bravia.
+
+Future notice categories, destination switches, pauses and private inbox belong
+in HA. Definitions and logic belong in Git; restored helper values are everyday
+runtime preferences, so changing a routing switch does not create a source edit
+to reconcile later. These helpers and sources have not been implemented. Initial
+sources will be washing, backups and one aggregated update count, in capture-only
+mode. Existing washing phone notifications and the laundry-light action stay in
+place until individually reviewed migration. Repairs, persistent notifications
+and selected device-health rules follow later, without raw log/state forwarding.
+
+## BOM source inspection - 8 November 2026
+
+Read-only inspection of the installed manifest, adapter source and selected
+entity-registry metadata found:
+
+| Item | Recorded finding |
+|---|---|
+| Component | `bureau_of_meteorology`, version 1.4.0 |
+| Daily weather | `weather.weather_homemascot`; selected target for Phase 1 |
+| Hourly weather | `weather.weather_homemascot_hourly`; not the daily-forecast target |
+| Observation source | Sydney Airport temperature, humidity and wind sensors |
+| Collection interval | Five minutes in installed source |
+| Existing weather | `weather.forecast_home`, registry platform `met` |
+
+This identifies entities and source ownership, not current readings or a successful
+forecast response. The attempted Supervisor API path returned 401. No saved app
+options or credential files were opened, and no weather selection was changed.
+The last recorded host deployment still used `weather.forecast_home`; the current
+live selection has not been reverified.
+
+Phase 1 must verify BOM availability, attribution, current readings, today's daily
+forecast and Sydney date/freshness handling before a separately approved source
+change. Do not silently substitute another provider or remove Met.no from HA.
+Preserve the working connection and key without printing or rotating it.
+
+## Trial status
+
+The initial photo-free results below are historical. The later first-album
+deployment supersedes their zero-photo and source-revision details. These records
+do not prove the current live state.
+
+On 7 November 2026, the debug APK was installed on the Sony TV through ADB.
+The user confirmed that the app was visible and the screensaver was working as
+expected. This is a user-reported result, not a recorded pass for every streaming,
+paused-video, HDMI, remote-button or power scenario.
+
+The Pi host was installed and started on 7 November 2026 from companion commit
+`b05ca1f6bbf3f8151c950150ac5cdd7bb5dbd826`, version 0.1.0, as
+`local_bravia_ambient`. The three generated package files were SHA-256 verified
+after transfer. Live inspection found no previous Bravia package or photo folder;
+no existing installation files were replaced. The Pi runs HA OS 18.4 on aarch64,
+with Core 2026.11.0. Its existing Terminal & SSH app supplied the deployment route;
+the connected HA tool's Supervisor requests returned 401.
+
+Recorded checks at approximately 22:08–22:10 Australia/Sydney:
+
+- LAN `http://192.168.0.142:8099/health`: HTTP 200, `{"ok":true}`.
+- Unauthenticated `/weather`: HTTP 401.
+- Authenticated `/weather`: 15.1°C, `partlycloudy`, today's high 15.1°C and
+  low 14.4°C for 7 November; `stale: false`, `forecastStale: false`.
+- `/share/bravia-ambient` and the authenticated photo manifest: zero photos.
+- TV at `192.168.0.152`, Android 12: host settings saved; Preview visibly showed
+  **Weather: Feed received**, **15°C partlycloudy**, **High 15° Low 14°**.
+  The rounded readings agree with the host. **No album cached** is expected here.
+
+At approximately 22:18 Australia/Sydney, the user-approved weather-label APK
+from companion commit `8e4e856` was installed over the existing TV app with ADB
+`install -r` (Success). Preview showed **Weather: Feed received**,
+**15°C Partly cloudy**, **High 15° Low 14°**. The saved connection survived the
+update. This TV-only change required no host update or HA core restart.
+
+A random 32-byte key was configured directly and transferred to the TV without
+printing it or committing it. No HA core restart, merge, photo import or cache
+implementation change was performed. Failure/recovery, system-picker availability
+and individual playback/HDMI/input acceptance checks remain unverified. See the
+companion project's [trial guide](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/TRIAL.md).
+
+The current app retains a photo cache on the TV. Persistent offline photo storage
+is no longer a user requirement; removing it is a future app change. The installed
+APK still uses the existing cache implementation.
+
+## First album deployment — 7 November 2026
+
+With explicit approval, host and TV were updated from source commit
+`3fbb12727382c538e43fdef125de39687d20bc07` to accept up to 250 photos.
+The 8 MiB per-photo and 256 MiB album limits and cache implementation are unchanged.
+All 11 synthetic host tests passed, including 147/250 acceptance and 251 rejection
+without replacing the last-good manifest. Android build, APK verification and the
+15 existing JVM assertions passed before deployment.
+
+The user's local export contained 147 still photos (65 JPEG and 82 HEIC) and
+29 MP4 files. HEICs were converted locally to oriented JPEG copies; existing JPEGs
+were copied byte-for-byte. MP4s were excluded; their possible Live Photo pairing
+was not independently confirmed. The source ZIP remains untouched outside Git.
+All 147 output photos decoded locally and are distinct: 219,526,548 bytes total
+(209.36 MiB), largest 5,986,670 bytes (5.71 MiB). No resizing was necessary.
+
+All 147 transferred files matched local SHA-256 checksums before publication to
+`/share/bravia-ambient`. The previous host package is preserved locally on the Pi
+at `/backup/bravia-package-b05ca1f`; a local app backup was created before rebuild.
+Only the Bravia app was stopped/rebuilt/started; HA core was not restarted.
+The matching TV APK installed with ADB `install -r` (Success).
+Authenticated host manifest and source folder both contain 147 photos, and the
+weather feed remained fresh. The first TV download took several minutes with the
+infrastructure waiting screen visible. The user then confirmed that photos were
+appearing. This confirms visible photo playback, not a complete review of all
+147 photos, orientation, crossfades or offline/failure recovery. Screenshot capture
+returned empty data during this phase, so playback confirmation is user-reported.
+
+## Dependencies
+
+| Item | Required value or behaviour |
+|---|---|
+| Host machine | Home Assistant OS on the household Raspberry Pi 5 |
+| App source | Companion repository; generate the local app package there |
+| Architecture | Package supports aarch64 and amd64; verify the host architecture before installation |
+| Weather entity | Last recorded deployment: `weather.forecast_home`; planned Phase 1 target above, not yet selected or verified |
+| Forecast | Daily forecast through `weather.get_forecasts`; current state alone does not prove today's high/low is available |
+| Timezone | `Australia/Sydney` |
+| LAN port | TCP 8099, reachable from the TV; check for conflicts before installation |
+| Source folder | `/share/bravia-ambient`, mounted read-only; 147 photos recorded at the first album deployment; an empty folder is only for a new photo-free trial |
+| Host cache | App-private `/data/cache`; separate from source files and Git |
+| Access key | Random value of at least 24 characters, entered locally in app options and TV setup |
+| HA authentication | Supervisor-provided token, used only by the installed host; never entered on the TV |
+
+Keep photos, keys, app options, runtime data and signing material out of both
+repositories. Do not expose port 8099 to the internet. LAN HTTP sends the host key
+and feed without encryption; use an existing suitable HTTPS proxy if available.
+
+## Install and check
+
+Installation and starting the host were approved in the trial session on
+7 November 2026, along with keeping GitHub updated. The deployment completed as
+recorded above. Future deployments, reloads and device actions require approval within
+their named scope; approval is not a completed deployment result.
+
+1. Review the selected companion source revision and record its commit ID and any
+   local changes. From that checkout, run `npm.cmd test` on Windows (`npm test` on
+   other platforms), then `node tools/package-addon.mjs`.
+2. Check the live host for existing installation files, port conflicts and the
+   weather entity. Preserve any existing installation before replacing files.
+3. Copy only the generated `build/bravia_ambient` directory into HA OS's
+   local-app directory (`/local_apps/` in Terminal & SSH on HA OS 18.4; older
+   instructions refer to `/addons/`). Reload the local app inventory and install
+   **Bravia Ambient Photo Host**. This generated package stays outside this repo.
+4. Set `access_key` locally, `weather_entity: weather.forecast_home` and
+   `time_zone: Australia/Sydney` in app options. Start the host. Do not paste the
+   key or full options into chat, logs or version control.
+5. From a LAN browser, open `http://PI_ADDRESS:8099/health`. Expect
+   `{"ok":true}`. This proves reachability, not authentication or HA weather.
+   An absent photo folder may produce a photo-sync warning during this trial.
+6. Enter the host URL and key in Wright Ambient on the TV. Save and reopen
+   **Preview photos**. Expect **Weather: Feed received**. An empty photo feed may
+   still show **No album cached**; that is not an authentication result.
+7. Check real temperature, condition and today's high/low. Missing readings after
+   a received feed require checking the host-to-HA path. Avoid sharing raw logs
+   until reviewed for sensitive values.
+8. With separate approval for stop/start actions, check failure and recovery.
+   Clock/date should continue locally; aged cached weather must be marked stale.
+   Refresh runs on entry and every five minutes while the screen is running.
+
+These steps describe the initial installation. Do not repeat them just to resume
+development or apply the Phase 1 source change. Use an approved UI that keeps the
+credential field concealed to change only the approved weather selector. Do not
+inspect/export full saved app options or print/rotate the existing key.
+
+Record each result before adding a small exported album. The photo-free trial
+does not validate photo decoding, crossfades or offline photo playback.
+
+## Update and roll back
+
+Review and test a specific companion revision before each update. Record the
+currently installed revision, preserve the previous generated package and use a
+local backup for app options/data. Backups may contain the access key and must
+stay outside Git. Recheck live drift before replacing anything.
+
+With approval, stop the host, replace only its reviewed package files, rebuild
+through HA's local app workflow as required, and start it. Repeat reachability,
+authenticated TV feed and weather checks. Configuration and data compatibility
+must be reviewed before restoring a previous package or app backup.
+
+To abandon the host trial, stop the app with approval. On the TV, restore the
+original system screensaver if desired. Uninstalling or clearing app data is a
+separate decision and can remove saved settings/cache. Source photos remain
+untouched. No HA core configuration change or core restart is part of this plan.
+
+## Session closeout and recovery inventory
+
+Follow the companion maintenance procedure after each approved TV testing window.
+Disable ADB/network debugging, review the Developer options master switch and
+confirm ordinary playback, idle entry and remote exit with debugging disabled.
+Normal app use does not need ADB. Last recorded debugging was enabled on
+7 November; it has not been rechecked or disabled by Phase 0. Disconnecting the
+development computer alone is not the closeout action.
+
+The recorded previous host package is `/backup/bravia-package-b05ca1f`. A private
+app backup was made before the album-limit update. Current/previous APKs and their
+signing material remain outside Git. Verify recovery artifacts and hashes before
+relying on them; do not inspect credential-bearing backup contents or delete them
+as cleanup. Source revision `3fbb12727382c538e43fdef125de39687d20bc07` identifies
+the last recorded matching host/TV deployment, not proof of current live hashes.
+
+Do not clear caches/app data, remove photos or signing material, apply
+skinny-bravia, disable Terminal & SSH or relocate shared toolchains as part of
+routine cleanup. Source/tool changes and deletions need their own scoped review.

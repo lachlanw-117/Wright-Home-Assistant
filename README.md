@@ -2,6 +2,8 @@
 
 This is the version-controlled portion of the Home Assistant setup running in our home.
 
+[![Local checks](https://github.com/lachlanw-117/Wright-Home-Assistant/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/lachlanw-117/Wright-Home-Assistant/actions/workflows/checks.yml)
+
 It brings together Zigbee, Matter, Thread and Wi-Fi devices across lighting, temperature control, blinds, appliances and network recovery.
 
 The basic approach is:
@@ -180,9 +182,11 @@ Common actions are available directly from the dashboard. Tapping the main part 
 See [TODO](TODO.md) for planned reliability improvements and remaining configuration
 coverage work.
 
-The Sony Bravia ambient display is a separate companion project. It can use
+The [Sony Bravia ambient display](https://github.com/lachlanw-117/Bravia-Ambient-Display) is a separate companion project. It can use
 Home Assistant for weather and host its photo service as an HA app, while the
 Android TV screensaver owns the display and idle lifecycle.
+See the [host and trial notes](docs/bravia_ambient_host.md) for dependencies,
+installation, updates and rollback.
 
 | Path | Contents |
 |---|---|
