@@ -471,7 +471,7 @@ because the old app recorded no cursor. Local build passed 240 JVM assertions.
 Final device acceptance and debugging closeout remain pending. Weather PRs remain
 open until acceptance and separate merge approval. No runtime cursor IDs are tracked.
 
-## Final weather/playback candidate - acceptance pending
+## Final weather/playback candidate - acceptance complete
 
 The updated trial renders separate Now temperature, Today and Tomorrow forecasts
 with check-age wording. An Android timestamp-format mismatch discovered on the TV
@@ -481,6 +481,9 @@ replacement, with static order and scene settings preserved. Private artifact an
 recovery identities remain outside version control. Local validation totals 244
 JVM assertions and 22 host tests; signed build and runtime-source CI passed.
 
-Final user visual/Back acceptance and debugging closeout remain pending. Weather
-PRs stay open until relevant acceptance and separate merge approval. This trial
-did not change Core, Thread, SSH startup policy, source photos or saved credentials.
+The user accepted the final display and physical Back dismissal. Debugging was
+then disabled and its network port closure verified. The user subsequently confirmed
+ordinary idle entry and Back both work with debugging off. Relevant acceptance and
+closeout are complete; weather PRs remain open pending separate merge approval.
+This trial did not change Core, Thread, SSH startup policy, source photos or saved
+credentials. Full outage/long-run recovery remains outside this acceptance scope.
