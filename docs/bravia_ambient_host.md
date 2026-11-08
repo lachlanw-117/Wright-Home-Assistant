@@ -194,45 +194,31 @@ and reinstall the preserved matching signed APK with `install -r`. Preserve app
 settings and album. The private app backup is retained if package rollback is
 insufficient; do not expose it or clear app data. Record rollback verification.
 
-## Phase 1 merge and Phase 2 preparation - 8 November 2026
+## Phase 1 merge and Phase 2 trial - 8 November 2026
 
-After scoped Phase 1 acceptance, the user approved both merges. Bravia PR #2
-merged as `49f8b8e8173e8265a58a08d24032f665657d43d3`; HA PR #5 merged as
-`d043d0154b03677ab56a7711e2eaf3b75d280fe6`. The actual installed Phase 1 source
-and hashes remain those in the trial record; merging did not trigger deployment.
+Phase 1 was accepted and merged following separate user approval. The user then
+approved Phase 2 implementation, its TV trial, commits, pushes and PRs.
+Bravia [PR #3](https://github.com/lachlanw-117/Bravia-Ambient-Display/pull/3)
+and companion [PR #6](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/6)
+remain open; Phase 2 merge is not approved.
 
-The user then authorised Phase 2 photo-presentation work and its TV trial, and
-reported re-enabling debugging before stepping away. Work is local on Bravia
-`feature/photo-presentation` and HA `docs/photo-presentation`. The user subsequently
-explicitly approved Phase 2 commits, pushes and PRs on 8 November. The earlier Git
-approval had named Phase 1, so this was requested separately. Do not substitute a
-working-tree build for the agreed exact-branch-commit/PR trial gate.
+The photo-presentation trial is installed. The user liked the initial design and
+requested a brighter background and **60 seconds per scene**. Both adjustments
+are applied; the interval remains configurable from 10 to 300 seconds. Portrait
+pairing is enabled. Landscape and square photographs continue to display alone,
+fitted in full. A live landscape scene is not yet explicitly recorded.
 
-The [Phase 2 candidate record](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/photo-presentation/PHASE2.md)
-owns source behaviour, local validation, pending acceptance and rollback. That
-branch link becomes available only after an approved push. The candidate builds
-and passes 200 new synthetic layout/order/bitmap-budget/cache-isolation assertions
-plus the existing 15 policy checks. It has not been installed or device-accepted.
-No visible provider credit, notices, aircraft or new HA controls are included.
+Local build/signature checks, 215 Android assertions and runtime-source CI passed.
+Portrait pairs, single-photo mode and injected Back exit were checked on the TV.
+Short performance samples are encouraging but do not establish long-run stability.
+Final brightness acceptance, debugging closeout and ordinary idle/physical Back
+checks remain pending. Debugging is currently enabled for final review.
 
-Proposed approved TV-only scope: preserve the actual installed Phase 1 APK, install
-the reviewed Phase 2 APK with `install -r`, inspect portrait/landscape scenes,
-weather, transitions and performance, then leave visual acceptance for the user.
-The host/BOM selection, photo source/cache and household configuration stay as
-they are. No host rebuild or HA reload/restart is needed. The known-good Phase 1
-APK is privately retained in Bravia `build/phase2-trial-2026-11-08/phase1-known-good.apk`,
-SHA-256 `141cf96345e011098247c9c9ab05eee7d85e7e83c53a1a0e2f5cd8e131eeb7d8`.
-Record actual installation and debugging closeout when performed; approval alone
-is not deployment evidence. Keep the PRs open until relevant acceptance passes.
-
-A read-only connection verified that the actual installed APK still matches the
-accepted Phase 1 hash, and privately preserved it as
-`build/phase2-trial-2026-11-08/current-phase1-installed.apk`. A single active-dream
-Phase 1 memory baseline was TOTAL PSS 21,666 KiB / RSS 100,924 KiB. No Phase 2
-performance claim follows from that baseline. Debugging was disabled again while
-Git approval was pending; TCP 5555 returned ECONNREFUSED. Developer options master
-remains on. The Phase 2 trial will require briefly re-enabling USB/ADB debugging;
-no Phase 2 installation has taken place.
+No household configuration, host, photo-library or cache changes are part of this
+phase. Detailed source/artifact identities, private recovery inventory and measured
+trial evidence remain in the companion implementation record. No private photos
+or testing artifacts are published here. Keep both PRs open until acceptance,
+then request separate merge approval.
 
 ## Historical initial trial status
 
