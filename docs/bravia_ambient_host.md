@@ -87,7 +87,7 @@ This supersedes the earlier inability to verify the entity through the Superviso
 API. The browser check does not establish what the current Bravia host selects;
 saved host options were not read or changed. No HA configuration was changed.
 
-The reusable [Phase 1 implementation and acceptance record](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bom-weather/PHASE1.md)
+The reusable [Phase 1 implementation and acceptance record](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/PHASE1.md)
 contains the reviewed scope. It covers the local-date fix, cache source isolation,
 attribution decisions, live checks and rollback. Initial local validation passed 13 host tests,
 packaged-server syntax, Android build/signature verification and 15 JVM assertions.
@@ -194,7 +194,47 @@ and reinstall the preserved matching signed APK with `install -r`. Preserve app
 settings and album. The private app backup is retained if package rollback is
 insufficient; do not expose it or clear app data. Record rollback verification.
 
-## Historical trial status
+## Phase 1 merge and Phase 2 preparation - 8 November 2026
+
+After scoped Phase 1 acceptance, the user approved both merges. Bravia PR #2
+merged as `49f8b8e8173e8265a58a08d24032f665657d43d3`; HA PR #5 merged as
+`d043d0154b03677ab56a7711e2eaf3b75d280fe6`. The actual installed Phase 1 source
+and hashes remain those in the trial record; merging did not trigger deployment.
+
+The user then authorised Phase 2 photo-presentation work and its TV trial, and
+reported re-enabling debugging before stepping away. Work is local on Bravia
+`feature/photo-presentation` and HA `docs/photo-presentation`. The user subsequently
+explicitly approved Phase 2 commits, pushes and PRs on 8 November. The earlier Git
+approval had named Phase 1, so this was requested separately. Do not substitute a
+working-tree build for the agreed exact-branch-commit/PR trial gate.
+
+The [Phase 2 candidate record](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/photo-presentation/PHASE2.md)
+owns source behaviour, local validation, pending acceptance and rollback. That
+branch link becomes available only after an approved push. The candidate builds
+and passes 200 new synthetic layout/order/bitmap-budget/cache-isolation assertions
+plus the existing 15 policy checks. It has not been installed or device-accepted.
+No visible provider credit, notices, aircraft or new HA controls are included.
+
+Proposed approved TV-only scope: preserve the actual installed Phase 1 APK, install
+the reviewed Phase 2 APK with `install -r`, inspect portrait/landscape scenes,
+weather, transitions and performance, then leave visual acceptance for the user.
+The host/BOM selection, photo source/cache and household configuration stay as
+they are. No host rebuild or HA reload/restart is needed. The known-good Phase 1
+APK is privately retained in Bravia `build/phase2-trial-2026-11-08/phase1-known-good.apk`,
+SHA-256 `141cf96345e011098247c9c9ab05eee7d85e7e83c53a1a0e2f5cd8e131eeb7d8`.
+Record actual installation and debugging closeout when performed; approval alone
+is not deployment evidence. Keep the PRs open until relevant acceptance passes.
+
+A read-only connection verified that the actual installed APK still matches the
+accepted Phase 1 hash, and privately preserved it as
+`build/phase2-trial-2026-11-08/current-phase1-installed.apk`. A single active-dream
+Phase 1 memory baseline was TOTAL PSS 21,666 KiB / RSS 100,924 KiB. No Phase 2
+performance claim follows from that baseline. Debugging was disabled again while
+Git approval was pending; TCP 5555 returned ECONNREFUSED. Developer options master
+remains on. The Phase 2 trial will require briefly re-enabling USB/ADB debugging;
+no Phase 2 installation has taken place.
+
+## Historical initial trial status
 
 The initial photo-free results below are historical. The later first-album
 deployment supersedes their zero-photo and source-revision details. These records
