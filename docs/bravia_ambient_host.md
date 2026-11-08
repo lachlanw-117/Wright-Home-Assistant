@@ -214,8 +214,10 @@ Local build/signature checks, 215 Android assertions and runtime-source CI passe
 Portrait pairs, single-photo mode and injected Back exit were checked on the TV.
 Short performance samples are encouraging but do not establish long-run stability.
 The user accepted the cream palette. Debugging was then disabled and its network
-port was confirmed closed. Ordinary idle/physical Back checks with debugging off
-remain pending. Ordering remains by source filename, restarting at the beginning
+port was confirmed closed. The user then confirmed ordinary idle entry and
+physical Back dismissal both work normally with debugging off. Relevant Phase 2
+acceptance is complete; separate merge approval is still required.
+Ordering remains by source filename, restarting at the beginning
 on each screensaver/Preview session; no shuffle or resume change was requested.
 
 No household configuration, host, photo-library or cache changes are part of this
