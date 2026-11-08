@@ -226,6 +226,28 @@ trial evidence remain in the companion implementation record. No private photos
 or testing artifacts are published here. Keep both PRs open until acceptance,
 then request separate merge approval.
 
+## Recovery scenario for later notice work - 8 November 2026
+
+Following an electrical interruption, the user reported that the Thread border
+router and SSH server had not recovered and manually started both in HA UI.
+HA and the photo host were reachable; the user confirmed TV photos/weather looked
+normal. App startup policies and the underlying cause were not inspected, and no
+agent restart, configuration change or automatic repair was performed.
+
+This is a dependency-health scenario for the later notice phases: required household
+dependencies need recovery checks after a startup grace period, including faults
+already present when monitoring begins. Deliberately stopped maintenance services
+must be excluded; SSH is not expected to remain enabled for normal household use.
+A failed shared dependency should produce one actionable incident rather than a
+notification per affected device. Phone routing matters when nobody is watching
+the TV. HA being reachable is not proof that dependent lighting is functional.
+
+The user also accepted the minimalist weather mockup: retain existing text sizes,
+move weather upward, add explicit Now/Today/Tomorrow and honest freshness, and keep
+the region below the divider for future notices. This is accepted design only;
+the installed app still has the existing weather fields. Detailed design reasoning
+and recovery acceptance scenarios remain in the companion roadmap/trial record.
+
 ## Historical initial trial status
 
 The initial photo-free results below are historical. The later first-album
@@ -399,3 +421,69 @@ and current recovery copies are recorded in the branch-trial section above.
 Do not clear caches/app data, remove photos or signing material, apply
 skinny-bravia, disable Terminal & SSH or relocate shared toolchains as part of
 routine cleanup. Source/tool changes and deletions need their own scoped review.
+
+## Weather refinement scope - planning only
+
+The accepted minimalist concept now has a companion implementation scope in
+Bravia WEATHER_REFINEMENT.md. Installed adapter source confirms that temperature
+comes from observations but the displayed condition prefers a daily forecast.
+Therefore Now must not claim the forecast description/icon is an observation.
+Today and Tomorrow will use their own daily forecast rows, with explicit labels.
+Freshness will mean successful checks unless upstream timestamps are independently
+verified. No new HA entity, provider switch, service restart or startup-policy
+change is required by this plan. Implementation, trial and merge remain separate.
+
+## Weather refinement local implementation
+
+The user authorised local implementation, then preferred today's forecast instead
+of a current-condition-unavailable message. The implementation keeps observed
+temperature under Now and places forecast descriptions/icons under explicit Today
+and Tomorrow labels. Check age means host retrieval, not source observation age.
+The local companion code preserves the cream layout and future notice area.
+
+Work is on separate temporarily stacked weather-summary branches, preserving the
+unmerged Phase 2 baseline and local notes. No merge, deployment, new sensor, host
+option change, service restart or debugging enablement occurred. Local synthetic
+tests and the signed Android build passed; exact evidence and limitations are in
+Bravia WEATHER_REFINEMENT.md. Both the existing Phase 2 merge and this refinement's
+Git publication/trial remain separate approval gates.
+
+## Weather refinement publication and trial approval
+
+The user approved Git publication, merging the accepted Phase 2 PRs and a TV trial.
+Phase 2 PRs are now merged. Weather-refinement PRs remain separate and will stay
+open during their trial; their merge is not yet approved. The companion host needs
+a feed update for both forecast days; its named rebuild/restart has been requested
+separately. No deployment is claimed by this approval record.
+
+## Weather trial progress and playback continuation
+
+The approved photo-host rebuild and TV installation completed. Host health and
+authentication rejection checks passed. The TV displayed both forecast days and
+retained pairing and scene timing. No HA Core restart or Thread change occurred.
+Detailed private trial evidence and recovery inventory stay outside version control.
+
+During review the user rejected technical cache wording and requested photo
+continuation. The revised candidate remembers the next photo after a displayed
+scene, preserving static order and wrapping. Preview and screensaver share progress;
+removed items have a safe fallback. First updated run starts once at the beginning
+because the old app recorded no cursor. Local build passed 240 JVM assertions.
+Final device acceptance and debugging closeout remain pending. Weather PRs remain
+open until acceptance and separate merge approval. No runtime cursor IDs are tracked.
+
+## Final weather/playback candidate - acceptance complete
+
+The updated trial renders separate Now temperature, Today and Tomorrow forecasts
+with check-age wording. An Android timestamp-format mismatch discovered on the TV
+was corrected and retested; healthy weather no longer shows a generic cache label.
+Photo continuation was verified across Preview exit, app process restart and APK
+replacement, with static order and scene settings preserved. Private artifact and
+recovery identities remain outside version control. Local validation totals 244
+JVM assertions and 22 host tests; signed build and runtime-source CI passed.
+
+The user accepted the final display and physical Back dismissal. Debugging was
+then disabled and its network port closure verified. The user subsequently confirmed
+ordinary idle entry and Back both work with debugging off. Relevant acceptance and
+closeout are complete; weather PRs remain open pending separate merge approval.
+This trial did not change Core, Thread, SSH startup policy, source photos or saved
+credentials. Full outage/long-run recovery remains outside this acceptance scope.
