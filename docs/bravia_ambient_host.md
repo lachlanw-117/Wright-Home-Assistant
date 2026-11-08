@@ -18,7 +18,8 @@ own the phase definitions and rationale. The user separately approved committing
 pushing and merging this documentation during repository consolidation. Bravia
 remains private; those links require access. Publishing is a separate decision.
 
-Phase 0 is repository documentation only. BOM weather, the design B photo layout,
+Phase 0 is repository documentation only. Phase 1 BOM work was subsequently
+authorised and trial-deployed from its branch as recorded below. The design B photo layout,
 native HA notice foundation, TV interactions, phone migration and additional
 attention sources remain later phases requiring their own authorisation. Design C
 aircraft work requires a separate implementation plan. No automatic progression,
@@ -60,7 +61,140 @@ forecast and Sydney date/freshness handling before a separately approved source
 change. Do not silently substitute another provider or remove Met.no from HA.
 Preserve the working connection and key without printing or rotating it.
 
-## Trial status
+## Phase 1 local implementation - 8 November 2026
+
+The user authorised Phase 1 investigation and local implementation. Work is on
+Bravia `feature/bom-weather` and HA `docs/bom-weather`. The user subsequently
+approved committing/pushing both branches and opening PRs on 8 November. Merge,
+deployment and TV verification were separate decisions; the subsequently approved
+trial is recorded below. Source baseline is Bravia
+`69ee6877d00eb263ed1c125a273d722639256e31`, HA
+`ec3c7b650a6df906c6fb3064de75f0999b2246cd`.
+
+Read-only authenticated browser inspection at approximately 12:01 Sydney time:
+
+- `weather.weather_homemascot`: `rainy`, 15.5°C.
+- Attribution: `Data provided by the Australian Bureau of Meteorology`.
+- `condition_source: daily`; HA last updated 00:54:55 UTC and last reported
+  00:59:54 UTC on 8 November. These are HA reporting timestamps, not independently
+  verified station observation timestamps.
+- Daily `weather.get_forecasts` retrieval succeeded. Today's row was
+  `datetime: '2026-11-08T00:00:00'`, `temperature: 19`, `templow: 11`, `rainy`.
+  The next row was 9 November, high 20 / low 12. The actual response confirms
+  offset-free local dates and HA-normalised `temperature`/`templow` fields.
+
+This supersedes the earlier inability to verify the entity through the Supervisor
+API. The browser check does not establish what the current Bravia host selects;
+saved host options were not read or changed. No HA configuration was changed.
+
+The reusable [Phase 1 implementation and acceptance record](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bom-weather/PHASE1.md)
+contains the reviewed scope. It covers the local-date fix, cache source isolation,
+attribution decisions, live checks and rollback. Initial local validation passed 13 host tests,
+packaged-server syntax, Android build/signature verification and 15 JVM assertions.
+
+The proposed scope, subsequently approved for the branch trial below: update only the Bravia host package, change
+its `weather_entity` option to `weather.weather_homemascot` while concealing and
+preserving the existing key, then install the reviewed matching TV APK. Preserve
+the album, settings and current/previous recovery artifacts. Do not remove Met.no,
+change the BOM integration, reload/restart HA core or progress to Phase 2. Record
+exact source/artifact hashes and TV acceptance after a named deployment approval.
+
+## Phase 1 branch trial - 8 November 2026
+
+The user approved the trial and selected **feature branch -> PR/local checks ->
+approved trial deployment -> relevant device acceptance -> documented closeout ->
+merge approval -> main** as the ongoing workflow. Both AGENTS files and development
+workflows now carry that gate. Documentation-only work needs review/local checks,
+not a device deployment. PRs remain open while acceptance is incomplete.
+
+Pre-trial checks found no package drift: the installed host matched source
+`3fbb12727382c538e43fdef125de39687d20bc07`. The actual TV APK was pulled privately;
+SHA-256 `91509f1492ded58e6c87c0b357654e4607993b1fa5ef1e567a44b3b82fd88fd6`
+matched the preserved previous local APK.
+
+Recovery artifacts created before replacement:
+
+- Pi package: `/backup/bravia-package-pre-phase1-20261108` (config, Dockerfile,
+  previous server). Previous server SHA-256
+  `41d8d66f6916379242c984421bfb7679e115c2aff8aeebd5d37c538de98f94fc`.
+- Private Bravia-only app backup: `bravia-pre-phase1-20261108`, slug `edccffdd`.
+  Its contents were not opened or exported; keep it private.
+- Actual previous TV APK: Bravia ignored
+  `build/phase1-trial-2026-11-08/previous-installed.apk`.
+
+Approved host deployment: branch revision
+`fe1e045470613f323b31acebb8266fd7fe9ccde5`, server SHA-256
+`9af7ed17c1da5446749ad2d8ae34b5c757eee494e2815777891a62118a2c2d80`.
+Only `server.mjs` changed in the package; config/Dockerfile hashes stayed identical.
+The Bravia app was stopped/rebuilt and started after saving
+`weather_entity: weather.weather_homemascot` in the masked credential UI. Existing
+key, timezone, photos, caches and unrelated apps were preserved. No HA core restart,
+reload, BOM integration change or Met.no removal occurred.
+
+LAN health returned HTTP 200 with `{"ok":true}`; unauthenticated weather returned
+401. An initial localhost check within Terminal's container returned 404 because
+it addressed the wrong namespace; LAN checks above establish the actual result.
+
+The initial TV build installed successfully and its readback hash matched.
+At about 12:16 Australia/Sydney, a private local screenshot showed photo playback,
+16°C Rainy, high 19° / low 11° and the full BOM attribution sentence. This verifies
+authenticated host weather arriving on the TV without reading the access key.
+The user found that sentence intrusive, so the PR was kept open and revised.
+
+The compact-credit APK, source
+`c9f61305bc461796e6f1f5c082bff266c3f5ff4c`, then installed successfully. Its pulled
+SHA-256 is `f3f78784e1b4856c14248dd8a2d90cc7084f0ccabfd1352a06916c70e7b60d2a`.
+It displays `Bureau of Meteorology` at 60% of the main text size; the feed retains
+the full attribution. Android build/signature and 18 JVM assertions passed; host
+code remains identical to the 13-test pass and the deployed host hash.
+
+At this intermediate trial point, pending checks were compact-credit acceptance, physical remote Back dismissal,
+ordinary idle entry and debugging-disabled playback/exit. At inspection, Developer
+options and ADB were enabled; service and persistent ADB TCP port properties were
+5555. Session closeout is not yet recorded as complete. Historical streaming,
+paused-video, HDMI, power, midnight/DST and failure/recovery checks remain unverified.
+No deliberate failure simulation or TV restart was performed.
+
+The compact credit was observed in the actual `AmbientDream` through the Sony
+launcher Screensaver shortcut, with `mCurrentDreamIsTest=false`. The user then
+explicitly requested **no visible credit**. The final candidate removes it while
+retaining attribution in the feed/docs; final acceptance is recorded below.
+This overrides the original visible-attribution design, not the BOM source choice.
+
+Before that final feedback arrived, closeout disabled `adb_enabled`. The TV
+refused changing `persist.adb.tcp.port` from 5555; disabling ADB dropped the session
+and a TCP 5555 check returned ECONNREFUSED. Developer options master remains on;
+unrelated developer settings were not changed. Debugging-disabled ordinary use
+has not been confirmed. The user was asked to briefly re-enable USB/ADB debugging
+for the final no-credit APK; the user did so and the installation succeeded.
+Do not treat this testing session as closed until final acceptance and cleanup.
+
+Final TV source: `dc050af8b911351eeee66f522fb15f1958536080`; installed APK SHA-256
+`141cf96345e011098247c9c9ab05eee7d85e7e83c53a1a0e2f5cd8e131eeb7d8`, verified by
+pulling installed bytes. Android build/signature verification and 15 JVM assertions
+passed. The host remains on the previously verified unchanged server hash. The
+user reported the no-credit display "looks right". Debugging was disabled again
+with `adb_enabled: 0`, and TCP 5555 again returned ECONNREFUSED. The user then
+answered "its all good" to the explicit Back-dismissal and normal idle/photo-return
+check with debugging off. Those physical results are user-reported. Scoped Phase 1
+acceptance and closeout passed; no merge has been performed or approved.
+
+Developer options master remains enabled to preserve unreviewed settings. The
+persistent port property remains 5555 because the TV refused changing it; whether
+debugging stays disabled after a reboot is untested. A future approved maintenance
+session should enable USB/ADB debugging through Developer options, deliberately
+verify the listener/connection, then close it again after acceptance. No reboot,
+factory reset or unrelated developer-setting change was made here. Historical
+HDMI/streaming/power and failure/recovery tests remain unverified and are not
+claimed as part of this focused weather acceptance.
+
+Rollback, if needed and approved: restore only the preserved host package, rebuild
+and start the Bravia app, restore `weather.forecast_home` through the concealed UI,
+and reinstall the preserved matching signed APK with `install -r`. Preserve app
+settings and album. The private app backup is retained if package rollback is
+insufficient; do not expose it or clear app data. Record rollback verification.
+
+## Historical trial status
 
 The initial photo-free results below are historical. The later first-album
 deployment supersedes their zero-photo and source-revision details. These records
@@ -141,7 +275,7 @@ returned empty data during this phase, so playback confirmation is user-reported
 | Host machine | Home Assistant OS on the household Raspberry Pi 5 |
 | App source | Companion repository; generate the local app package there |
 | Architecture | Package supports aarch64 and amd64; verify the host architecture before installation |
-| Weather entity | Last recorded deployment: `weather.forecast_home`; planned Phase 1 target above, not yet selected or verified |
+| Weather entity | Phase 1 branch trial: `weather.weather_homemascot`; prior selector `weather.forecast_home` retained for rollback |
 | Forecast | Daily forecast through `weather.get_forecasts`; current state alone does not prove today's high/low is available |
 | Timezone | `Australia/Sydney` |
 | LAN port | TCP 8099, reachable from the TV; check for conflicts before installation |
@@ -216,16 +350,19 @@ untouched. No HA core configuration change or core restart is part of this plan.
 Follow the companion maintenance procedure after each approved TV testing window.
 Disable ADB/network debugging, review the Developer options master switch and
 confirm ordinary playback, idle entry and remote exit with debugging disabled.
-Normal app use does not need ADB. Last recorded debugging was enabled on
-7 November; it has not been rechecked or disabled by Phase 0. Disconnecting the
-development computer alone is not the closeout action.
+Normal app use does not need ADB. Phase 1 closeout on 8 November disabled ADB and
+verified TCP 5555 refused connections; ordinary use was confirmed by the user.
+Developer options master remains enabled; reboot persistence is untested. See the
+branch-trial record above. Disconnecting the development computer alone is not
+the closeout action.
 
-The recorded previous host package is `/backup/bravia-package-b05ca1f`. A private
+The earlier historical host package is `/backup/bravia-package-b05ca1f`. A private
 app backup was made before the album-limit update. Current/previous APKs and their
 signing material remain outside Git. Verify recovery artifacts and hashes before
 relying on them; do not inspect credential-bearing backup contents or delete them
 as cleanup. Source revision `3fbb12727382c538e43fdef125de39687d20bc07` identifies
-the last recorded matching host/TV deployment, not proof of current live hashes.
+the earlier matching host/TV deployment. Phase 1 source identities, verified hashes
+and current recovery copies are recorded in the branch-trial section above.
 
 Do not clear caches/app data, remove photos or signing material, apply
 skinny-bravia, disable Terminal & SSH or relocate shared toolchains as part of

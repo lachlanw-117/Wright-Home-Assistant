@@ -16,9 +16,10 @@ implemented; see the [companion host notes](bravia_ambient_host.md).
 
 ## Make and review changes
 
-`main` is the reviewed configuration baseline, not a declaration of current live
+`main` is the accepted configuration baseline, not a declaration of current live
 state. Start one short-lived branch per coherent change, open a PR with the
-problem/result/checks/limitations, review it, then merge with approval and retire
+problem/result/checks/limitations, review it, trial runtime changes with approval,
+record relevant live/device acceptance, then merge with approval and retire
 the incorporated branch. A project phase may need several PRs. No permanent
 development or staging branch is needed. Preserve published history.
 
@@ -27,7 +28,16 @@ development or staging branch is needed. Preserve published history.
 3. Parse the YAML and check the relevant logic locally. Test unavailable inputs,
    stale state and repeated triggers where they matter.
 4. Review the diff and document behaviour, validation and limitations.
-5. Push for review and merge separately from deployment.
+5. Push/open the PR and keep it open during an approved trial deployment of its
+   exact feature-branch commit. Preserve rollback copies and record deployed hashes.
+6. Pass relevant live/device acceptance, document results/limitations and close
+   the testing session. Fix and retest on the branch if acceptance fails; relevant
+   pending checks keep the gate open. Runtime edits need appropriate retesting.
+7. Only then request merge approval and retire the incorporated branch after merge.
+
+This acceptance-before-main order was selected on 8 November 2026. CI success is
+not physical acceptance. Documentation-only changes need review/local checks,
+not a live deployment. Approval for a trial does not authorise merging it.
 
 GitHub Actions runs tracked-YAML syntax parsing and the synthetic automation
 reliability harness on PRs and pushes to `main`. It resolves no `!secret`,
