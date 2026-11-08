@@ -18,7 +18,8 @@ own the phase definitions and rationale. The user separately approved committing
 pushing and merging this documentation during repository consolidation. Bravia
 remains private; those links require access. Publishing is a separate decision.
 
-Phase 0 is repository documentation only. BOM weather, the design B photo layout,
+Phase 0 is repository documentation only. Phase 1 BOM work was subsequently
+authorised and prepared locally as recorded below. The design B photo layout,
 native HA notice foundation, TV interactions, phone migration and additional
 attention sources remain later phases requiring their own authorisation. Design C
 aircraft work requires a separate implementation plan. No automatic progression,
@@ -60,7 +61,44 @@ forecast and Sydney date/freshness handling before a separately approved source
 change. Do not silently substitute another provider or remove Met.no from HA.
 Preserve the working connection and key without printing or rotating it.
 
-## Trial status
+## Phase 1 local implementation - 8 November 2026
+
+The user authorised Phase 1 investigation and local implementation. Work is on
+Bravia `feature/bom-weather` and HA `docs/bom-weather`. The user subsequently
+approved committing/pushing both branches and opening PRs on 8 November. Merge,
+deployment and TV verification remain pending. Source baseline is Bravia
+`69ee6877d00eb263ed1c125a273d722639256e31`, HA
+`ec3c7b650a6df906c6fb3064de75f0999b2246cd`.
+
+Read-only authenticated browser inspection at approximately 12:01 Sydney time:
+
+- `weather.weather_homemascot`: `rainy`, 15.5°C.
+- Attribution: `Data provided by the Australian Bureau of Meteorology`.
+- `condition_source: daily`; HA last updated 00:54:55 UTC and last reported
+  00:59:54 UTC on 8 November. These are HA reporting timestamps, not independently
+  verified station observation timestamps.
+- Daily `weather.get_forecasts` retrieval succeeded. Today's row was
+  `datetime: '2026-11-08T00:00:00'`, `temperature: 19`, `templow: 11`, `rainy`.
+  The next row was 9 November, high 20 / low 12. The actual response confirms
+  offset-free local dates and HA-normalised `temperature`/`templow` fields.
+
+This supersedes the earlier inability to verify the entity through the Supervisor
+API. The browser check does not establish what the current Bravia host selects;
+saved host options were not read or changed. No HA configuration was changed.
+
+The reusable [Phase 1 implementation and acceptance record](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bom-weather/PHASE1.md)
+contains the reviewed scope. It covers the local-date fix, cache source isolation, visible TV attribution,
+tests, pending live checks and rollback. Local validation passed 13 host tests,
+packaged-server syntax, Android build/signature verification and 15 JVM assertions.
+
+Proposed live scope, pending approval: update only the Bravia host package, change
+its `weather_entity` option to `weather.weather_homemascot` while concealing and
+preserving the existing key, then install the reviewed matching TV APK. Preserve
+the album, settings and current/previous recovery artifacts. Do not remove Met.no,
+change the BOM integration, reload/restart HA core or progress to Phase 2. Record
+exact source/artifact hashes and TV acceptance after a named deployment approval.
+
+## Historical trial status
 
 The initial photo-free results below are historical. The later first-album
 deployment supersedes their zero-photo and source-revision details. These records
