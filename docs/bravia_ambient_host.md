@@ -204,14 +204,16 @@ remain open; Phase 2 merge is not approved.
 
 The photo-presentation trial is installed. The user liked the initial design and
 requested a brighter background and **60 seconds per scene**. Both adjustments
-are applied; the interval remains configurable from 10 to 300 seconds. Portrait
+are applied. The first brightness adjustment was still too dark, so the current
+trial uses a warm cream background and dark text, following user feedback. The
+interval remains configurable from 10 to 300 seconds. Portrait
 pairing is enabled. Landscape and square photographs continue to display alone,
 fitted in full. A live landscape scene is not yet explicitly recorded.
 
 Local build/signature checks, 215 Android assertions and runtime-source CI passed.
 Portrait pairs, single-photo mode and injected Back exit were checked on the TV.
 Short performance samples are encouraging but do not establish long-run stability.
-Final brightness acceptance, debugging closeout and ordinary idle/physical Back
+Final cream-palette acceptance, debugging closeout and ordinary idle/physical Back
 checks remain pending. Debugging is currently enabled for final review.
 
 No household configuration, host, photo-library or cache changes are part of this
