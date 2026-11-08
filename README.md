@@ -2,6 +2,8 @@
 
 This is the version-controlled portion of the Home Assistant setup running in our home.
 
+[![Local checks](https://github.com/lachlanw-117/Wright-Home-Assistant/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/lachlanw-117/Wright-Home-Assistant/actions/workflows/checks.yml)
+
 It brings together Zigbee, Matter, Thread and Wi-Fi devices across lighting, temperature control, blinds, appliances and network recovery.
 
 The basic approach is:

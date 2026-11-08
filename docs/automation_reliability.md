@@ -45,7 +45,8 @@ implementation choice, now deployed, with no change to the existing notification
 `tests/test_automation_reliability.py` loads the actual YAML and renders its Jinja
 templates against synthetic HA state objects. It exercises 13 charging scenarios
 and 12 washer transitions, checks independent notification attempts, and verifies
-the other 18 automation definitions are identical to `main`.
+the other 18 automation definitions are identical to the selected baseline
+(`main` locally; `HA_AUTOMATION_BASE_REF=origin/main` in CI).
 It is a focused behaviour harness, not a full Home Assistant schema/runtime test.
 
 ## Risk and rollback

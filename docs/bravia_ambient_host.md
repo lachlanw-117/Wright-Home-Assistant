@@ -11,11 +11,12 @@ to launch it, and no TV-control service is required for the host.
 ## Enhancement phases and current scope
 
 On 8 November 2026, the user selected separately approved implementation phases.
-The companion [roadmap](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bravia-ambient/ROADMAP.md),
-[decision log](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bravia-ambient/DECISIONS.md)
-and [maintenance procedure](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bravia-ambient/MAINTENANCE.md)
-own the phase definitions and rationale. These new documents are local Phase 0
-work; GitHub links will resolve after a separately approved commit/push.
+The companion [roadmap](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/ROADMAP.md),
+[decision log](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/DECISIONS.md)
+and [maintenance procedure](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/MAINTENANCE.md)
+own the phase definitions and rationale. The user separately approved committing,
+pushing and merging this documentation during repository consolidation. Bravia
+remains private; those links require access. Publishing is a separate decision.
 
 Phase 0 is repository documentation only. BOM weather, the design B photo layout,
 native HA notice foundation, TV interactions, phone migration and additional
@@ -99,7 +100,7 @@ A random 32-byte key was configured directly and transferred to the TV without
 printing it or committing it. No HA core restart, merge, photo import or cache
 implementation change was performed. Failure/recovery, system-picker availability
 and individual playback/HDMI/input acceptance checks remain unverified. See the
-companion project's [trial guide](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bravia-ambient/TRIAL.md).
+companion project's [trial guide](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/TRIAL.md).
 
 The current app retains a photo cache on the TV. Persistent offline photo storage
 is no longer a user requirement; removing it is a future app change. The installed
