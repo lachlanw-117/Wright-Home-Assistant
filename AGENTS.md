@@ -23,3 +23,7 @@ Changes can affect everyday household behaviour.
 - Never assume GitHub, local branches or remote-tracking references match the
   live Home Assistant installation. Distinguish repository evidence from facts
   requiring live verification.
+- For runtime changes, keep the PR open during the separately approved trial
+  deployment from its exact feature-branch commit. Record relevant live/device
+  acceptance before requesting merge approval; local/CI tests alone do not pass
+  that gate. Documentation-only changes need review, not a live deployment.
