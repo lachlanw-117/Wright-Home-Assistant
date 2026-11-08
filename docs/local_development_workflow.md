@@ -8,6 +8,12 @@ Manual UI edits need to come back into Git, and repository changes need an
 explicit deployment. Neither side automatically proves what is on the other.
 [AGENTS.md](../AGENTS.md) contains the working rules.
 
+Distinguish configuration edits from ordinary runtime preferences. For the planned
+Bravia notice controls, Git will own helper definitions and routing logic, while
+the restored helper values will be changed in HA. Toggling a destination will not
+require a Git edit or later source reconciliation. Those controls are not yet
+implemented; see the [companion host notes](bravia_ambient_host.md).
+
 ## Make and review changes
 
 1. Inspect the existing configuration and its device and integration dependencies.

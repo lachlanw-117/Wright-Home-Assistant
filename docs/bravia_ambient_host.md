@@ -8,6 +8,57 @@ and deployment procedure rather than keeping another copy of that code.
 The TV owns screensaver entry and dismissal. No HA automation or timer is needed
 to launch it, and no TV-control service is required for the host.
 
+## Enhancement phases and current scope
+
+On 8 November 2026, the user selected separately approved implementation phases.
+The companion [roadmap](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bravia-ambient/ROADMAP.md),
+[decision log](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bravia-ambient/DECISIONS.md)
+and [maintenance procedure](https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/feature/bravia-ambient/MAINTENANCE.md)
+own the phase definitions and rationale. These new documents are local Phase 0
+work; GitHub links will resolve after a separately approved commit/push.
+
+Phase 0 is repository documentation only. BOM weather, the design B photo layout,
+native HA notice foundation, TV interactions, phone migration and additional
+attention sources remain later phases requiring their own authorisation. Design C
+aircraft work requires a separate implementation plan. No automatic progression,
+live change, device cleanup, commit, push or merge is implied by accepting the
+roadmap. Keep household entity/routing definitions here and reusable source in
+Bravia.
+
+Future notice categories, destination switches, pauses and private inbox belong
+in HA. Definitions and logic belong in Git; restored helper values are everyday
+runtime preferences, so changing a routing switch does not create a source edit
+to reconcile later. These helpers and sources have not been implemented. Initial
+sources will be washing, backups and one aggregated update count, in capture-only
+mode. Existing washing phone notifications and the laundry-light action stay in
+place until individually reviewed migration. Repairs, persistent notifications
+and selected device-health rules follow later, without raw log/state forwarding.
+
+## BOM source inspection - 8 November 2026
+
+Read-only inspection of the installed manifest, adapter source and selected
+entity-registry metadata found:
+
+| Item | Recorded finding |
+|---|---|
+| Component | `bureau_of_meteorology`, version 1.4.0 |
+| Daily weather | `weather.weather_homemascot`; selected target for Phase 1 |
+| Hourly weather | `weather.weather_homemascot_hourly`; not the daily-forecast target |
+| Observation source | Sydney Airport temperature, humidity and wind sensors |
+| Collection interval | Five minutes in installed source |
+| Existing weather | `weather.forecast_home`, registry platform `met` |
+
+This identifies entities and source ownership, not current readings or a successful
+forecast response. The attempted Supervisor API path returned 401. No saved app
+options or credential files were opened, and no weather selection was changed.
+The last recorded host deployment still used `weather.forecast_home`; the current
+live selection has not been reverified.
+
+Phase 1 must verify BOM availability, attribution, current readings, today's daily
+forecast and Sydney date/freshness handling before a separately approved source
+change. Do not silently substitute another provider or remove Met.no from HA.
+Preserve the working connection and key without printing or rotating it.
+
 ## Trial status
 
 The initial photo-free results below are historical. The later first-album
@@ -89,7 +140,7 @@ returned empty data during this phase, so playback confirmation is user-reported
 | Host machine | Home Assistant OS on the household Raspberry Pi 5 |
 | App source | Companion repository; generate the local app package there |
 | Architecture | Package supports aarch64 and amd64; verify the host architecture before installation |
-| Weather entity | `weather.forecast_home`; verify it still exists before deployment |
+| Weather entity | Last recorded deployment: `weather.forecast_home`; planned Phase 1 target above, not yet selected or verified |
 | Forecast | Daily forecast through `weather.get_forecasts`; current state alone does not prove today's high/low is available |
 | Timezone | `Australia/Sydney` |
 | LAN port | TCP 8099, reachable from the TV; check for conflicts before installation |
@@ -134,6 +185,11 @@ their named scope; approval is not a completed deployment result.
    Clock/date should continue locally; aged cached weather must be marked stale.
    Refresh runs on entry and every five minutes while the screen is running.
 
+These steps describe the initial installation. Do not repeat them just to resume
+development or apply the Phase 1 source change. Use an approved UI that keeps the
+credential field concealed to change only the approved weather selector. Do not
+inspect/export full saved app options or print/rotate the existing key.
+
 Record each result before adding a small exported album. The photo-free trial
 does not validate photo decoding, crossfades or offline photo playback.
 
@@ -153,3 +209,23 @@ To abandon the host trial, stop the app with approval. On the TV, restore the
 original system screensaver if desired. Uninstalling or clearing app data is a
 separate decision and can remove saved settings/cache. Source photos remain
 untouched. No HA core configuration change or core restart is part of this plan.
+
+## Session closeout and recovery inventory
+
+Follow the companion maintenance procedure after each approved TV testing window.
+Disable ADB/network debugging, review the Developer options master switch and
+confirm ordinary playback, idle entry and remote exit with debugging disabled.
+Normal app use does not need ADB. Last recorded debugging was enabled on
+7 November; it has not been rechecked or disabled by Phase 0. Disconnecting the
+development computer alone is not the closeout action.
+
+The recorded previous host package is `/backup/bravia-package-b05ca1f`. A private
+app backup was made before the album-limit update. Current/previous APKs and their
+signing material remain outside Git. Verify recovery artifacts and hashes before
+relying on them; do not inspect credential-bearing backup contents or delete them
+as cleanup. Source revision `3fbb12727382c538e43fdef125de39687d20bc07` identifies
+the last recorded matching host/TV deployment, not proof of current live hashes.
+
+Do not clear caches/app data, remove photos or signing material, apply
+skinny-bravia, disable Terminal & SSH or relocate shared toolchains as part of
+routine cleanup. Source/tool changes and deletions need their own scoped review.

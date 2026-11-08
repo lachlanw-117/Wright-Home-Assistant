@@ -30,13 +30,16 @@ need a wider inventory.
 
 ## Bravia ambient display
 
-The companion photo/weather host is planned as a local HA app, not an automation
-or core YAML integration. It expects `weather.forecast_home`, daily forecasts and
-`Australia/Sydney`. Its source and generated package belong in the separate
+The companion photo/weather host was installed as a local HA app on 7 November
+2026, not an automation or core YAML integration. Its last recorded deployment
+used `weather.forecast_home`, daily forecasts and `Australia/Sydney`. Its source
+and generated package belong in the separate
 [Bravia Ambient Display repository](https://github.com/lachlanw-117/Bravia-Ambient-Display).
 The [host notes](bravia_ambient_host.md) record installation, private options,
-folder/port requirements and trial status. The host has not been deployed in this
-trial; repository defaults do not establish live availability.
+folder/port requirements, BOM source inspection and trial status. They also link
+the separately approved enhancement phases and decision log. Phase 0 documents
+the plan only; the planned BOM selection and notice helpers are not deployed.
+Repository defaults and historical results do not establish current live state.
 
 ## Remaining comparisons
 
