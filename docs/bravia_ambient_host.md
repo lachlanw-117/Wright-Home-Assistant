@@ -213,8 +213,10 @@ fitted in full. A live landscape scene is not yet explicitly recorded.
 Local build/signature checks, 215 Android assertions and runtime-source CI passed.
 Portrait pairs, single-photo mode and injected Back exit were checked on the TV.
 Short performance samples are encouraging but do not establish long-run stability.
-Final cream-palette acceptance, debugging closeout and ordinary idle/physical Back
-checks remain pending. Debugging is currently enabled for final review.
+The user accepted the cream palette. Debugging was then disabled and its network
+port was confirmed closed. Ordinary idle/physical Back checks with debugging off
+remain pending. Ordering remains by source filename, restarting at the beginning
+on each screensaver/Preview session; no shuffle or resume change was requested.
 
 No household configuration, host, photo-library or cache changes are part of this
 phase. Detailed source/artifact identities, private recovery inventory and measured
