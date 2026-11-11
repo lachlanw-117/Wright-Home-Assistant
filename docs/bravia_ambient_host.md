@@ -487,3 +487,49 @@ ordinary idle entry and Back both work with debugging off. Relevant acceptance a
 closeout are complete; weather PRs remain open pending separate merge approval.
 This trial did not change Core, Thread, SSH startup policy, source photos or saved
 credentials. Full outage/long-run recovery remains outside this acceptance scope.
+
+## Home-style and dated-low trial - 11 November 2026
+
+The household approved the named Bravia photo-host update/rebuild/restart and TV
+APK trial from Bravia PR #5 head
+`29b3784f255ee7d29500a03c3166bae05248342d`. Exact-head CI passed before deployment.
+The source remains on the open feature PR, not main. Bravia owns implementation,
+comparison preview and synthetic tests; no HA configuration or duplicated source
+is introduced here.
+
+The host keeps the last supplied forecast low for the same provider and date
+when later responses omit it. A supplied revision replaces it; another date,
+provider or unit does not fill it. Captured lows persist in the existing cache.
+There is no actuals cutover, extra retained-value label or new scheduled job.
+If no matching low was captured before omission, it cannot be recovered
+retroactively. Overnight promotion and daytime retention still need live
+observation; synthetic coverage is not proof of that multi-day sequence.
+
+Before replacement, the actual prior APK/package matched the recorded accepted
+versions. Recovery copies and a Bravia-only app backup were preserved privately;
+detailed inventory is outside Git. Only the photo-host server source changed.
+Uploaded/deployed hashes matched the candidate, and stop/rebuild/start completed.
+Health returned 200/ok; unauthenticated weather returned 401. Runtime stats were
+available. These do not establish upstream forecast rows or full household recovery.
+
+The signed TV APK installed with install -r, preserving app data; its pulled-back
+hash matched the candidate. The user accepted the new layout and supplied a
+private photo showing fresh check age, Today high only and Tomorrow high/low.
+No household photo was added to version control. No numeric low was invented for
+the first evening when no matching prior value may have been captured.
+
+ADB was disabled after visual acceptance, and the TV actively refused port 5555.
+Developer options master was not changed. The user confirmed physical Back and
+ordinary idle entry work with debugging off, closing tonight's scoped TV session.
+A later ordinary-use check of Today after 9 am on 12 November is planned for low
+retention; no debugging or
+restart is needed merely to look at it. No HA Core restart, Thread/SSH setting
+change, provider switch, credential change, launcher installation or debloating
+occurred. App-only rollback can leave the additive feed in place; any host rollback
+must preserve the private cache/backup and use the previous package with approval.
+
+Keep PR #5 open until relevant acceptance/closeout and separate merge approval.
+See Bravia HOME_STYLE_REVIEW.md and the private artifact inventory before a future
+device action. The user separately approved committing/pushing the closeout notes
+in both repositories and opening the companion documentation PR. No merge is
+authorised by the trial or that publication approval.
