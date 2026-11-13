@@ -8,6 +8,21 @@ and deployment procedure rather than keeping another copy of that code.
 The TV owns screensaver entry and dismissal. No HA automation or timer is needed
 to launch it, and no TV-control service is required for the host.
 
+## Current status — 14 November 2026
+
+Phase 2 and the weather/playback refinement were merged on 8 November 2026.
+Recorded acceptance is complete for the scoped trial; broader outage and long-run
+recovery testing remains outstanding. Phase 2 merged in Bravia
+[PR #3](https://github.com/lachlanw-117/Bravia-Ambient-Display/pull/3) and HA
+[PR #6](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/6); weather/playback
+merged in Bravia [PR #4](https://github.com/lachlanw-117/Bravia-Ambient-Display/pull/4)
+and HA [PR #7](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/7).
+This is repository and recorded trial evidence, not a fresh live-system check.
+
+The dated implementation and trial sections below are historical records.
+Pending-approval statements describe their intermediate point in the trial and
+are superseded by this status and the recorded merges; they are not current tasks.
+
 ## Enhancement phases and current scope
 
 On 8 November 2026, the user selected separately approved implementation phases.
@@ -19,9 +34,10 @@ pushing and merging this documentation during repository consolidation. Bravia
 remains private; those links require access. Publishing is a separate decision.
 
 Phase 0 is repository documentation only. Phase 1 BOM work was subsequently
-authorised and trial-deployed from its branch as recorded below. The design B photo layout,
-native HA notice foundation, TV interactions, phone migration and additional
-attention sources remain later phases requiring their own authorisation. Design C
+authorised, trial-deployed and merged as recorded below. The design B photo layout
+and weather/playback refinement are also merged. The native HA notice foundation,
+TV interactions, phone migration and additional attention sources remain later
+phases requiring their own authorisation. Design C
 aircraft work requires a separate implementation plan. No automatic progression,
 live change, device cleanup, commit, push or merge is implied by accepting the
 roadmap. Keep household entity/routing definitions here and reusable source in
@@ -177,7 +193,8 @@ user reported the no-credit display "looks right". Debugging was disabled again
 with `adb_enabled: 0`, and TCP 5555 again returned ECONNREFUSED. The user then
 answered "its all good" to the explicit Back-dismissal and normal idle/photo-return
 check with debugging off. Those physical results are user-reported. Scoped Phase 1
-acceptance and closeout passed; no merge has been performed or approved.
+acceptance and closeout passed. At that trial checkpoint, merge approval was still
+pending; Phase 1 was subsequently approved and merged, as recorded below.
 
 Developer options master remains enabled to preserve unreviewed settings. The
 persistent port property remains 5555 because the TV refused changing it; whether
@@ -200,7 +217,8 @@ Phase 1 was accepted and merged following separate user approval. The user then
 approved Phase 2 implementation, its TV trial, commits, pushes and PRs.
 Bravia [PR #3](https://github.com/lachlanw-117/Bravia-Ambient-Display/pull/3)
 and companion [PR #6](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/6)
-remain open; Phase 2 merge is not approved.
+were open at this trial checkpoint; both were subsequently approved and merged
+on 8 November 2026.
 
 The photo-presentation trial is installed. The user liked the initial design and
 requested a brighter background and **60 seconds per scene**. Both adjustments
@@ -216,7 +234,8 @@ Short performance samples are encouraging but do not establish long-run stabilit
 The user accepted the cream palette. Debugging was then disabled and its network
 port was confirmed closed. The user then confirmed ordinary idle entry and
 physical Back dismissal both work normally with debugging off. Relevant Phase 2
-acceptance is complete; separate merge approval is still required.
+acceptance was complete at this checkpoint; separate merge approval was later
+supplied and both Phase 2 PRs merged.
 Ordering remains by source filename, restarting at the beginning
 on each screensaver/Preview session; no shuffle or resume change was requested.
 
@@ -269,12 +288,12 @@ the connected HA tool's Supervisor requests returned 401.
 
 Recorded checks at approximately 22:08–22:10 Australia/Sydney:
 
-- LAN `http://192.168.0.142:8099/health`: HTTP 200, `{"ok":true}`.
+- LAN `http://PI_LAN_ADDRESS:8099/health`: HTTP 200, `{"ok":true}`.
 - Unauthenticated `/weather`: HTTP 401.
 - Authenticated `/weather`: 15.1°C, `partlycloudy`, today's high 15.1°C and
   low 14.4°C for 7 November; `stale: false`, `forecastStale: false`.
 - `/share/bravia-ambient` and the authenticated photo manifest: zero photos.
-- TV at `192.168.0.152`, Android 12: host settings saved; Preview visibly showed
+- TV at `TV_LAN_ADDRESS`, Android 12: host settings saved; Preview visibly showed
   **Weather: Feed received**, **15°C partlycloudy**, **High 15° Low 14°**.
   The rounded readings agree with the host. **No album cached** is expected here.
 
@@ -484,6 +503,7 @@ JVM assertions and 22 host tests; signed build and runtime-source CI passed.
 The user accepted the final display and physical Back dismissal. Debugging was
 then disabled and its network port closure verified. The user subsequently confirmed
 ordinary idle entry and Back both work with debugging off. Relevant acceptance and
-closeout are complete; weather PRs remain open pending separate merge approval.
+closeout are complete. Separate merge approval was subsequently supplied and both
+weather/playback PRs merged on 8 November 2026.
 This trial did not change Core, Thread, SSH startup policy, source photos or saved
 credentials. Full outage/long-run recovery remains outside this acceptance scope.
