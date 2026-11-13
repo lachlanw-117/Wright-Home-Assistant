@@ -533,3 +533,18 @@ See Bravia HOME_STYLE_REVIEW.md and the private artifact inventory before a futu
 device action. The user separately approved committing/pushing the closeout notes
 in both repositories and opening the companion documentation PR. No merge is
 authorised by the trial or that publication approval.
+
+## User acceptance and merge approval — 14 November 2026
+
+The user stated: "I am happy with how the bravia screen saver is working" and
+explicitly requested merging Bravia #5 and companion HA #8. This supersedes the
+pending household acceptance/merge gate in the historical notes above. No
+additional timed or dated-low observation is required to close this trial.
+Specific forecast-low payloads, controlled failure/recovery and untested
+HDMI/rendering scenarios remain unverified, rather than being promoted to passes.
+
+The review's forecast-unit cache fix is included in the branch and covered by
+synthetic tests, but has not been deployed. The last recorded installed runtime
+remains `29b3784f255ee7d29500a03c3166bae05248342d`. Merge does not deploy it.
+No device action, restart, debugging change or deployment is authorised or
+performed by this Git closeout.
