@@ -56,6 +56,11 @@ For example:
 
 This means the physical interaction can stay simple even when the devices behind it are a bit weird.
 
+### Two engineering decisions
+
+- **Keep the kiosk phone available:** the [charging watchdog](docs/automation_reliability.md#kiosk-phone-charging) requests power when battery feedback is missing, invalid or too old. It favours a working household control over strict battery optimisation, with the telemetry and startup limitations documented.
+- **Show what feedback actually proves:** the [black fan controls](docs/arlec_black_fan_dashboard_notes.md) highlight speed from reported percentage, but swing from the last requested scene because Tuya does not report physical oscillation. The dashboard keeps that distinction explicit.
+
 ## Lighting
 
 ### Day and night behaviour
