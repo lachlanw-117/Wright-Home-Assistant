@@ -1,55 +1,60 @@
-# Add a shared household inbox with grouped devices and editable delivery
+# Shared household inbox with grouped devices and editable delivery
 
-Device faults, washing and maintenance currently have separate delivery paths.
+Device faults, washing and maintenance previously had separate delivery paths.
 This change adds a native HA inbox with independent occurrences, recovery,
-coverage and dashboard/TV/phone routing. The candidate now covers 27 sources:
-physical light sets, fans, plugs, blinds, FingerBot, appliances, WAN, kiosk Wi-Fi,
-backups and grouped upgrades. Dashboard headings use device names while messages
-retain useful fault descriptions.
+coverage and dashboard/TV/phone routing. The latest candidate covers 24 sources,
+with concise device headings and descriptive notification messages.
 
-Kitchen lights are grouped four-plus-entrance, ensuite three and bathroom two.
-Any unavailable member creates one item; recovery requires every member valid.
-New sources start with dashboard/TV only. Existing fridge timing, recipients,
-preferences, pauses, washing handover and independent laundry lighting remain.
-Home/away splitting is parked. Existing dormant helpers retain their IDs; new
-rows receive four active destination controls without forced initial values.
+Light sets monitor individual bulbs: any unavailable member creates one item;
+recovery requires every member valid. Three blind availability rows are removed,
+including their controls, pauses and coverage records. Physical blind controls
+and their firmware entries in Updates remain.
+
+Each card has Dashboard, TV, Lachlan home/away and Nic home/away controls. Both
+phone switches on means always; one requires matching presence; both off means
+no phone alert. A guarded one-time migration copies each current phone choice
+to both switches before activating conditional routing. It preserves all current
+always/off choices, including washing, pauses and occurrence identities. Hidden
+plain phone helpers remain for rollback; global starting preferences are not rerun.
+
+Presence uses post-start GPS and matching phone/kiosk Wi-Fi reports, expiring
+after 15 minutes. Missing Wi-Fi never proves away; conflicting evidence is unknown.
+Unknown suppresses conditional routes while both-on bypasses it. Eligibility is
+rechecked at dispatch; arrival does not replay consumed notices. Local diagnostics
+show status, reason and ages without network identifiers or coordinates.
 
 ## Validation and limits
 
-31 local tests pass, including production reducer/routing checks, grouped
-partial failure, uncertain recovery, recurrence, name migration and legacy
-helper preservation. YAML parsing, generated-file consistency and diff checks
-pass. No HA instance, fake devices or simulated delivery environment was created.
-Local checks do not prove HA restoration, physical availability or handset delivery.
+47 local tests pass, including grouped failure/recovery, route combinations,
+fresh/stale/conflicting evidence, startup restoration, migration preservation,
+dispatch-time changes, deduplication and no arrival backlog. YAML parsing of 19
+repository files, generated-file consistency and diff checks pass. No isolated
+HA instance, fake devices or simulated notification environment was created.
 
-The previous recorded Pi runtime was `3cc4573` (12 sources), following the
-separately approved initial and light-pair trials. Its hashes, validation,
-restart and preference continuity passed. Lachlan subsequently confirmed a real
-phone test and reported the separately updated TV consumer working. Kiosk
-Connection Type was observed enabled and reporting Wi-Fi. These outcomes do not
-imply unreported lifecycle, duplicate-suppression or washing acceptance.
+The Pi's last verified runtime remains
+`e2f0bbc7adebcfca6a993c36f4ac038f355328d6` (27 sources). Its ten hashes,
+HA validation, approved restart and preference continuity passed; the historical
+[installation receipt](household_attention_grouped_trial.md) is preserved.
+Lachlan confirmed a real phone test and reported the updated TV consumer working.
+These outcomes do not establish acceptance of this conditional-routing candidate.
+The additive display-name field retains the v1 TV contract checked against
+Bravia source `5941e01`; its actual deployed revision is not established.
 
-Runtime `e2f0bbc7adebcfca6a993c36f4ac038f355328d6` is installed for trial.
-All ten hashes, HA validation, the single approved restart and continuity of
-98 existing switches, 12 pauses and 12 compared record summaries passed. Only
-the 30 new display routes were enabled; all 30 new phones remain off. The
-existing phone-send timestamp stayed unchanged. Rollback copies and snapshots
-are saved under `/share/household-attention-trials/20261114T0957-e2f0bbc/`. All three blinds currently
-report unknown and will show coverage gaps. Kitchen's physical four-plus-one
-split and the new dashboard layout still need acceptance. The additive
-`display_name` field retains the v1 descriptive-title contract checked against
-Bravia source revision `5941e01`; its actual deployed revision is not established.
+The new runtime candidate `5fe488ccbf67b7d41d2f92a11be6192fe93fcad9` is local only. HA loading/restoration, background iOS reports,
+conditional delivery, visual layout and kitchen four-plus-one physical grouping
+still require live acceptance. Nic's Always permission is an agreed setup assumption.
+Diagnostic adapters for Repairs, integration/add-on health and software errors
+are documented recommendations for a separate change; none is installed here.
 
 ## Trial and approval
 
 Keep [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) open.
-Review the exact candidate commit and runtime manifest, obtain separate push
-and installation/restart approvals, confirm backup readiness and recheck drift.
-Preserve rollback copies and all existing preferences; enable only the 30 new
-display controls, with new phones off. Never rerun global starting preferences.
+Review the exact candidate and nine-file delta (eleven-file reference manifest),
+obtain separate push and installation/restart/migration approvals, confirm backup
+readiness, check live drift and save rollback copies. Run only the guarded
+migration; compare all retained preferences, pauses and occurrences before/after.
 
-Follow the [candidate trial procedure](household_attention_grouped_trial.md) and
-record actual acceptance before requesting separate merge approval. Documentation
-and local checks do not pass the physical/visual gate. See the
-[documentation index](household_attention_index.md) for the current guide,
-coverage catalogue and historical installation evidence.
+Follow the [conditional-routing trial procedure](household_attention_presence_trial.md).
+Record actual acceptance before requesting separate merge approval. See the
+[documentation index](household_attention_index.md) for the guide, coverage
+catalogue and historical receipts.

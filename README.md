@@ -71,6 +71,11 @@ entity hide a failed member. Unknown observations remain visible as coverage gap
 The Pi is trialling runtime `e2f0bbc`: 27 sources, including the 15 grouped-device
 additions. HA validation, the approved restart, hashes and preference continuity
 passed; physical grouping and the new layout still need acceptance.
+The next local candidate removes blind availability (24 sources) and restores
+six destination switches, including home/away per person. Migration preserves
+current phone choices as always/off; conditional delivery is opt-in, with a
+15-minute freshness limit. It is not installed yet. See the
+[conditional-routing trial](docs/household_attention_presence_trial.md).
 Lachlan confirmed a real phone push test and reported the companion TV working.
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) stays open.
 See the [attention documentation](docs/household_attention_index.md),

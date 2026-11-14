@@ -1,5 +1,11 @@
 # Household attention — as built and trial status
 
+The next local candidate removes blind availability (24 sources) and restores
+six switches per card with opt-in, 15-minute-fresh home/away phone routing.
+It is not installed. See the [conditional-routing trial](household_attention_presence_trial.md)
+for the preserving migration, boot guard, checks and approval gates; the details
+below record the installed baseline rather than the new candidate.
+
 **Review status:** the 27-source extension at runtime commit `e2f0bbc` is
 installed for trial. Hashes, HA validation, the approved restart and existing
 preference/occurrence continuity passed; physical and visual acceptance remain.
