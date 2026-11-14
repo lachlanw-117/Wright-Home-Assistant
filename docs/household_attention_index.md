@@ -7,22 +7,20 @@ Home Assistant restores the preferences people change day to day.
 ## Start here
 
 - [User guide](household_attention_user_guide.md): everyday controls, timing and pauses.
-- [Coverage catalogue](household_attention_coverage.md): all 24 candidate source rules and exact physical mappings.
+- [Coverage catalogue](household_attention_coverage.md): all 24 source rules and exact physical mappings.
 - [Implementation](household_attention.md): lifecycle, interfaces, tradeoffs and limitations.
-- [Conditional-routing trial](household_attention_presence_trial.md): next candidate, preserving migration and acceptance gates.
-- [Grouped-device trial](household_attention_grouped_trial.md): installed `e2f0bbc` receipt and remaining physical acceptance.
+- [Conditional-routing trial](household_attention_presence_trial.md): installed `5fe488c` receipt, preserving migration and acceptance gates.
+- [Grouped-device trial](household_attention_grouped_trial.md): historical `e2f0bbc` receipt and remaining physical acceptance.
 - [Open PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11): review remains open through the trial.
 
 ## Current status
 
-The next local candidate has 24 sources and six switches per card; it removes
-blind availability and preserves current phone choices while adding opt-in
-home/away routing. It is not installed. The generated catalogue describes this
-candidate; historical receipts describe the versions actually installed.
-
-The Pi is trialling `e2f0bbc7adebcfca6a993c36f4ac038f355328d6`
-(27 sources), including the grouped extension and short names. Hashes, HA
-validation, one approved restart and old-preference continuity passed. The new
+The Pi is trialling `5fe488ccbf67b7d41d2f92a11be6192fe93fcad9`: 24 sources,
+six switches per card and opt-in home/away routing. Blind availability is removed.
+Hashes, HA validation, one approved restart and preservation of all 48 phone
+choices passed. Background presence and conditional delivery await acceptance.
+The [diagnostic monitoring plan](household_attention_diagnostics_plan.md) is a
+separate draft; no diagnostic adapters are installed. The new
 layout and physical grouping still need acceptance. Kiosk Connection Type was
 subsequently observed enabled
 and reporting Wi-Fi. Lachlan confirmed a successful real phone test and reported

@@ -68,19 +68,17 @@ TV and phone delivery. Cards use device names; the explanation sits underneath.
 Physical bulb sets are monitored together without letting an available group
 entity hide a failed member. Unknown observations remain visible as coverage gaps.
 
-The Pi is trialling runtime `e2f0bbc`: 27 sources, including the 15 grouped-device
-additions. HA validation, the approved restart, hashes and preference continuity
-passed; physical grouping and the new layout still need acceptance.
-The next local candidate removes blind availability (24 sources) and restores
-six destination switches, including home/away per person. Migration preserves
-current phone choices as always/off; conditional delivery is opt-in, with a
-15-minute freshness limit. It is not installed yet. See the
+The Pi is trialling runtime `5fe488c`: 24 sources and six destination switches,
+including home/away per person. Blind availability is removed. HA validation,
+one approved restart, hashes and migration of all 48 recipient choices passed.
+Conditional delivery is opt-in, with a 15-minute freshness limit; background
+phone reporting and physical/visual acceptance remain open. See the
 [conditional-routing trial](docs/household_attention_presence_trial.md).
 Lachlan confirmed a real phone push test and reported the companion TV working.
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) stays open.
 See the [attention documentation](docs/household_attention_index.md),
 [coverage catalogue](docs/household_attention_coverage.md) and
-[candidate trial procedure](docs/household_attention_grouped_trial.md).
+[current trial receipt](docs/household_attention_presence_trial.md).
 
 ## Lighting
 

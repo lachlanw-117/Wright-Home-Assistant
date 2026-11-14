@@ -1,10 +1,43 @@
 # Conditional phone delivery and blind removal
 
-Status: local candidate, not pushed or installed. Exact runtime candidate:
-`5fe488ccbf67b7d41d2f92a11be6192fe93fcad9`. The Pi's last verified runtime
-remains `e2f0bbc7adebcfca6a993c36f4ac038f355328d6`. Its installation receipt is
-preserved in [the grouped-device trial](household_attention_grouped_trial.md).
-PR #11 remains open; neither this trial nor merge is approved yet.
+Status: runtime `5fe488ccbf67b7d41d2f92a11be6192fe93fcad9` is installed for
+trial. The user approved push and installation and confirmed the existing Pi
+backup ready. PR #11 remains open; merge is not approved. The previous `e2f0bbc`
+receipt is preserved in [the grouped-device trial](household_attention_grouped_trial.md).
+
+## Installation receipt — 14 November 2026 AEDT
+
+- Pushed the reviewed commits through documentation tip `f5af27e`; CI run 29
+  passed ([run](https://github.com/lachlanw-117/Wright-Home-Assistant/actions/runs/43590273308)).
+- All ten previous runtime hashes matched `e2f0bbc`; policy was absent as expected.
+- Saved eight existing affected files with verified rollback hashes, recorded the
+  new policy file as previously absent, and installed only the nine-file delta.
+- All eleven installed payload hashes matched the exact runtime before/after restart.
+- `ha core check` passed at 22:31:13; one approved Core restart completed.
+- At 22:33:17 the store was ready with 24 records. Every retained boolean value,
+  pause and compared occurrence/delivery summary matched the predeploy snapshot.
+- Ran the one-time migration at 22:33:38. At 22:33:52 all 48 recipient choices
+  matched their prior effective value across all 96 home/away switches; the
+  migration flag was on. Other preferences, 24 pauses and 24 records were unchanged.
+- The phone-send timestamp remained `2026-11-14 08:39:00.182411+00:00` throughout;
+  no backlog send was observed. Live production routing returned true for both
+  always-enabled fridge recipients and false for the disabled TV-light recipient.
+- Both presence sensors were unknown with startup-restored readings rejected.
+  Actual background departure/arrival and conditional handset delivery remain pending.
+- Served dashboard configuration has 24 cards, six destination switches per card,
+  and no blind cards. This API inspection is not visual acceptance.
+- Active definitions: 196 booleans and 25 datetimes (24 pauses plus the session
+  marker). HA also retains 12 unavailable boolean and three unavailable datetime
+  registry placeholders for removed blind helpers. They are restored orphans,
+  absent from the dashboard, reducer and watches. Registry cleanup remains pending;
+  the connector has no entity-registry removal operation. No storage files were edited.
+- Only Updates remained in uncertain coverage; no blind coverage gaps remained.
+
+Rollback copies, hashes, bundle and bounded before/after snapshots are saved at
+`/share/household-attention-trials/20261114T1129-5fe488c/`.
+Local snapshot files use the `attention_presence_` prefix under ignored `.tools/`.
+Physical grouping, visual acceptance, background phone reporting and conditional
+push acceptance remain open. No forced device outage or diagnostic push was used.
 
 ## Accepted behaviour
 

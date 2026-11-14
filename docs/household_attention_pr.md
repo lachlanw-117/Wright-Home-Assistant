@@ -31,28 +31,34 @@ dispatch-time changes, deduplication and no arrival backlog. YAML parsing of 19
 repository files, generated-file consistency and diff checks pass. No isolated
 HA instance, fake devices or simulated notification environment was created.
 
-The Pi's last verified runtime remains
-`e2f0bbc7adebcfca6a993c36f4ac038f355328d6` (27 sources). Its ten hashes,
-HA validation, approved restart and preference continuity passed; the historical
-[installation receipt](household_attention_grouped_trial.md) is preserved.
-Lachlan confirmed a real phone test and reported the updated TV consumer working.
-These outcomes do not establish acceptance of this conditional-routing candidate.
-The additive display-name field retains the v1 TV contract checked against
-Bravia source `5941e01`; its actual deployed revision is not established.
+Runtime `5fe488ccbf67b7d41d2f92a11be6192fe93fcad9` is installed for trial.
+The user confirmed backup readiness and approved push/install. All ten previous
+hashes matched, fresh rollback copies were verified, the nine-file delta was
+installed, HA configuration validation passed and one Core restart completed.
+All eleven installed hashes match. CI run 29 passed on documentation tip `f5af27e`.
 
-The new runtime candidate `5fe488ccbf67b7d41d2f92a11be6192fe93fcad9` is local only. HA loading/restoration, background iOS reports,
-conditional delivery, visual layout and kitchen four-plus-one physical grouping
-still require live acceptance. Nic's Always permission is an agreed setup assumption.
-Diagnostic adapters for Repairs, integration/add-on health and software errors
-are documented recommendations for a separate change; none is installed here.
+The one-time migration preserved all 48 recipient choices across 96 home/away
+switches. Other preferences, 24 pauses and 24 compared occurrence/delivery
+summaries were unchanged; the phone-send timestamp did not advance. The served
+dashboard has 24 cards with six switches each and no blind cards. HA retains
+15 inactive registry placeholders for removed blind helpers; cleanup is pending.
+Rollback evidence is in `/share/household-attention-trials/20261114T1129-5fe488c/`.
+
+Both presence sensors initially reported unknown, rejecting restored samples.
+Normal background departure/arrival, conditional push delivery, visual acceptance
+and kitchen four-plus-one physical grouping remain open. Nic's Always permission
+is an agreed setup assumption. Earlier real phone/TV success does not establish
+acceptance of this new conditional-routing trial. The v1 TV contract is unchanged.
+
+Diagnostic adapters are a separate draft plan; no new diagnostic monitoring has
+been installed. Historical trial receipts remain preserved.
 
 ## Trial and approval
 
 Keep [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) open.
-Review the exact candidate and nine-file delta (eleven-file reference manifest),
-obtain separate push and installation/restart/migration approvals, confirm backup
-readiness, check live drift and save rollback copies. Run only the guarded
-migration; compare all retained preferences, pauses and occurrences before/after.
+The approved exact-commit installation and preserving migration are complete.
+Continue normal household observation and record acceptance; any additional
+deployment, restart, physical action or merge needs its applicable approval.
 
 Follow the [conditional-routing trial procedure](household_attention_presence_trial.md).
 Record actual acceptance before requesting separate merge approval. See the

@@ -1,23 +1,23 @@
 # Household attention — user guide
 
-**Status: the Pi runs the 27-source `e2f0bbc` trial. The 24-source, six-switch
-update described below is a local candidate and has not been installed.**
+**Status: the Pi runs the 24-source, six-switch `5fe488c` trial. Migration preserved
+all 48 recipient choices; background presence and conditional delivery await acceptance.**
 
-The [grouped-device receipt](household_attention_grouped_trial.md) records the
-existing installation, hashes, restart and preservation of preferences. Lachlan
+The [current receipt](household_attention_presence_trial.md) records the
+installation, hashes, restart and preserving migration. Lachlan
 confirmed a real phone notification and reported the separately updated TV
 consumer working. Other physical/visual acceptance remains explicit.
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) stays open.
 
-The candidate removes the three blind availability rows and restores conditional
+The installed trial removes the three blind availability rows and restores conditional
 phone routing. Existing phone choices stay unchanged during setup: enabled
 becomes both home and away on; disabled becomes both off. **No alert becomes
-home-only automatically.** See the [candidate trial](household_attention_presence_trial.md)
+home-only automatically.** See the [current trial](household_attention_presence_trial.md)
 and [exact coverage catalogue](household_attention_coverage.md).
 
 ## What it watches
 
-One shared inbox keeps faults, washing and maintenance separate. The candidate
+One shared inbox keeps faults, washing and maintenance separate. The installed trial
 has 24 sources, including fridge visibility, Dyson, grouped lights, black fan,
 plugs, FingerBot, WAN, washer availability, kiosk Wi-Fi, completed washing,
 washer cleaning, backup failures and grouped updates.
@@ -138,7 +138,7 @@ deploy or force a screen change on the television.
 This candidate does not add a generic software-error handler, credential/Repairs
 adapter, overdue-backup detector, battery alarms or independent HA/Pi outage
 monitor. Diagnostic recommendations and implementation boundaries are in the
-[candidate trial](household_attention_presence_trial.md).
+[current trial](household_attention_presence_trial.md).
 
 Local tests exercise production reducers and migration/dispatch templates without
 an HA instance, fake devices or notification environment. HA loading, preference
