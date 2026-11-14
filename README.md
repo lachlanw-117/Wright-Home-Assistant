@@ -68,9 +68,9 @@ TV and phone delivery. Cards use device names; the explanation sits underneath.
 Physical bulb sets are monitored together without letting an available group
 entity hide a failed member. Unknown observations remain visible as coverage gaps.
 
-The Pi's last recorded runtime is `3cc4573` (12 sources). The local extension adds
-15 grouped-device sources, for 27 total, and awaits review and approved trial
-of runtime commit `e2f0bbc`.
+The Pi is trialling runtime `e2f0bbc`: 27 sources, including the 15 grouped-device
+additions. HA validation, the approved restart, hashes and preference continuity
+passed; physical grouping and the new layout still need acceptance.
 Lachlan confirmed a real phone push test and reported the companion TV working.
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) stays open.
 See the [attention documentation](docs/household_attention_index.md),

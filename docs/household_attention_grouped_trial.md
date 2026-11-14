@@ -1,9 +1,10 @@
 # Grouped-device extension: review and trial
 
-Status: local candidate; not pushed or installed. PR #11 remains open. The last
-recorded installed runtime is `3cc457301a148a7f34b62ee47c9aed9e3768bcaa`.
+Status: **installed for trial; physical and visual acceptance remain open**.
+PR #11 remains open. The Pi now runs exact runtime
+`e2f0bbc7adebcfca6a993c36f4ac038f355328d6`, replacing recorded `3cc4573`.
 
-Candidate runtime commit: `e2f0bbc7adebcfca6a993c36f4ac038f355328d6`.
+Installed runtime commit: `e2f0bbc7adebcfca6a993c36f4ac038f355328d6`.
 The separately prepared documentation commit does not alter runtime files.
 The ignored local trial ZIP contains ten reference payloads with SHA-256 hashes,
 a seven-file delta against installed `3cc4573`, and exactly 30 new display-only
@@ -66,7 +67,8 @@ git diff --check
 
 Results: **31 tests passed**, **19 tracked YAML files parsed**, generated outputs
 matched and whitespace checks passed. The companion contract check also passed.
-No new CI run exists yet: this candidate has not been pushed.
+GitHub Actions Local checks run 28 passed for review head
+`1c2c0228754f4b7119bdf5a4ea908ed2869ac7b2` (documentation on top of this runtime).
 
 Checks cover the actual production reducers: partial/all-member loss, unknown
 recovery, off states, independent groups, recurrence, once-only routing and
@@ -108,3 +110,60 @@ scan, whole-repository audit or certification of the live host.
 Rollback restores only affected pre-trial copies, validates HA configuration and
 uses a separately approved restart/reload. Preserve subsequent unrelated changes
 and restored preferences; never restore runtime storage from a source archive.
+
+## Installation receipt — 14 November 2026
+
+Lachlan separately approved pushing the two reviewed commits and updating PR #11.
+After that completed and CI passed, he confirmed “back up done” and approved
+the named seven-file installation, validation, one Core restart and new display
+control setup. No forced outages, device actions or merge were performed.
+
+Direct SSH/SCP used existing authentication and saved-host verification; no keys
+or credentials were read. All ten old runtime hashes matched `3cc4573` before
+installation. Fresh rollback copies of the seven changed files, with verified
+hashes, are in:
+
+`/share/household-attention-trials/20261114T0957-e2f0bbc/rollback/`
+
+The parent directory retains the exact trial archive, staging manifest,
+`previous.sha256`, `installed.sha256`, `rollback.sha256`, `validated-at.txt` and
+the three bounded preference/occurrence snapshots. All ten installed hashes
+matched `e2f0bbc` before and after the single approved restart. `ha core check`
+passed at **20:57:31 AEDT** (`09:57:31Z`). The restart completed successfully.
+
+At **20:58:28 AEDT**, the store was ready with 27 records, 158 booleans and 27
+pauses. All **98 existing switch values, 12 pauses and 12 record summaries**
+matched the 20:56:34 pre-install snapshot. Compared record fields were occurrence
+ID, first detection, active status, phone-evaluated flag, selected routes,
+accepted recipients, delivery state and observation quality. The 60 new switches
+were all off, and the 15 new pauses expired. The existing phone-send timestamp
+did not change: the TV-light occurrence retained its earlier accepted Lachlan
+receipt without replaying delivery.
+
+At **20:58:53 AEDT**, only the approved **30 new dashboard/TV controls** were
+enabled. At **20:59:06**, all old preferences still matched and all **30 new phone
+controls stayed off**. Shared routing and the configured flag remained on. The
+global starting-preferences script was not rerun.
+
+Read-only API checks confirmed the short names on all 27 records, authenticated
+three-view dashboard configuration and all intended control headings. The v1 TV
+sensor was ready. Dashboard API retrieval required one retry after a closed
+WebSocket; this did not cause another restart or configuration change.
+
+The three blind records remain inactive with unknown quality, correctly
+contributing coverage gaps. The grouped upgrade record also has incomplete
+coverage. Other new sources were valid and healthy at this check. The existing
+TV-light fault was still active; its phone receipt and occurrence were preserved.
+
+| Acceptance | Result |
+|---|---|
+| Exact files, rollback, HA validation and one restart | Passed as above |
+| Existing preferences and occurrence continuity | Passed for all compared values |
+| New display routes on; new phone routes off | Passed: 30 on / 30 off |
+| Short names and dashboard configuration loaded | Passed by read-only API; rendered layout still needs visual acceptance |
+| Prior handset push / prior TV operation | User-confirmed before this extension; not retested by forcing an event |
+| Kitchen four-plus-one physical split | Pending user wall-switch test |
+| Ensuite/bathroom loss, recovery and independent groups | Pending physical observations |
+| Blinds' useful physical availability reporting | Incomplete: currently unknown; no fault invented |
+| Updated TV rendering and screenshots | Pending visual acceptance |
+| Merge approval | Not requested |

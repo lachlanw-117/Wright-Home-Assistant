@@ -14,9 +14,11 @@ Home Assistant restores the preferences people change day to day.
 
 ## Current status
 
-The last recorded Pi runtime is `3cc457301a148a7f34b62ee47c9aed9e3768bcaa`
-(12 sources). The 27-source extension and short names are a local candidate,
-not an installed change. Kiosk Connection Type was subsequently observed enabled
+The Pi is trialling `e2f0bbc7adebcfca6a993c36f4ac038f355328d6`
+(27 sources), including the grouped extension and short names. Hashes, HA
+validation, one approved restart and old-preference continuity passed. The new
+layout and physical grouping still need acceptance. Kiosk Connection Type was
+subsequently observed enabled
 and reporting Wi-Fi. Lachlan confirmed a successful real phone test and reported
 the separately updated TV consumer working on 14 November 2026. This does not
 establish every source's physical acceptance or the TV's exact installed revision.
@@ -60,4 +62,4 @@ They are not declarations of today's UI values.
 Capture Dashboard, Inbox and Delivery controls after the new layout is installed
 and visually accepted. Review images for phone identifiers, SSID/BSSID, private
 messages, tokens and unrelated household data before committing. No screenshot
-is supplied yet: the candidate has not been deployed or visually accepted.
+is supplied yet: the installed layout has not been visually accepted.

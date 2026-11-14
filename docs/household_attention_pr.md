@@ -22,15 +22,19 @@ helper preservation. YAML parsing, generated-file consistency and diff checks
 pass. No HA instance, fake devices or simulated delivery environment was created.
 Local checks do not prove HA restoration, physical availability or handset delivery.
 
-The current recorded Pi runtime remains `3cc4573` (12 sources), following the
+The previous recorded Pi runtime was `3cc4573` (12 sources), following the
 separately approved initial and light-pair trials. Its hashes, validation,
 restart and preference continuity passed. Lachlan subsequently confirmed a real
 phone test and reported the separately updated TV consumer working. Kiosk
 Connection Type was observed enabled and reporting Wi-Fi. These outcomes do not
 imply unreported lifecycle, duplicate-suppression or washing acceptance.
 
-Runtime candidate `e2f0bbc7adebcfca6a993c36f4ac038f355328d6` has not been pushed
-or installed. All three blinds currently
+Runtime `e2f0bbc7adebcfca6a993c36f4ac038f355328d6` is installed for trial.
+All ten hashes, HA validation, the single approved restart and continuity of
+98 existing switches, 12 pauses and 12 compared record summaries passed. Only
+the 30 new display routes were enabled; all 30 new phones remain off. The
+existing phone-send timestamp stayed unchanged. Rollback copies and snapshots
+are saved under `/share/household-attention-trials/20261114T0957-e2f0bbc/`. All three blinds currently
 report unknown and will show coverage gaps. Kitchen's physical four-plus-one
 split and the new dashboard layout still need acceptance. The additive
 `display_name` field retains the v1 descriptive-title contract checked against

@@ -1,10 +1,12 @@
 # Household attention — as built and trial status
 
-**Review status:** 12-source baseline installed for trial; the local 27-source
-extension at runtime commit `e2f0bbc` is not installed. See the [documentation index](household_attention_index.md),
+**Review status:** the 27-source extension at runtime commit `e2f0bbc` is
+installed for trial. Hashes, HA validation, the approved restart and existing
+preference/occurrence continuity passed; physical and visual acceptance remain.
+See the [documentation index](household_attention_index.md),
 [generated catalogue](household_attention_coverage.md) and
-[candidate trial](household_attention_grouped_trial.md).
-The detailed baseline below describes runtime commit
+[current trial receipt](household_attention_grouped_trial.md).
+The historical twelve-source baseline details below describe runtime commit
 `3cc457301a148a7f34b62ee47c9aed9e3768bcaa`. The companion
 [user guide](household_attention_user_guide.md) explains everyday operation and
 the differences between the new handler and existing washing delivery.
@@ -23,9 +25,12 @@ Branch: `feature/household-attention-handler`, based on
 `9b6513203ac89764d8669aaaf998b1878e2199ba`. The supplied
 [accepted handoff](household_attention_accepted_handoff.txt) is a historical
 requirements record. The decisions below supersede its earlier proposals.
-The branch is pushed through runtime commit `3cc4573`, and
+The reviewed branch head `1c2c022` includes runtime commit `e2f0bbc`, and
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) is open.
-Installed runtime files match `3cc4573` exactly. No merge has occurred.
+The later approved grouped trial installed exact runtime `e2f0bbc`. All ten
+hashes match, and all 98 prior preferences, 12 pauses and 12 compared record
+summaries survived. Only the 30 new display controls were enabled; new phones
+remain off. See its trial receipt for evidence. No merge has occurred.
 
 ## Installed living-room extension — wall-switch acceptance pending
 
@@ -128,7 +133,7 @@ Source rules remain reviewed Git configuration; daily destination values live
 in restored HA state.
 
 The installed baseline covers backup failures, washing, grouped upgrades and curated
-availability, including the three living-room pairs. The local candidate adds the
+availability, including the three living-room pairs. The installed `e2f0bbc` extension adds the
 15 grouped-device sources in the catalogue. Rapid battery-drop thresholds and
 actionable authentication sources remain excluded.
 Real battery histories were inspected but do not establish reliable rapid-drain
