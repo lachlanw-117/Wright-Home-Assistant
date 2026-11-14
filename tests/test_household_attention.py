@@ -108,6 +108,24 @@ class LifecycleTests(unittest.TestCase):
             f = functions({source['entities'][0]: 'off'})
             self.assertEqual(f.observe(source, {}, AT)['observation'], expected)
 
+    def test_kiosk_wifi_requires_fresh_explicit_connection_evidence(self):
+        source = BY_KEY['kiosk_wifi']
+        entity = source['entities'][0]
+        for value, age, observation, quality in [
+            ('Wi-Fi', 60, 'good', 'valid'),
+            ('Cellular', 60, 'bad', 'valid'),
+            ('No Connection', 60, 'bad', 'valid'),
+            ('Wi-Fi', 901, 'unknown', 'stale'),
+            ('No Connection', 901, 'unknown', 'stale'),
+            ('unknown', 60, 'unknown', 'unknown'),
+            ('unavailable', 60, 'unknown', 'unknown'),
+        ]:
+            with self.subTest(value=value, age=age):
+                result = functions({entity: value}, reported={entity: AT - age}).observe(source, {}, AT)
+                self.assertEqual((result['observation'], result['quality']), (observation, quality))
+        missing = functions().observe(source, {}, AT)
+        self.assertEqual(missing['observation'], 'unknown')
+
     def test_wash_event_dedup_and_next_occurrence(self):
         f, source = functions(), BY_KEY['washing_finished']
         first = f.advance(source, {}, evidence(identity='2026-11-14T01:00:00Z'), AT)
@@ -156,6 +174,16 @@ class LifecycleTests(unittest.TestCase):
 
 
 class RoutingTests(unittest.TestCase):
+    def test_unselected_presence_age_suppresses_home_only_not_fridge(self):
+        values = {'person.lachlan': 'home',
+                  'input_boolean.attention_washing_finished_lachlan_home': 'on',
+                  'input_boolean.attention_fridge_unavailable_lachlan_home': 'on',
+                  'input_boolean.attention_fridge_unavailable_lachlan_away': 'on'}
+        tracker = 'device_tracker.big_lws_iphone_14'
+        f = functions(values, reported={tracker: AT})
+        self.assertFalse(f.recipient_route('washing_finished', 'lachlan', tracker, AT, None))
+        self.assertTrue(f.recipient_route('fridge_unavailable', 'lachlan', tracker, AT, None))
+
     def test_per_recipient_presence_freshness_and_independent_route(self):
         key = 'fridge_unavailable'
         for home, away, presence, age, expected in [

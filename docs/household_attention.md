@@ -14,6 +14,8 @@ or merge has occurred in this implementation session.
   both channels recover. The latest explicit "fridge is immediate" overrides
   the earlier agreement to a ten-minute starting proposal. Expiring pause agreed.
 - Other unavailable-device phone alerts: 15 minutes, no repeats or recovery message.
+- Internet, washer-unavailable, backup-failure and washer-cleaning phones: Lachlan
+  only, at home or away. Nic remains off for those starting routes.
 - Washing: each person gets a phone alert only when home; one-shot event resolves
   after notification delivery instead of remaining a pending chore. Existing red
   laundry lighting stays independent; no extra light-control helper is requested.
@@ -22,12 +24,15 @@ or merge has occurred in this implementation session.
 - Second Dyson: not in HA; explicitly excluded from this work by Lachlan.
 - Kiosk: use ordinary online/on-Wi-Fi presence; do not build complex inference
   from charger/battery behaviour. Existing Wi-Fi/connection-type sensors were
-  verified in the registry but are disabled, so enabling a real signal is still
-  a separately approved live setup step.
+  verified in the registry but are disabled. Lachlan selected enabling the existing
+  Wi-Fi sensor during the separately approved trial setup, rather than waiting
+  for router tracking. The implementation reads connection type without storing
+  the household's SSID.
 
-Pending choices: phone recipients for internet/washer-unavailable/backup/cleaning;
-presence-report maximum age; enabling kiosk Wi-Fi sensing versus waiting for a
-router-based signal. Lights, battery-drain and authentication still lack reviewed
+Pending choice: presence-report maximum age. Lachlan asked whether reports can
+be made more frequent before choosing. Kiosk sample freshness/actual reporting
+still needs runtime verification after enabling its registered sensor.
+Lights, battery-drain and authentication still lack reviewed
 source policies/signals and are not silently added.
 
 ## Ownership and implementation
@@ -39,6 +44,7 @@ simulation service. The Bravia application is unchanged.
 | File | Responsibility |
 |---|---|
 | `attention/sources.yaml` | Reviewed source list, meanings and delivery delays |
+| `attention/policy.yaml` | Shared presence freshness; null until selected |
 | `custom_templates/household_attention.jinja` | Observation, lifecycle, destination filtering and one-time phone eligibility |
 | `packages/household_attention.yaml` | Restored store, derived inbox/health/dashboard/TV entities, phone delivery automation |
 | `attention/delivery_controls.yaml` | Six restored `input_boolean` definitions per row |
@@ -95,13 +101,13 @@ No credentials, private keys, runtime storage or backups were read or copied.
 |---|---|---|
 | Fridge unavailable | `switch.kitchen_fridge_power_plug` (ZHA) OR `number.refrigerator_fridge_temperature` (LG ThinQ). Either unavailable creates one visibility-loss item retaining both channels. Both must be valid to clear. The LG number is a setpoint, not proof of actual cooling. | Immediate; dashboard/TV and both people home/away in the starting profile. No repeats/escalation/recovery message. |
 | Dyson unavailable | `fan.purifier_hot_cool_de_nox` (Matter). `off` is normal. | 15 minutes; dashboard/TV and Lachlan home/away starting profile. Second Dyson explicitly removed from scope. |
-| Internet disconnected | `binary_sensor.archer_ax73_wan_status` (UPnP), including the registry ID used by repair automation `1786235041388`. Live `on`, device class connectivity. `off` means WAN disconnected. | 15 minutes; phone recipients pending. WAN is router evidence, not comprehensive internet reachability. Repair remains unchanged. |
-| Washer unavailable | `sensor.washer_current_status` (LG ThinQ); `initial` is a normal current state. | 15 minutes; phone recipients pending. Distinct from finished washing. |
+| Internet disconnected | `binary_sensor.archer_ax73_wan_status` (UPnP), including the registry ID used by repair automation `1786235041388`. Live `on`, device class connectivity. `off` means WAN disconnected. | 15 minutes; Lachlan home/away. WAN is router evidence, not comprehensive internet reachability. Repair remains unchanged. |
+| Washer unavailable | `sensor.washer_current_status` (LG ThinQ); `initial` is a normal current state. | 15 minutes; Lachlan home/away. Distinct from finished washing. |
 | Washing finished | `event.washer_notification`, `event_type: washing_is_complete`; event state is the occurrence timestamp. | Immediate, both people home-only starting profile; resolves after dispatch receipts or explicit suppression, no arrival backlog. Lighting unchanged. |
-| Washer cleaning | `sensor.washer_cycles >= 30`; a later valid value below 30 clears. | 15 minutes, once per cleaning-needed occurrence after cutover; recipients pending. Legacy messages continue before cutover. |
-| Backup failure | `event.backup_automatic_backup`: `failed`, `in_progress`, `completed`; success from `sensor.backup_last_successful_automatic_backup`. | 15 minutes; later successful automatic backup clears. Phone recipients pending. Backup staleness/missed cadence is a separate future rule. |
+| Washer cleaning | `sensor.washer_cycles >= 30`; a later valid value below 30 clears. | 15 minutes, once per cleaning-needed occurrence after cutover; Lachlan home/away. Legacy messages continue before cutover. |
+| Backup failure | `event.backup_automatic_backup`: `failed`, `in_progress`, `completed`; success from `sensor.backup_last_successful_automatic_backup`. | 15 minutes; later successful automatic backup clears. Lachlan home/away. Backup staleness/missed cadence is a separate future rule. |
 | Available upgrades | Explicit update list excluding Dad's desk plug firmware. One item with component/installed/latest details; confirmed `off` removes components. Unknown retains last known pending details and incomplete coverage. | Dashboard/TV starting routes; all phone preferences initially off. Six independent controls remain editable. |
-| Kiosk | `device_tracker.iphone_8` is mobile-app GPS and last reported six days before inspection; kiosk/charger state does not prove reachability. `sensor.iphone_8_ssid` and `sensor.iphone_8_connection_type` are registered but disabled. | Pending choice of real Wi-Fi/router signal, then verify its freshness. No adapter silently enabled and no GPS/battery outage inference. |
+| Kiosk | `sensor.iphone_8_connection_type` is registered but disabled. `Wi-Fi` is connected; `Cellular`/`No Connection` are explicit off-Wi-Fi reports. GPS/battery/charger state is not used. | Enable during approved setup and verify real reports. Dashboard/TV + Lachlan home/away, 15-minute phone delay. Draft sample-age limit is 15 minutes; stale data is uncertain, never proof of power-off. |
 | Lights/groups | Real lights exist, but the curated members and member-versus-group policy remain undecided. | Select devices/groups and persistence before connecting adapters. Saved route: TV only. |
 | Switch batteries | Real percentage histories exist. Laundry switch varied roughly 78-87% after an earlier 0%/unavailable period; fridge four-button remote stayed 100% with an unavailable interval. | These samples do not establish reliable rapid drain. Select switches, threshold/window, freshness and recovery; do not treat missing as zero. |
 | Auth/credentials | `repairs` is loaded; Spook/Watchman were not in the loaded components. No actionable reauth entity was established by this inventory. | Map a verified supported issue signal before adding an adapter; never inspect credentials to manufacture one. |
@@ -114,16 +120,19 @@ whole-instance scan and does not check or create records for that device.
 Phone actions verified: `notify.mobile_app_big_lws_iphone_14` (Lachlan) and
 `notify.mobile_app_nichola_s_iphone` (Nic), matching the existing washer device IDs.
 Presence is `person.lachlan` / `person.nic`, each backed by the corresponding
-mobile-app GPS tracker. The draft freshness value is 24 hours; this needs policy
-confirmation. Presence-dependent delivery suppresses missing/unknown/stale
+mobile-app GPS tracker. `attention/policy.yaml` leaves the freshness limit null
+until the report-frequency question is resolved and a value selected. This
+suppresses home-only washing phone routes instead of silently assuming 24 hours.
+Routes with both home and away enabled still work independently of freshness.
+Presence-dependent delivery suppresses missing/unknown/stale
 observations. Selecting both home and away makes delivery independent of
 presence, preserving the fridge's saved route. No SSID value is treated as proof.
 
 Source delays now implement the accepted timing. All phone routing is initially
 held behind restored `input_boolean.attention_routing_enabled`, which defaults
 off. Dashboard/TV and agreed phone starting values are applied only in the
-reviewed first-install setup. Unanswered recipient choices remain phone-off in
-that profile. Existing already-captured occurrences are not replayed when the
+reviewed first-install setup. Nic stays off for the Lachlan-only rows, and
+upgrades stay phone-off. Existing already-captured occurrences are not replayed when the
 gate is enabled: review the inbox during setup. Future preference edits change
 the six independent destinations without a Git edit.
 
@@ -134,7 +143,7 @@ dictionary keyed by reviewed source key. Each record contains:
 
 - `key`, `occurrence_id`, `source_occurrence`, `category`, `kind`, `severity`, `title`;
 - `active`, `first_detected`, `last_valid_observation`, `resolved_at` (Unix seconds);
-- `quality` (`valid` or `unknown` for currently mapped adapters), `evidence`, `details`;
+- `quality` (`valid`, `unknown` or `stale`), `evidence`, `details`;
 - backup `failure_at` and one-time `phone_evaluated` / transient `phone_routes`.
 - `selected_phone_routes`, `delivered_to`, `delivery_state`, `display_until`
   for bounded one-shot delivery outcome and recent-event display.
@@ -153,6 +162,27 @@ named entity changes, HA start and each minute, including after template reload.
 No `for` wait is used for persisted delivery timing. Startup observations can
 capture temporary visibility loss. Fridge delivery is immediate as requested;
 other fault phone delays use explicit first-detected timestamps.
+
+### iPhone reporting before choosing presence freshness
+
+iOS decides background update timing, so a selected foreground sensor interval
+is not a guaranteed background GPS heartbeat. On both people's phones, check
+Home Assistant's iOS location permission is Always. In Companion App settings,
+check Local Push for the server: it needs the internal URL and configured home
+Wi-Fi SSID, and should show Available while connected at home. The Companion
+docs say it also enables periodic sensor updates. Open/pull-to-refresh the app
+for an immediate manual report, then observe the real home/away update cadence.
+
+Do not build frequent `request_location_update` polling as the presence
+foundation: the official docs describe it as best-effort and discourage frequent
+use because of battery impact. No phone setting or location-request action was
+changed/sent by this development work. Select the freshness policy only after
+the user's reporting question is resolved.
+
+References: [iOS sensor updates](https://companion.home-assistant.io/docs/core/sensors/#when-sensors-update),
+[permissions/troubleshooting](https://companion.home-assistant.io/docs/troubleshooting/faqs/#sensors-are-missing-or-not-updating),
+[Local Push setup/status](https://companion.home-assistant.io/docs/notifications/notification-local/),
+[location request limitations](https://companion.home-assistant.io/docs/notifications/notification-commands/#request-location-updates).
 
 `sensor.household_attention_inbox` exposes all active items, confirmed fault count,
 coverage gaps, overall and category health. Chores and upgrades never increase
@@ -238,8 +268,8 @@ restored helper definitions. Inline template compilation is also checked.
 These checks cannot establish HA schema/include loading, actual restore/reload
 behaviour, HA state tracking dependencies, UI layout or physical delivery.
 
-Local results on 14 November 2026: YAML syntax passed for 18 repository YAML
-files; generated outputs matched; all 22 unit checks passed (3 existing and 19
+Local results on 14 November 2026: YAML syntax passed for 19 repository YAML
+files; generated outputs matched; all 24 unit checks passed (3 existing and 21
 attention checks); `git diff --check` passed. No HA configuration check, reload,
 restart, notification or device action was performed.
 
@@ -253,8 +283,8 @@ to manufacture examples. Relevant pending checks keep the PR open.
 
 ## Proposed exact-commit deployment and rollback
 
-This is a runbook, not deployment authorisation. Resolve the pending recipient,
-presence-age and kiosk choices and review the washing cutover before proposing
+This is a runbook, not deployment authorisation. Resolve the pending
+presence-age choice and review the kiosk setup/washing cutover before proposing
 a full delivery trial.
 
 1. Complete policy answers, local checks and review the final diff. Commit locally
@@ -272,7 +302,7 @@ a full delivery trial.
    Do not read secrets, runtime storage, credentials or backup contents.
 5. Install only the approved commit's `configuration.yaml` edits, the two named
    washing phone cutover edits in `automations.yaml`,
-   `packages/household_attention.yaml`, the five `attention/*.yaml` files,
+   `packages/household_attention.yaml`, the six `attention/*.yaml` files,
    `custom_templates/household_attention.jinja` and
    `dashboards/household_attention.yaml`. The generator/tests/docs are local-only.
    Recheck live washing trigger/actions for drift before applying those edits.
@@ -280,6 +310,10 @@ a full delivery trial.
    the affected file copies if validation fails. Initial helper/package loading
    may require a full HA restart; do not assume a template reload is sufficient.
    A template reload affects existing YAML feedback entities too.
+   During the separately approved setup, enable the existing iPhone 8 Connection
+   Type sensor in the Companion app/HA registry as needed. Verify its exact live
+   ID, values, last-reported behaviour and update cadence before accepting the
+   kiosk adapter. This is not authority to enable sensors during development.
 7. After the separately approved restart, verify file hashes, the expected
    helper/entity IDs (no collision suffixes), inbox and coverage. Set the agreed
    first-install destinations together using the guarded setup script and inspect

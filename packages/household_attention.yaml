@@ -13,6 +13,7 @@ template:
         event_type: household_attention_phone_accepted
     variables:
       attention_sources: !include ../attention/sources.yaml
+      attention_policy: !include ../attention/policy.yaml
     sensor:
       - name: Household Attention Store
         unique_id: household_attention_store
@@ -23,7 +24,7 @@ template:
             {% from 'household_attention.jinja' import reconcile %}
             {% set reconcile_fn = reconcile | as_function %}
             {{ reconcile_fn(attention_sources, this.attributes.get('records', {}),
-                            as_timestamp(now()), 86400,
+                            as_timestamp(now()), attention_policy.presence_max_age_seconds,
                             delivery=trigger.event.data if trigger.platform == 'event' else none) }}
 
   - sensor:
@@ -144,6 +145,8 @@ script:
     alias: Household attention - send one phone notice
     mode: parallel
     max: 10
+    variables:
+      attention_policy: !include ../attention/policy.yaml
     sequence:
       # Recheck at dispatch so a pause/cutover reversal can stop queued calls.
       - condition: state
@@ -157,7 +160,8 @@ script:
              else 'device_tracker.nichola_s_iphone' %}
           {{ as_timestamp(states('input_datetime.attention_' ~ record.key ~ '_pause_until'), 0)
                <= as_timestamp(now())
-             and route_fn(record.key, recipient, tracker, as_timestamp(now()), 86400) }}
+             and route_fn(record.key, recipient, tracker, as_timestamp(now()),
+                          attention_policy.presence_max_age_seconds) }}
       # A failed call stops this script before the receipt. The caller continues
       # to the other person independently; no false delivery claim is recorded.
       - action: >-

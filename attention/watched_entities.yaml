@@ -5,6 +5,7 @@
 - fan.purifier_hot_cool_de_nox
 - number.refrigerator_fridge_temperature
 - sensor.backup_last_successful_automatic_backup
+- sensor.iphone_8_connection_type
 - sensor.washer_current_status
 - sensor.washer_cycles
 - switch.kitchen_fridge_power_plug

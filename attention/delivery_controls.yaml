@@ -51,6 +51,18 @@ attention_washer_unavailable_nic_home:
   name: Washer Unavailable - Nic phone when home
 attention_washer_unavailable_nic_away:
   name: Washer Unavailable - Nic phone when away
+attention_kiosk_wifi_dashboard:
+  name: Kiosk Wifi - HA dashboard
+attention_kiosk_wifi_tv:
+  name: Kiosk Wifi - TV screensaver
+attention_kiosk_wifi_lachlan_home:
+  name: Kiosk Wifi - Lachlan phone when home
+attention_kiosk_wifi_lachlan_away:
+  name: Kiosk Wifi - Lachlan phone when away
+attention_kiosk_wifi_nic_home:
+  name: Kiosk Wifi - Nic phone when home
+attention_kiosk_wifi_nic_away:
+  name: Kiosk Wifi - Nic phone when away
 attention_washing_finished_dashboard:
   name: Washing Finished - HA dashboard
 attention_washing_finished_tv:

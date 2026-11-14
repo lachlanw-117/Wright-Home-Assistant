@@ -15,6 +15,10 @@ attention_washer_unavailable_pause_until:
   name: Washer Unavailable pause until
   has_date: true
   has_time: true
+attention_kiosk_wifi_pause_until:
+  name: Kiosk Wifi pause until
+  has_date: true
+  has_time: true
 attention_washing_finished_pause_until:
   name: Washing Finished pause until
   has_date: true

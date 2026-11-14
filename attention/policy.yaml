@@ -1,0 +1,3 @@
+# Choose after checking the phones' real reporting behaviour. Null suppresses
+# presence-dependent phone routes; both-home-and-away routes remain independent.
+presence_max_age_seconds: null

@@ -29,7 +29,7 @@
   kind: fault
   severity: warning
   adapter: availability
-  starting_destinations: [dashboard, tv]
+  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
   entities: [binary_sensor.archer_ax73_wan_status]
   disconnected_states: ['off']
   delivery_delay_seconds: 900
@@ -39,8 +39,20 @@
   kind: fault
   severity: warning
   adapter: availability
-  starting_destinations: [dashboard, tv]
+  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
   entities: [sensor.washer_current_status]
+  delivery_delay_seconds: 900
+- key: kiosk_wifi
+  title: Kiosk phone reports it is off Wi-Fi
+  category: connectivity
+  kind: fault
+  severity: warning
+  adapter: wifi
+  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
+  # Real registered mobile_app entity, currently disabled. Enable/report/verify
+  # in the separately approved setup before accepting runtime coverage.
+  entities: [sensor.iphone_8_connection_type]
+  max_sample_age_seconds: 900
   delivery_delay_seconds: 900
 - key: washing_finished
   title: Washing finished
@@ -63,7 +75,7 @@
   kind: attention
   severity: info
   adapter: threshold
-  starting_destinations: [dashboard, tv]
+  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
   entities: [sensor.washer_cycles]
   threshold: 30
   delivery_delay_seconds: 900
@@ -73,7 +85,7 @@
   kind: fault
   severity: important
   adapter: backup
-  starting_destinations: [dashboard, tv]
+  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
   entities:
     - event.backup_automatic_backup
     - sensor.backup_last_successful_automatic_backup

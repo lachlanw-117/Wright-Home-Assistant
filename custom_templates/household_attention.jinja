@@ -38,6 +38,21 @@
     {# Event state is the occurrence timestamp, not a duration or health signal. #}
     {% set observation = 'bad' if identity else 'unknown' %}
     {% set quality = 'valid' if identity else 'unknown' %}
+  {% elif source.adapter == 'wifi' %}
+    {% set value = states(source.entities[0]) %}
+    {% set samples = expand(source.entities[0]) | list %}
+    {% set age = at - as_timestamp(samples[0].last_reported, 0) if samples | count == 1 else none %}
+    {% if value in ['unknown', 'unavailable'] or age is none %}
+      {% set observation = 'unknown' %}
+      {% set quality = 'unknown' %}
+    {% elif not (0 <= age <= source.max_sample_age_seconds) %}
+      {% set observation = 'unknown' %}
+      {% set quality = 'stale' %}
+    {% else %}
+      {% set observation = 'good' if value == 'Wi-Fi' else
+           ('bad' if value in ['Cellular', 'No Connection'] else 'unknown') %}
+      {% set quality = 'valid' if observation != 'unknown' else 'unknown' %}
+    {% endif %}
   {% elif source.adapter == 'threshold' %}
     {% set value = states(source.entities[0]) %}
     {% set observation = ('bad' if value | float >= source.threshold else 'good')
@@ -104,7 +119,7 @@
   {% set away = is_state('input_boolean.attention_' ~ key ~ '_' ~ person ~ '_away', 'on') %}
   {% set state = states('person.' ~ person) %}
   {% set tracked = expand(tracker) | list %}
-  {% set fresh = tracked | count == 1 and
+  {% set fresh = freshness is number and tracked | count == 1 and
        0 <= at - as_timestamp(tracked[0].last_reported, 0) <= freshness %}
   {# Both destinations on means independent of presence, including unknown/stale.
      This preserves the agreed fridge route even while away or coverage is poor. #}

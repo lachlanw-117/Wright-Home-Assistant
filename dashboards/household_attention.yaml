@@ -122,6 +122,24 @@ views:
     - entity: input_datetime.attention_washer_unavailable_pause_until
       name: Pause all routes until
   - type: entities
+    title: Kiosk phone reports it is off Wi-Fi
+    show_header_toggle: false
+    entities:
+    - entity: input_boolean.attention_kiosk_wifi_dashboard
+      name: HA dashboard
+    - entity: input_boolean.attention_kiosk_wifi_tv
+      name: TV screensaver
+    - entity: input_boolean.attention_kiosk_wifi_lachlan_home
+      name: Lachlan phone when home
+    - entity: input_boolean.attention_kiosk_wifi_lachlan_away
+      name: Lachlan phone when away
+    - entity: input_boolean.attention_kiosk_wifi_nic_home
+      name: Nic phone when home
+    - entity: input_boolean.attention_kiosk_wifi_nic_away
+      name: Nic phone when away
+    - entity: input_datetime.attention_kiosk_wifi_pause_until
+      name: Pause all routes until
+  - type: entities
     title: Washing finished
     show_header_toggle: false
     entities:
