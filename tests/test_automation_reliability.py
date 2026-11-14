@@ -110,7 +110,24 @@ class ReliabilityTests(unittest.TestCase):
         previous = yaml.safe_load(subprocess.check_output(['git','show',f'{baseline}:automations.yaml'],cwd=ROOT,encoding='utf8'))
         old = {str(a['id']):a for a in previous}
         self.assertEqual(set(old),set(BY_ID))
-        for key in old.keys()-{'1789173535286','1792576854357'}:
+        # Washing's phone-only cutover is checked separately below; preserve the
+        # exact original trigger and independent lighting action.
+        washer_key = '1776926001082'
+        self.assertEqual(old[washer_key]['triggers'], BY_ID[washer_key]['triggers'])
+        self.assertEqual(old[washer_key]['conditions'], BY_ID[washer_key]['conditions'])
+        self.assertEqual(old[washer_key]['actions'][:2], BY_ID[washer_key]['actions'][0]['then'])
+        self.assertEqual(old[washer_key]['actions'][2:], BY_ID[washer_key]['actions'][1:])
+        cleaning_key = '1792576854357'
+        self.assertEqual(old[cleaning_key]['triggers'], BY_ID[cleaning_key]['triggers'])
+        self.assertEqual(old[cleaning_key]['conditions'], BY_ID[cleaning_key]['conditions'])
+        self.assertEqual(old[cleaning_key]['actions'], BY_ID[cleaning_key]['actions'][0]['then'])
+        for key in [washer_key, cleaning_key]:
+            condition_text = BY_ID[key]['actions'][0]['if'][0]['value_template']
+            for enabled in [True, False]:
+                env = NativeEnvironment()
+                env.globals['is_state'] = lambda entity, state: enabled
+                self.assertEqual(env.from_string(condition_text).render(), not enabled)
+        for key in old.keys()-{'1789173535286','1792576854357',washer_key}:
             self.assertEqual(old[key],BY_ID[key])
 
 if __name__ == '__main__':

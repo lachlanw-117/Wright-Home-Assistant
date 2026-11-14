@@ -61,6 +61,25 @@ This means the physical interaction can stay simple even when the devices behind
 - **Keep the kiosk phone available:** the [charging watchdog](docs/automation_reliability.md#kiosk-phone-charging) requests power when battery feedback is missing, invalid or too old. It favours a working household control over strict battery optimisation, with the telemetry and startup limitations documented.
 - **Show what feedback actually proves:** the [black fan controls](docs/arlec_black_fan_dashboard_notes.md) highlight speed from reported percentage, but swing from the last requested scene because Tuya does not report physical oscillation. The dashboard keeps that distinction explicit.
 
+## Household attention
+
+Device faults, washing and maintenance share one inbox with editable dashboard,
+TV and phone delivery. Cards use device names; the explanation sits underneath.
+Physical bulb sets are monitored together without letting an available group
+entity hide a failed member. Unknown observations remain visible as coverage gaps.
+
+The Pi is trialling runtime `5fe488c`: 24 sources and six destination switches,
+including home/away per person. Blind availability is removed. HA validation,
+one approved restart, hashes and migration of all 48 recipient choices passed.
+Conditional delivery is opt-in, with a 15-minute freshness limit; background
+phone reporting and physical/visual acceptance remain open. See the
+[conditional-routing trial](docs/household_attention_presence_trial.md).
+Lachlan confirmed a real phone push test and reported the companion TV working.
+[PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) stays open.
+See the [attention documentation](docs/household_attention_index.md),
+[coverage catalogue](docs/household_attention_coverage.md) and
+[current trial receipt](docs/household_attention_presence_trial.md).
+
 ## Lighting
 
 ### Day and night behaviour
@@ -130,9 +149,12 @@ status-sensor trigger remains in the automation but is disabled.
 
 When a cycle finishes:
 
-- Mobile notifications are sent.
-- The laundry LED strip turns red and flashes.
-- Everyone loses the ability to claim they did not know the washing was finished. It also sends annoying messages to my wife!
+- The shared handler sends one phone notice to each enabled recipient, wherever they are.
+- The laundry LED strip independently turns red and flashes at 20%.
+- The completed-washing notice resolves after delivery handling; it is not a persistent chore to acknowledge.
+
+The original phone actions remain behind the shared-routing handover. Turning
+shared routing off restores that legacy path; it is not an all-notifications mute.
 
 ## Internet recovery
 
@@ -200,9 +222,15 @@ installation, updates and rollback.
 | `scripts.yaml` | Reusable lighting and appliance-control logic |
 | `scenes.yaml` | Home Assistant scene definitions |
 | `dashboards/` | YAML-managed Home Assistant dashboards |
+| `attention/`, `packages/`, `custom_templates/` | Feature-branch household attention rules, restored controls and inbox; [trial status and runbook](docs/household_attention.md) |
 | `custom_zha_quirks/` | Custom Zigbee device support |
 | `blueprints/` | Home Assistant automation, script and template blueprints |
 | `.gitignore` | Exclusions for secrets, runtime state, databases, logs and backups |
+
+The household attention feature is **installed for trial; acceptance is incomplete**. Read the
+[user guide](docs/household_attention_user_guide.md) for behaviour, starting rules
+and controls, or the [as-built document](docs/household_attention.md) for the
+implementation, verified mappings and remaining trial checks.
 
 ## Reusing anything from here
 

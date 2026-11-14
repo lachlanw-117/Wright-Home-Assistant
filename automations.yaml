@@ -274,14 +274,20 @@
       - washing_is_complete
   conditions: []
   actions:
-  - device_id: 61185b5f8bda2ae7fbe4a9de61336341
-    domain: mobile_app
-    type: notify
-    message: There's a hot load in the laundry!
-  - device_id: b6f6b98b1768e11216c3e0c2e987d29f
-    domain: mobile_app
-    type: notify
-    message: Washing done
+  # Keep legacy phones until the separately reviewed shared-routing cutover.
+  # The laundry light action below stays independent and unchanged.
+  - if:
+    - condition: template
+      value_template: "{{ not is_state('input_boolean.attention_routing_enabled', 'on') }}"
+    then:
+    - device_id: 61185b5f8bda2ae7fbe4a9de61336341
+      domain: mobile_app
+      type: notify
+      message: There's a hot load in the laundry!
+    - device_id: b6f6b98b1768e11216c3e0c2e987d29f
+      domain: mobile_app
+      type: notify
+      message: Washing done
   - action: light.turn_on
     metadata: {}
     target:
@@ -878,14 +884,19 @@
            and (trigger.to_state.state | float) >= 30
            and (trigger.to_state.state | float) > (trigger.from_state.state | float) }}
   actions:
-    - device_id: 61185b5f8bda2ae7fbe4a9de61336341
-      domain: mobile_app
-      type: notify
-      message: Tell your husband you love him and to clean the washing machine
-      continue_on_error: true
-    - device_id: b6f6b98b1768e11216c3e0c2e987d29f
-      domain: mobile_app
-      type: notify
-      message: Clean the washing machine
+    - if:
+        - condition: template
+          value_template: "{{ not is_state('input_boolean.attention_routing_enabled', 'on') }}"
+      then:
+        - device_id: 61185b5f8bda2ae7fbe4a9de61336341
+          domain: mobile_app
+          type: notify
+          message: Tell your husband you love him and to clean the washing machine
+          continue_on_error: true
+        - device_id: b6f6b98b1768e11216c3e0c2e987d29f
+          domain: mobile_app
+          type: notify
+          message: Clean the washing machine
+          continue_on_error: true
       continue_on_error: true
   mode: single

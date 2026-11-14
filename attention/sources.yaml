@@ -1,0 +1,358 @@
+# Verified read-only on HA 2026.11.0, 14 November 2026.
+# Accepted timing: capture immediately, fridge phones immediately, other faults
+# after 15 minutes; no repeats/recovery messages. Setup choices live in HA helpers.
+# Dad's desk plug and its firmware entity are deliberately absent from all lists.
+- key: fridge_unavailable
+  display_name: Fridge
+  title: HA cannot reach the fridge through one or more channels
+  category: appliances
+  kind: fault
+  severity: important
+  adapter: availability
+  starting_destinations: [dashboard, tv, lachlan_phone, nic_phone]
+  entities:
+    - switch.kitchen_fridge_power_plug
+    - number.refrigerator_fridge_temperature
+  # Latest answer supersedes the earlier ten-minute proposal.
+  delivery_delay_seconds: 0
+- key: dyson_unavailable
+  display_name: Dyson
+  title: HA cannot reach the Dyson Purifier Hot+Cool De-NOx
+  category: devices
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv, lachlan_phone]
+  entities: [fan.purifier_hot_cool_de_nox]
+  delivery_delay_seconds: 900
+- key: living_room_tv_lights_unavailable
+  display_name: TV lights
+  title: HA cannot reach one or both living-room TV lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  # Monitor each verified two-bulb fitting independently, not the room aggregate.
+  # A pair group can still be available when one physical bulb has lost power.
+  # light.living_room_tradfri is actually Main Bedroom Light 2; do not include it.
+  starting_destinations: [dashboard, tv]
+  entities:
+    - light.living_room_tv_light_1
+    - light.living_room_tv_light_2
+  # Inbox/dashboard capture is immediate on HA reporting unavailability.
+  # If a phone route is later selected, retain the shared 15-minute policy.
+  delivery_delay_seconds: 900
+- key: living_room_dining_lights_unavailable
+  display_name: Dining-table lights
+  title: HA cannot reach one or both dining-table lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv]
+  entities:
+    - light.living_room_dining_table_light_1
+    - light.living_room_dining_table_light_2
+  delivery_delay_seconds: 900
+- key: living_room_hoop_lights_unavailable
+  display_name: Basketball-hoop lights
+  title: HA cannot reach one or both basketball-hoop lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv]
+  entities:
+    - light.living_room_basketball_hoop_light_1
+    - light.living_room_basketball_hoop_light_2
+  delivery_delay_seconds: 900
+- key: internet_disconnected
+  display_name: Internet
+  title: Router reports WAN disconnected or HA cannot read WAN status
+  category: connectivity
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv, lachlan_phone]
+  entities: [binary_sensor.archer_ax73_wan_status]
+  disconnected_states: ['off']
+  delivery_delay_seconds: 900
+- key: washer_unavailable
+  display_name: Washing machine
+  title: HA cannot reach the washer
+  category: appliances
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv, lachlan_phone]
+  entities: [sensor.washer_current_status]
+  delivery_delay_seconds: 900
+- key: kiosk_wifi
+  display_name: Kiosk phone
+  title: Kiosk phone reports it is off Wi-Fi
+  category: connectivity
+  kind: fault
+  severity: warning
+  adapter: wifi
+  starting_destinations: [dashboard, tv, lachlan_phone]
+  # Existing mobile_app Connection Type sensor enabled and reporting Wi-Fi
+  # during the 14 November trial; freshness still determines coverage.
+  entities: [sensor.iphone_8_connection_type]
+  max_sample_age_seconds: 900
+  delivery_delay_seconds: 900
+- key: washing_finished
+  display_name: Washing machine
+  title: Washing finished
+  category: chores
+  kind: event
+  severity: info
+  adapter: event
+  starting_destinations: [dashboard, tv, lachlan_phone, nic_phone]
+  entities: [event.washer_notification]
+  event_type: washing_is_complete
+  # One-shot delivery event, not a pending chore. Lighting stays independent.
+  resolve_after_delivery: true
+  display_seconds: 900
+  max_event_age_seconds: 900
+  dispatch_timeout_seconds: 300
+  delivery_delay_seconds: 0
+- key: washer_cleaning
+  display_name: Washing machine
+  title: Washer needs a cleaning cycle
+  category: maintenance
+  kind: attention
+  severity: info
+  adapter: threshold
+  starting_destinations: [dashboard, tv, lachlan_phone]
+  entities: [sensor.washer_cycles]
+  threshold: 30
+  delivery_delay_seconds: 900
+- key: backup_failed
+  display_name: Backups
+  title: A backup failed; check backup settings and destinations
+  category: backups
+  kind: fault
+  severity: important
+  adapter: backup
+  starting_destinations: [dashboard, tv, lachlan_phone]
+  entities:
+    - event.backup_automatic_backup
+    - sensor.backup_last_successful_automatic_backup
+  delivery_delay_seconds: 900
+- key: upgrades_available
+  display_name: Updates
+  title: Upgrades are available
+  category: maintenance
+  kind: attention
+  severity: info
+  adapter: updates
+  starting_destinations: [dashboard, tv]
+  # Explicit inventory, including unknown firmware coverage; never scan all states.
+  entities:
+    - update.home_assistant_supervisor_update
+    - update.home_assistant_core_update
+    - update.home_assistant_operating_system_update
+    - update.matter_server_update
+    - update.file_editor_update
+    - update.openthread_border_router_update
+    - update.terminal_ssh_update
+    - update.bravia_ambient_photo_host_update
+    - update.apexcharts_card_update
+    - update.bureau_of_meteorology
+    - update.raspberry_pi_5_firmware
+    - update.kids_room_kids_tv_plug_firmware
+    - update.living_room_ikea_blind_button_firmware
+    - update.bathroom_red_button_firmware
+    - update.ensuite_button_firmware
+    - update.kitchen_fridge_power_plug_firmware
+    - update.book_case_window_firmware
+    - update.tv_window_firmware
+    - update.middle_window_firmware
+    - update.in_front_of_sink_firmware
+    - update.living_room_tradfri_firmware
+    - update.kitchen_fridge_ikea_button_x_4_firmware
+    - update.laundry_led_strip_firmware
+    - update.laundry_laundry_switch_firmware
+    - update.internet_plug_firmware
+    - update.split_system_finger_bot_firmware
+    - update.kids_room_kids_bedroom_button_firmware
+    - update.bedroom_main_bedroom_button_firmware
+    - update.kids_room_lucys_switch_firmware
+    - update.living_room_kiosk_phone_charger_firmware
+    - update.living_room_tv_light_1_firmware
+    - update.living_room_tv_light_2_firmware
+    - update.kids_room_kids_bedroom_light_1_firmware
+    - update.kids_room_kids_bedroom_light_2_firmware
+    - update.living_room_basketball_hoop_light_1_firmware
+    - update.living_room_basketball_hoop_light_2_firmware
+    - update.living_room_dining_table_light_1_firmware
+    - update.living_room_dining_table_light_2_firmware
+  # Initial phone switches remain off; one grouped record, no component alerts.
+  delivery_delay_seconds: 0
+
+# Grouped extension: physical entity existence verified 14 November 2026.
+# The kitchen 4+1 wall-switch split still requires physical acceptance.
+- key: kitchen_lights_unavailable
+  display_name: Kitchen lights
+  title: HA cannot reach one or more kitchen lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - light.bench
+  - light.dish_rack
+  - light.pantry
+  - light.stove
+  delivery_delay_seconds: 900
+- key: kitchen_entrance_unavailable
+  display_name: Kitchen entrance
+  title: HA cannot reach the kitchen entrance
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - light.entrance
+  delivery_delay_seconds: 900
+- key: ensuite_lights_unavailable
+  display_name: Ensuite lights
+  title: HA cannot reach one or more ensuite lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - light.toilet
+  - light.mirror
+  - light.shower
+  delivery_delay_seconds: 900
+- key: bathroom_lights_unavailable
+  display_name: Bathroom lights
+  title: HA cannot reach one or more bathroom lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - light.centre
+  - light.sink
+  delivery_delay_seconds: 900
+- key: main_bedroom_lights_unavailable
+  display_name: Main-bedroom lights
+  title: HA cannot reach one or more main-bedroom lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - light.in_front_of_sink
+  - light.living_room_tradfri
+  delivery_delay_seconds: 900
+- key: kids_bedroom_lights_unavailable
+  display_name: Kids’ bedroom lights
+  title: HA cannot reach one or more kids’ bedroom lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - light.kids_room_kids_bedroom_light_1
+  - light.kids_room_kids_bedroom_light_2
+  delivery_delay_seconds: 900
+- key: laundry_light_unavailable
+  display_name: Laundry light
+  title: HA cannot reach the laundry light
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - light.laundry_led_strip
+  delivery_delay_seconds: 900
+- key: black_fan_unavailable
+  display_name: Black fan
+  title: HA cannot reach the black fan
+  category: devices
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - fan.living_room_black_fan
+  delivery_delay_seconds: 900
+- key: kids_tv_plug_unavailable
+  display_name: Kids’ TV plug
+  title: HA cannot reach the kids’ TV plug
+  category: devices
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - switch.kids_room_kids_tv_plug
+  delivery_delay_seconds: 900
+- key: internet_plug_unavailable
+  display_name: Internet plug
+  title: HA cannot reach the internet plug
+  category: devices
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - switch.internet_plug
+  delivery_delay_seconds: 900
+- key: kiosk_charger_unavailable
+  display_name: Kiosk charger
+  title: HA cannot reach the kiosk charger
+  category: devices
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - switch.living_room_kiosk_phone_charger
+  delivery_delay_seconds: 900
+- key: air_conditioner_fingerbot_unavailable
+  display_name: Air-conditioner FingerBot
+  title: HA cannot reach the air-conditioner FingerBot
+  category: devices
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations:
+  - dashboard
+  - tv
+  entities:
+  - switch.split_system_finger_bot
+  delivery_delay_seconds: 900
