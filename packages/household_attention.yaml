@@ -1,0 +1,306 @@
+# Standalone native HA package. Repairs and washing's light action are independent.
+input_boolean: !include ../attention/delivery_controls.yaml
+input_datetime: !include ../attention/pauses.yaml
+template:
+  - triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: /1
+      - trigger: state
+        entity_id: !include ../attention/watched_entities.yaml
+      - trigger: event
+        event_type: household_attention_phone_accepted
+    variables:
+      attention_sources: !include ../attention/sources.yaml
+      attention_policy: !include ../attention/policy.yaml
+    sensor:
+      - name: Household Attention Store
+        unique_id: household_attention_store
+        state: ready
+        attributes:
+          schema_version: 1
+          records: >-
+            {% from 'household_attention.jinja' import reconcile %}
+            {% set reconcile_fn = reconcile | as_function %}
+            {{ reconcile_fn(attention_sources, this.attributes.get('records', {}),
+                            as_timestamp(now()),
+                            delivery=trigger.event.data if trigger.platform == 'event' else none,
+                            policy=attention_policy) }}
+
+  - sensor:
+      - name: Household Attention Inbox
+        unique_id: household_attention_inbox
+        availability: "{{ is_state('sensor.household_attention_store', 'ready') }}"
+        state: >-
+          {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+          {{ records.values() | selectattr('active') | list | count }}
+        attributes:
+          items: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {{ records.values() | selectattr('active') | list }}
+          recent_events: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {{ records.values() | selectattr('kind', 'eq', 'event')
+               | selectattr('display_until', 'gt', as_timestamp(now())) | list }}
+          fault_count: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {{ records.values() | selectattr('active') | selectattr('kind', 'eq', 'fault') | list | count }}
+          uncertain_sources: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {{ records.values() | rejectattr('quality', 'eq', 'valid') | map(attribute='key') | list }}
+          health: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {% set fault_sources = records.values() | selectattr('kind', 'eq', 'fault') | list %}
+            {% set faults = fault_sources | selectattr('active') | list %}
+            {% set uncertain = fault_sources | rejectattr('quality', 'eq', 'valid') | list %}
+            {{ 'faults' if faults else ('incomplete' if uncertain or not fault_sources else 'healthy') }}
+          coverage: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {% set uncertain = records.values() | rejectattr('quality', 'eq', 'valid') | list %}
+            {{ 'incomplete' if uncertain or not records else 'complete' }}
+          category_health: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {% set ns = namespace(result={}) %}
+            {% for category, items in records.values() | groupby('category') %}
+              {% set fault_sources = items | selectattr('kind', 'eq', 'fault') | list %}
+              {% set faults = fault_sources | selectattr('active') | list %}
+              {% set uncertain = fault_sources | rejectattr('quality', 'eq', 'valid') | list %}
+              {% set result = 'not_applicable' if not fault_sources else
+                   ('faults' if faults else ('incomplete' if uncertain else 'healthy')) %}
+              {% set ns.result = dict(ns.result, **{category: result}) %}
+            {% endfor %}
+            {{ ns.result }}
+      - name: Household Attention Dashboard
+        unique_id: household_attention_dashboard
+        availability: "{{ is_state('sensor.household_attention_store', 'ready') }}"
+        state: ready
+        attributes:
+          items: >-
+            {% from 'household_attention.jinja' import visible %}
+            {% set visible_fn = visible | as_function %}
+            {{ visible_fn(state_attr('sensor.household_attention_store', 'records') or {},
+                          'dashboard', as_timestamp(now())) }}
+      - name: Household Attention TV
+        unique_id: household_attention_tv
+        availability: "{{ is_state('sensor.household_attention_store', 'ready') }}"
+        state: ready
+        attributes:
+          schema_version: 1
+          items: >-
+            {% from 'household_attention.jinja' import visible %}
+            {% set visible_fn = visible | as_function %}
+            {{ visible_fn(state_attr('sensor.household_attention_store', 'records') or {},
+                          'tv', as_timestamp(now())) }}
+
+  - variables:
+      attention_policy: !include ../attention/policy.yaml
+    sensor:
+      - name: Household Attention Lachlan Presence
+        unique_id: household_attention_lachlan_presence
+        state: >-
+          {% from 'household_attention.jinja' import presence %}
+          {% set presence_fn = presence | as_function %}
+          {{ presence_fn('lachlan', attention_policy, as_timestamp(now())).status }}
+        attributes:
+          evidence: >-
+            {% from 'household_attention.jinja' import presence %}
+            {% set presence_fn = presence | as_function %}
+            {{ presence_fn('lachlan', attention_policy, as_timestamp(now())) }}
+      - name: Household Attention Nic Presence
+        unique_id: household_attention_nic_presence
+        state: >-
+          {% from 'household_attention.jinja' import presence %}
+          {% set presence_fn = presence | as_function %}
+          {{ presence_fn('nic', attention_policy, as_timestamp(now())).status }}
+        attributes:
+          evidence: >-
+            {% from 'household_attention.jinja' import presence %}
+            {% set presence_fn = presence | as_function %}
+            {{ presence_fn('nic', attention_policy, as_timestamp(now())) }}
+
+automation:
+  - id: household_attention_presence_session
+    alias: Household attention - start phone presence session
+    mode: single
+    triggers:
+      - trigger: homeassistant
+        event: start
+    actions:
+      # The separate non-restored ready flag starts false. Set the marker first;
+      # round up so sub-second restored samples cannot pass as post-start reports.
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.household_attention_presence_started_at
+        data:
+          timestamp: "{{ as_timestamp(now()) | round(0, 'ceil') }}"
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.household_attention_presence_ready
+
+  - id: household_attention_deliver
+    alias: Household attention - deliver newly eligible phone notices
+    description: One attempt per occurrence; runtime preferences never replay backlog.
+    mode: queued
+    max: 20
+    triggers:
+      - trigger: state
+        entity_id: sensor.household_attention_store
+    conditions:
+      # Do not deliver restored state before reconciliation, or from an absent store.
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state is not none and trigger.to_state is not none
+             and trigger.to_state.state == 'ready' }}
+    actions:
+      - variables:
+          records: "{{ trigger.to_state.attributes.get('records', {}) }}"
+          previous: "{{ trigger.from_state.attributes.get('records', {}) }}"
+      - repeat:
+          for_each: "{{ records.values() | list }}"
+          sequence:
+            - variables:
+                record: "{{ repeat.item }}"
+                old: "{{ previous.get(repeat.item.key, {}) }}"
+            - if:
+                - condition: template
+                  value_template: >-
+                    {{ record.active and record.phone_evaluated
+                       and (not old.get('phone_evaluated', false)
+                            or old.get('occurrence_id') != record.occurrence_id) }}
+              then:
+                - repeat:
+                    for_each: "{{ record.phone_routes }}"
+                    sequence:
+                      - action: script.household_attention_send_phone
+                        continue_on_error: true
+                        data:
+                          recipient: "{{ repeat.item }}"
+                          record: "{{ record }}"
+
+script:
+  household_attention_migrate_presence_routes:
+    alias: Household attention - preserve current phone choices for home and away
+    mode: single
+    sequence:
+      - condition: state
+        entity_id: input_boolean.attention_presence_routes_migrated
+        state: 'off'
+      - variables:
+          attention_sources: !include ../attention/sources.yaml
+      - condition: template
+        value_template: >-
+          {% set ns = namespace(valid=true) %}
+          {% for source in attention_sources %}
+            {% for person in ['lachlan', 'nic'] %}
+              {% for suffix in ['phone', 'home', 'away'] %}
+                {% if states('input_boolean.attention_' ~ source.key ~ '_' ~ person ~ '_' ~ suffix) not in ['on', 'off'] %}
+                  {% set ns.valid = false %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+          {{ ns.valid }}
+      - variables:
+          enabled: >-
+            {% set ns = namespace(ids=[]) %}
+            {% for source in attention_sources %}
+              {% for person in ['lachlan', 'nic'] %}
+                {% if is_state('input_boolean.attention_' ~ source.key ~ '_' ~ person ~ '_phone', 'on') %}
+                  {% for location in ['home', 'away'] %}
+                    {% set ns.ids = ns.ids + ['input_boolean.attention_' ~ source.key ~ '_' ~ person ~ '_' ~ location] %}
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            {{ ns.ids }}
+          disabled: >-
+            {% set ns = namespace(ids=[]) %}
+            {% for source in attention_sources %}
+              {% for person in ['lachlan', 'nic'] %}
+                {% if is_state('input_boolean.attention_' ~ source.key ~ '_' ~ person ~ '_phone', 'off') %}
+                  {% for location in ['home', 'away'] %}
+                    {% set ns.ids = ns.ids + ['input_boolean.attention_' ~ source.key ~ '_' ~ person ~ '_' ~ location] %}
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            {{ ns.ids }}
+      - if: "{{ enabled | count > 0 }}"
+        then:
+          - action: input_boolean.turn_on
+            target:
+              entity_id: "{{ enabled }}"
+      - if: "{{ disabled | count > 0 }}"
+        then:
+          - action: input_boolean.turn_off
+            target:
+              entity_id: "{{ disabled }}"
+      # A concurrent edit leaves legacy routing active. A safe retry copies the
+      # latest choices. Once committed this script cannot overwrite opt-in edits.
+      - condition: template
+        value_template: >-
+          {% set ns = namespace(valid=true) %}
+          {% for source in attention_sources %}
+            {% for person in ['lachlan', 'nic'] %}
+              {% set prefix = 'input_boolean.attention_' ~ source.key ~ '_' ~ person %}
+              {% set original = states(prefix ~ '_phone') %}
+              {% if original not in ['on', 'off'] or states(prefix ~ '_home') != original or states(prefix ~ '_away') != original %}
+                {% set ns.valid = false %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+          {{ ns.valid }}
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.attention_presence_routes_migrated
+
+  household_attention_apply_starting_preferences:
+    alias: Household attention - apply starting preferences once
+    description: Explicit first-install setup; never runs on deploy/restart or overwrites a completed setup.
+    mode: single
+    sequence:
+      - condition: template
+        value_template: "{{ not is_state('input_boolean.attention_preferences_configured', 'on') }}"
+      - action: input_boolean.turn_on
+        target:
+          entity_id: !include ../attention/starting_destinations.yaml
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.attention_preferences_configured
+      # Deliberately leave shared routing off: inspect the values before cutover.
+
+  household_attention_send_phone:
+    alias: Household attention - send one phone notice
+    mode: parallel
+    max: 10
+    sequence:
+      - variables:
+          attention_policy: !include ../attention/policy.yaml
+      # Recheck at dispatch so a pause/cutover reversal can stop queued calls.
+      - condition: state
+        entity_id: input_boolean.attention_routing_enabled
+        state: 'on'
+      - condition: template
+        value_template: >-
+          {% from 'household_attention.jinja' import recipient_route %}
+          {% set route_fn = recipient_route | as_function %}
+          {{ as_timestamp(states('input_datetime.attention_' ~ record.key ~ '_pause_until'), 0)
+               <= as_timestamp(now())
+             and route_fn(record.key, recipient, policy=attention_policy) }}
+      # A failed call stops this script before the receipt. The caller continues
+      # to the other person independently; no false delivery claim is recorded.
+      - action: >-
+          {{ 'notify.mobile_app_big_lws_iphone_14' if recipient == 'lachlan'
+             else 'notify.mobile_app_nichola_s_iphone' }}
+        data:
+          title: Household attention
+          message: "{{ record.title }}"
+          data:
+            tag: "{{ record.key }}"
+            url: /household-attention/inbox
+      - event: household_attention_phone_accepted
+        event_data:
+          key: "{{ record.key }}"
+          occurrence_id: "{{ record.occurrence_id }}"
+          recipient: "{{ recipient }}"
