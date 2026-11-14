@@ -115,13 +115,86 @@
     legacy_delivery=source.get('legacy_delivery', false))) %}
 {%- endmacro %}
 
-{% macro recipient_route(key, person, returns) -%}
-  {# Presence split parked by Lachlan. Only this restored recipient switch routes
-     phones; dormant home/away helpers retain their values for later review. #}
-  {% do returns(is_state('input_boolean.attention_' ~ key ~ '_' ~ person ~ '_phone', 'on')) %}
+{% macro report_age(entity, at, returns) -%}
+  {% set samples = expand(entity) | list %}
+  {% do returns(at - as_timestamp(samples[0].last_reported, 0)
+       if samples | count == 1 else none) %}
 {%- endmacro %}
 
-{% macro reconcile(sources, previous, at, returns, delivery=none) -%}
+{% macro presence(person, policy, at, returns) -%}
+  {# Export only classification and ages, never network values or coordinates. #}
+  {% set mapping = policy.get('people', {}).get(person, {}) if policy is mapping else {} %}
+  {% set reference = policy.get('kiosk', {}) if policy is mapping else {} %}
+  {% if mapping.get('tracker') and mapping.get('ssid') and reference.get('ssid') and reference.get('connection_type') %}
+  {% set limit = policy.get('presence_max_age_seconds', 900) if policy is mapping else 900 %}
+  {% set age_fn = report_age | as_function %}
+  {% set gps_age = age_fn(mapping.get('tracker', ''), at) %}
+  {% set wifi_age = age_fn(mapping.get('ssid', ''), at) %}
+  {% set kiosk_age = age_fn(reference.get('ssid', ''), at) %}
+  {% set connection_age = age_fn(reference.get('connection_type', ''), at) %}
+  {% set started = as_timestamp(states('input_datetime.household_attention_presence_started_at'), 0) %}
+  {% set ready = is_state('input_boolean.household_attention_presence_ready', 'on')
+       and started > 0 and at >= started %}
+  {% set gps_fresh = ready and gps_age is number and 0 <= gps_age <= limit and at - gps_age > started %}
+  {% set wifi_fresh = ready and wifi_age is number and 0 <= wifi_age <= limit and at - wifi_age > started %}
+  {% set kiosk_fresh = ready and kiosk_age is number and 0 <= kiosk_age <= limit and at - kiosk_age > started
+       and connection_age is number and 0 <= connection_age <= limit and at - connection_age > started %}
+  {% set gps = states(mapping.get('tracker', '')) %}
+  {% set wifi = states(mapping.get('ssid', '')) %}
+  {% set kiosk = states(reference.get('ssid', '')) %}
+  {% set invalid = ['unknown', 'unavailable', '', 'Not Connected'] %}
+  {% set wifi_home = wifi_fresh and kiosk_fresh and wifi not in invalid and kiosk not in invalid
+       and wifi == kiosk and is_state(reference.get('connection_type', ''), 'Wi-Fi') %}
+  {% set gps_home = gps_fresh and gps == 'home' %}
+  {% set gps_away = gps_fresh and gps not in ['home', 'unknown', 'unavailable', '']
+       and state_attr(mapping.get('tracker', ''), 'source_type') == 'gps' %}
+  {% set gps_home = gps_home and state_attr(mapping.get('tracker', ''), 'source_type') == 'gps' %}
+  {% set status = 'unknown' %}
+  {% set reason = 'No fresh location or home Wi-Fi evidence' %}
+  {% if not ready %}
+    {% set reason = 'Waiting for phone reports after startup' %}
+  {% elif gps_away and wifi_home %}
+    {% set reason = 'Location and home Wi-Fi disagree' %}
+  {% elif gps_home or wifi_home %}
+    {% set status = 'home' %}
+    {% set reason = 'Fresh location and home Wi-Fi' if gps_home and wifi_home else
+         ('Fresh home-zone report' if gps_home else 'Fresh home Wi-Fi report') %}
+  {% elif gps_away %}
+    {% set status = 'away' %}
+    {% set reason = 'Fresh location outside home' %}
+  {% endif %}
+  {% do returns(dict(status=status, reason=reason,
+       gps_age_seconds=gps_age | int if gps_age is number else none,
+       wifi_age_seconds=wifi_age | int if wifi_age is number else none,
+       kiosk_age_seconds=kiosk_age | int if kiosk_age is number else none)) %}
+  {% else %}
+    {% do returns(dict(status='unknown', reason='Presence configuration unavailable',
+         gps_age_seconds=none, wifi_age_seconds=none, kiosk_age_seconds=none)) %}
+  {% endif %}
+{%- endmacro %}
+
+{% macro recipient_route(key, person, returns, policy=none, at=none) -%}
+  {% set prefix = 'input_boolean.attention_' ~ key ~ '_' ~ person %}
+  {% if not is_state('input_boolean.attention_presence_routes_migrated', 'on') %}
+    {# Preserve live delivery until the one-time preference copy is complete. #}
+    {% do returns(is_state(prefix ~ '_phone', 'on')) %}
+  {% else %}
+    {% set home = is_state(prefix ~ '_home', 'on') %}
+    {% set away = is_state(prefix ~ '_away', 'on') %}
+    {% if home and away %}
+      {% do returns(true) %}
+    {% elif not home and not away %}
+      {% do returns(false) %}
+    {% else %}
+      {% set presence_fn = presence | as_function %}
+      {% set observation = presence_fn(person, policy, at if at is number else as_timestamp(now())) %}
+      {% do returns((home and observation.status == 'home') or
+                    (away and observation.status == 'away')) %}
+    {% endif %}
+  {% endif %}
+{%- endmacro %}
+
+{% macro reconcile(sources, previous, at, returns, delivery=none, policy=none) -%}
   {% set ns = namespace(records={}) %}
   {% set observe_fn = observe | as_function %}
   {% set advance_fn = advance | as_function %}
@@ -142,7 +215,7 @@
            and not paused and not source.get('legacy_delivery', false)
            and observation.observation == 'bad' and recent %}
         {% for person in ['lachlan', 'nic'] %}
-          {% if route_fn(source.key, person) %}
+          {% if route_fn(source.key, person, policy=policy, at=at) %}
             {% set routes.values = routes.values + [person] %}
           {% endif %}
         {% endfor %}

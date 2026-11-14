@@ -3,6 +3,11 @@ attention_routing_enabled:
   name: Enable shared phone routing
 attention_preferences_configured:
   name: Attention starting preferences applied
+attention_presence_routes_migrated:
+  name: Home/away preferences migrated
+household_attention_presence_ready:
+  name: Phone presence session ready
+  initial: false
 attention_fridge_unavailable_dashboard:
   name: Fridge - HA dashboard
 attention_fridge_unavailable_tv:
@@ -199,6 +204,14 @@ attention_kitchen_lights_unavailable_dashboard:
   name: Kitchen lights - HA dashboard
 attention_kitchen_lights_unavailable_tv:
   name: Kitchen lights - TV screensaver
+attention_kitchen_lights_unavailable_lachlan_home:
+  name: Kitchen lights - Lachlan phone when home
+attention_kitchen_lights_unavailable_lachlan_away:
+  name: Kitchen lights - Lachlan phone when away
+attention_kitchen_lights_unavailable_nic_home:
+  name: Kitchen lights - Nic phone when home
+attention_kitchen_lights_unavailable_nic_away:
+  name: Kitchen lights - Nic phone when away
 attention_kitchen_lights_unavailable_lachlan_phone:
   name: Kitchen lights - Lachlan phone
 attention_kitchen_lights_unavailable_nic_phone:
@@ -207,6 +220,14 @@ attention_kitchen_entrance_unavailable_dashboard:
   name: Kitchen entrance - HA dashboard
 attention_kitchen_entrance_unavailable_tv:
   name: Kitchen entrance - TV screensaver
+attention_kitchen_entrance_unavailable_lachlan_home:
+  name: Kitchen entrance - Lachlan phone when home
+attention_kitchen_entrance_unavailable_lachlan_away:
+  name: Kitchen entrance - Lachlan phone when away
+attention_kitchen_entrance_unavailable_nic_home:
+  name: Kitchen entrance - Nic phone when home
+attention_kitchen_entrance_unavailable_nic_away:
+  name: Kitchen entrance - Nic phone when away
 attention_kitchen_entrance_unavailable_lachlan_phone:
   name: Kitchen entrance - Lachlan phone
 attention_kitchen_entrance_unavailable_nic_phone:
@@ -215,6 +236,14 @@ attention_ensuite_lights_unavailable_dashboard:
   name: Ensuite lights - HA dashboard
 attention_ensuite_lights_unavailable_tv:
   name: Ensuite lights - TV screensaver
+attention_ensuite_lights_unavailable_lachlan_home:
+  name: Ensuite lights - Lachlan phone when home
+attention_ensuite_lights_unavailable_lachlan_away:
+  name: Ensuite lights - Lachlan phone when away
+attention_ensuite_lights_unavailable_nic_home:
+  name: Ensuite lights - Nic phone when home
+attention_ensuite_lights_unavailable_nic_away:
+  name: Ensuite lights - Nic phone when away
 attention_ensuite_lights_unavailable_lachlan_phone:
   name: Ensuite lights - Lachlan phone
 attention_ensuite_lights_unavailable_nic_phone:
@@ -223,6 +252,14 @@ attention_bathroom_lights_unavailable_dashboard:
   name: Bathroom lights - HA dashboard
 attention_bathroom_lights_unavailable_tv:
   name: Bathroom lights - TV screensaver
+attention_bathroom_lights_unavailable_lachlan_home:
+  name: Bathroom lights - Lachlan phone when home
+attention_bathroom_lights_unavailable_lachlan_away:
+  name: Bathroom lights - Lachlan phone when away
+attention_bathroom_lights_unavailable_nic_home:
+  name: Bathroom lights - Nic phone when home
+attention_bathroom_lights_unavailable_nic_away:
+  name: Bathroom lights - Nic phone when away
 attention_bathroom_lights_unavailable_lachlan_phone:
   name: Bathroom lights - Lachlan phone
 attention_bathroom_lights_unavailable_nic_phone:
@@ -231,6 +268,14 @@ attention_main_bedroom_lights_unavailable_dashboard:
   name: Main-bedroom lights - HA dashboard
 attention_main_bedroom_lights_unavailable_tv:
   name: Main-bedroom lights - TV screensaver
+attention_main_bedroom_lights_unavailable_lachlan_home:
+  name: Main-bedroom lights - Lachlan phone when home
+attention_main_bedroom_lights_unavailable_lachlan_away:
+  name: Main-bedroom lights - Lachlan phone when away
+attention_main_bedroom_lights_unavailable_nic_home:
+  name: Main-bedroom lights - Nic phone when home
+attention_main_bedroom_lights_unavailable_nic_away:
+  name: Main-bedroom lights - Nic phone when away
 attention_main_bedroom_lights_unavailable_lachlan_phone:
   name: Main-bedroom lights - Lachlan phone
 attention_main_bedroom_lights_unavailable_nic_phone:
@@ -239,6 +284,14 @@ attention_kids_bedroom_lights_unavailable_dashboard:
   name: Kids’ bedroom lights - HA dashboard
 attention_kids_bedroom_lights_unavailable_tv:
   name: Kids’ bedroom lights - TV screensaver
+attention_kids_bedroom_lights_unavailable_lachlan_home:
+  name: Kids’ bedroom lights - Lachlan phone when home
+attention_kids_bedroom_lights_unavailable_lachlan_away:
+  name: Kids’ bedroom lights - Lachlan phone when away
+attention_kids_bedroom_lights_unavailable_nic_home:
+  name: Kids’ bedroom lights - Nic phone when home
+attention_kids_bedroom_lights_unavailable_nic_away:
+  name: Kids’ bedroom lights - Nic phone when away
 attention_kids_bedroom_lights_unavailable_lachlan_phone:
   name: Kids’ bedroom lights - Lachlan phone
 attention_kids_bedroom_lights_unavailable_nic_phone:
@@ -247,6 +300,14 @@ attention_laundry_light_unavailable_dashboard:
   name: Laundry light - HA dashboard
 attention_laundry_light_unavailable_tv:
   name: Laundry light - TV screensaver
+attention_laundry_light_unavailable_lachlan_home:
+  name: Laundry light - Lachlan phone when home
+attention_laundry_light_unavailable_lachlan_away:
+  name: Laundry light - Lachlan phone when away
+attention_laundry_light_unavailable_nic_home:
+  name: Laundry light - Nic phone when home
+attention_laundry_light_unavailable_nic_away:
+  name: Laundry light - Nic phone when away
 attention_laundry_light_unavailable_lachlan_phone:
   name: Laundry light - Lachlan phone
 attention_laundry_light_unavailable_nic_phone:
@@ -255,38 +316,30 @@ attention_black_fan_unavailable_dashboard:
   name: Black fan - HA dashboard
 attention_black_fan_unavailable_tv:
   name: Black fan - TV screensaver
+attention_black_fan_unavailable_lachlan_home:
+  name: Black fan - Lachlan phone when home
+attention_black_fan_unavailable_lachlan_away:
+  name: Black fan - Lachlan phone when away
+attention_black_fan_unavailable_nic_home:
+  name: Black fan - Nic phone when home
+attention_black_fan_unavailable_nic_away:
+  name: Black fan - Nic phone when away
 attention_black_fan_unavailable_lachlan_phone:
   name: Black fan - Lachlan phone
 attention_black_fan_unavailable_nic_phone:
   name: Black fan - Nic phone
-attention_bookcase_blind_unavailable_dashboard:
-  name: Bookcase blind - HA dashboard
-attention_bookcase_blind_unavailable_tv:
-  name: Bookcase blind - TV screensaver
-attention_bookcase_blind_unavailable_lachlan_phone:
-  name: Bookcase blind - Lachlan phone
-attention_bookcase_blind_unavailable_nic_phone:
-  name: Bookcase blind - Nic phone
-attention_tv_blind_unavailable_dashboard:
-  name: TV blind - HA dashboard
-attention_tv_blind_unavailable_tv:
-  name: TV blind - TV screensaver
-attention_tv_blind_unavailable_lachlan_phone:
-  name: TV blind - Lachlan phone
-attention_tv_blind_unavailable_nic_phone:
-  name: TV blind - Nic phone
-attention_middle_blind_unavailable_dashboard:
-  name: Middle blind - HA dashboard
-attention_middle_blind_unavailable_tv:
-  name: Middle blind - TV screensaver
-attention_middle_blind_unavailable_lachlan_phone:
-  name: Middle blind - Lachlan phone
-attention_middle_blind_unavailable_nic_phone:
-  name: Middle blind - Nic phone
 attention_kids_tv_plug_unavailable_dashboard:
   name: Kids’ TV plug - HA dashboard
 attention_kids_tv_plug_unavailable_tv:
   name: Kids’ TV plug - TV screensaver
+attention_kids_tv_plug_unavailable_lachlan_home:
+  name: Kids’ TV plug - Lachlan phone when home
+attention_kids_tv_plug_unavailable_lachlan_away:
+  name: Kids’ TV plug - Lachlan phone when away
+attention_kids_tv_plug_unavailable_nic_home:
+  name: Kids’ TV plug - Nic phone when home
+attention_kids_tv_plug_unavailable_nic_away:
+  name: Kids’ TV plug - Nic phone when away
 attention_kids_tv_plug_unavailable_lachlan_phone:
   name: Kids’ TV plug - Lachlan phone
 attention_kids_tv_plug_unavailable_nic_phone:
@@ -295,6 +348,14 @@ attention_internet_plug_unavailable_dashboard:
   name: Internet plug - HA dashboard
 attention_internet_plug_unavailable_tv:
   name: Internet plug - TV screensaver
+attention_internet_plug_unavailable_lachlan_home:
+  name: Internet plug - Lachlan phone when home
+attention_internet_plug_unavailable_lachlan_away:
+  name: Internet plug - Lachlan phone when away
+attention_internet_plug_unavailable_nic_home:
+  name: Internet plug - Nic phone when home
+attention_internet_plug_unavailable_nic_away:
+  name: Internet plug - Nic phone when away
 attention_internet_plug_unavailable_lachlan_phone:
   name: Internet plug - Lachlan phone
 attention_internet_plug_unavailable_nic_phone:
@@ -303,6 +364,14 @@ attention_kiosk_charger_unavailable_dashboard:
   name: Kiosk charger - HA dashboard
 attention_kiosk_charger_unavailable_tv:
   name: Kiosk charger - TV screensaver
+attention_kiosk_charger_unavailable_lachlan_home:
+  name: Kiosk charger - Lachlan phone when home
+attention_kiosk_charger_unavailable_lachlan_away:
+  name: Kiosk charger - Lachlan phone when away
+attention_kiosk_charger_unavailable_nic_home:
+  name: Kiosk charger - Nic phone when home
+attention_kiosk_charger_unavailable_nic_away:
+  name: Kiosk charger - Nic phone when away
 attention_kiosk_charger_unavailable_lachlan_phone:
   name: Kiosk charger - Lachlan phone
 attention_kiosk_charger_unavailable_nic_phone:
@@ -311,6 +380,14 @@ attention_air_conditioner_fingerbot_unavailable_dashboard:
   name: Air-conditioner FingerBot - HA dashboard
 attention_air_conditioner_fingerbot_unavailable_tv:
   name: Air-conditioner FingerBot - TV screensaver
+attention_air_conditioner_fingerbot_unavailable_lachlan_home:
+  name: Air-conditioner FingerBot - Lachlan phone when home
+attention_air_conditioner_fingerbot_unavailable_lachlan_away:
+  name: Air-conditioner FingerBot - Lachlan phone when away
+attention_air_conditioner_fingerbot_unavailable_nic_home:
+  name: Air-conditioner FingerBot - Nic phone when home
+attention_air_conditioner_fingerbot_unavailable_nic_away:
+  name: Air-conditioner FingerBot - Nic phone when away
 attention_air_conditioner_fingerbot_unavailable_lachlan_phone:
   name: Air-conditioner FingerBot - Lachlan phone
 attention_air_conditioner_fingerbot_unavailable_nic_phone:

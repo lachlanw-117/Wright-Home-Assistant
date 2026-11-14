@@ -1,3 +1,12 @@
-# Parked research setting, not included by the runtime package. The current
-# recipient switches are presence-independent. Review this only if resuming split.
-presence_max_age_seconds: null
+# Entity references only. Never store SSID/BSSID values or coordinates here.
+presence_max_age_seconds: 900
+people:
+  lachlan:
+    tracker: device_tracker.big_lws_iphone_14
+    ssid: sensor.big_lws_iphone_14_ssid
+  nic:
+    tracker: device_tracker.nichola_s_iphone
+    ssid: sensor.nichola_s_iphone_ssid
+kiosk:
+  ssid: sensor.iphone_8_ssid
+  connection_type: sensor.iphone_8_connection_type

@@ -5,6 +5,7 @@ content. Configuration/automation snapshots require reviewed merges against live
 files, not blind replacement. Runtime preferences are never exported.
 """
 import argparse
+import ast
 import hashlib
 import json
 import pathlib
@@ -21,6 +22,7 @@ FILES = (
     'attention/sources.yaml', 'attention/delivery_controls.yaml',
     'attention/pauses.yaml', 'attention/watched_entities.yaml',
     'attention/starting_destinations.yaml',
+    'attention/policy.yaml',
 )
 
 
@@ -34,19 +36,33 @@ def build(revision, output, installed_revision=None):
         raise SystemExit('Commit the runtime files before packaging the trial.')
     contents = {name: git('show', f'{commit}:{name}') for name in FILES}
     installed = git('rev-parse', '--verify', f'{installed_revision}^{{commit}}').decode().strip() if installed_revision else None
-    previous = {name: git('show', f'{installed}:{name}') for name in FILES} if installed else {}
+    previous_paths = ()
+    if installed:
+        # A tracked file at the old SHA was not necessarily installed. Recover
+        # that revision's explicit runtime allowlist, without executing its code.
+        old_builder = ast.parse(git('show', f'{installed}:tools/package_attention_trial.py'))
+        previous_paths = next(ast.literal_eval(node.value) for node in old_builder.body
+                              if isinstance(node, ast.Assign)
+                              and any(isinstance(target, ast.Name) and target.id == 'FILES' for target in node.targets))
+        if not set(previous_paths) <= set(FILES):
+            raise SystemExit('Previous runtime file removal requires explicit packaging support.')
+    previous = {name: git('show', f'{installed}:{name}') for name in previous_paths}
     changed = [name for name in FILES if contents[name] != previous.get(name)]
     def starting_routes(data):
         return {line[2:].strip() for line in data.decode().splitlines()
                 if line.startswith('- input_boolean.')}
     new_starting = sorted(starting_routes(contents['attention/starting_destinations.yaml']) -
                           starting_routes(previous.get('attention/starting_destinations.yaml', b'')))
+    needs_migration = installed is not None and b'household_attention_migrate_presence_routes:' in contents['packages/household_attention.yaml']
     manifest = {
         'source_commit': commit,
         'comparison_base': installed or BASE,
         'installed_revision': installed,
         'changed_runtime_files': changed,
-        'new_starting_destinations': new_starting,
+        'new_runtime_files': sorted(set(FILES) - set(previous_paths)) if installed else list(FILES),
+        'previous_file_hashes': {name: hashlib.sha256(data).hexdigest() for name, data in previous.items()},
+        'new_starting_destinations': [] if needs_migration else new_starting,
+        'setup_action': 'script.household_attention_migrate_presence_routes' if needs_migration else None,
         'branch': 'feature/household-attention-handler',
         'files': [{
             'path': name, 'sha256': hashlib.sha256(data).hexdigest(),
@@ -78,7 +94,9 @@ def build(revision, output, installed_revision=None):
         'and reconcile that exact content to Git before proceeding with the trial.\n'
         'On an existing installation, preserve all restored preferences and pauses.\n'
         'Never rerun global starting preferences: enable only the separately approved\n'
-        'new_starting_destinations listed in the manifest. Compare old values before/after.\n'
+        'new_starting_destinations listed in the manifest. If setup_action names the\n'
+        'presence migration, run that guarded preserving copy instead of defaults.\n'
+        'Compare effective old/new delivery and old preferences before/after.\n'
         'For a fresh install only, apply starting preferences once and enable shared\n'
         'routing after inspecting the store while no washer completion is processing.\n'
         'Kiosk Connection Type was enabled during the earlier trial; verify reporting\n'

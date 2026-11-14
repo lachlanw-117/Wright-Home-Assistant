@@ -54,18 +54,25 @@ views:
   cards:
   - type: markdown
     title: Delivery preferences
-    content: Each row has dashboard, TV and one phone switch per person. Phone delivery
-      does not depend on location. The inbox always keeps active items. All switches
-      start off on first install and restore thereafter. A row pause expires automatically
-      and preserves switches. Apply starting preferences once during the reviewed
-      setup, then enable shared phone routing. Washing is a one-shot notice; its red
-      laundry lighting stays independent.
+    content: |-
+      Each row has dashboard, TV and home/away phone switches for each person. Both phone switches on means always, including when presence is unknown; both off means no phone alert. Selecting only home or away requires a matching report no older than 15 minutes. The inbox always keeps active items. All switches start off on first install and restore thereafter. A row pause expires automatically and preserves switches. Existing phone choices are preserved during the reviewed home/away migration. Washing is a one-shot notice; its red laundry lighting stays independent.
+
+      Home/away controls: {{ 'ready' if is_state('input_boolean.attention_presence_routes_migrated', 'on') else 'setup pending; current phone delivery stays active' }}.
   - type: entities
     show_header_toggle: false
     entities:
     - script.household_attention_apply_starting_preferences
     - input_boolean.attention_preferences_configured
     - input_boolean.attention_routing_enabled
+  - type: markdown
+    title: Phone presence
+    content: |-
+      {% for person, label in [('lachlan', 'Lachlan'), ('nic', 'Nic')] %}
+      {% set entity = 'sensor.household_attention_' ~ person ~ '_presence' %}
+      {% set evidence = state_attr(entity, 'evidence') or {} %}
+      **{{ label }}:** {{ states(entity) }} — {{ evidence.get('reason', 'Waiting for reports') }}.
+      Location report age: {{ evidence.get('gps_age_seconds') if evidence.get('gps_age_seconds') is number else 'unknown' }} seconds; Wi-Fi report age: {{ evidence.get('wifi_age_seconds') if evidence.get('wifi_age_seconds') is number else 'unknown' }} seconds.
+      {% endfor %}
   - type: markdown
     content: '## Appliances'
   - type: vertical-stack
@@ -80,10 +87,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_fridge_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_fridge_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_fridge_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_fridge_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_fridge_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_fridge_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_fridge_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_fridge_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -98,10 +109,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_washer_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_washer_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_washer_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_washer_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_washer_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_washer_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_washer_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_washer_unavailable_pause_until
         name: Pause all routes until
   - type: markdown
@@ -118,67 +133,15 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_backup_failed_tv
         name: TV screensaver
-      - entity: input_boolean.attention_backup_failed_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_backup_failed_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_backup_failed_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_backup_failed_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_backup_failed_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_backup_failed_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_backup_failed_pause_until
-        name: Pause all routes until
-  - type: markdown
-    content: '## Blinds'
-  - type: vertical-stack
-    cards:
-    - type: markdown
-      title: Bookcase blind
-      content: HA cannot reach the bookcase blind
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: input_boolean.attention_bookcase_blind_unavailable_dashboard
-        name: HA dashboard
-      - entity: input_boolean.attention_bookcase_blind_unavailable_tv
-        name: TV screensaver
-      - entity: input_boolean.attention_bookcase_blind_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_bookcase_blind_unavailable_nic_phone
-        name: Nic phone
-      - entity: input_datetime.attention_bookcase_blind_unavailable_pause_until
-        name: Pause all routes until
-  - type: vertical-stack
-    cards:
-    - type: markdown
-      title: TV blind
-      content: HA cannot reach the TV blind
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: input_boolean.attention_tv_blind_unavailable_dashboard
-        name: HA dashboard
-      - entity: input_boolean.attention_tv_blind_unavailable_tv
-        name: TV screensaver
-      - entity: input_boolean.attention_tv_blind_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_tv_blind_unavailable_nic_phone
-        name: Nic phone
-      - entity: input_datetime.attention_tv_blind_unavailable_pause_until
-        name: Pause all routes until
-  - type: vertical-stack
-    cards:
-    - type: markdown
-      title: Middle blind
-      content: HA cannot reach the middle blind
-    - type: entities
-      show_header_toggle: false
-      entities:
-      - entity: input_boolean.attention_middle_blind_unavailable_dashboard
-        name: HA dashboard
-      - entity: input_boolean.attention_middle_blind_unavailable_tv
-        name: TV screensaver
-      - entity: input_boolean.attention_middle_blind_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_middle_blind_unavailable_nic_phone
-        name: Nic phone
-      - entity: input_datetime.attention_middle_blind_unavailable_pause_until
         name: Pause all routes until
   - type: markdown
     content: '## Chores'
@@ -194,10 +157,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_washing_finished_tv
         name: TV screensaver
-      - entity: input_boolean.attention_washing_finished_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_washing_finished_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_washing_finished_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_washing_finished_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_washing_finished_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_washing_finished_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_washing_finished_pause_until
         name: Pause all routes until
   - type: markdown
@@ -214,10 +181,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_internet_disconnected_tv
         name: TV screensaver
-      - entity: input_boolean.attention_internet_disconnected_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_internet_disconnected_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_internet_disconnected_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_internet_disconnected_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_internet_disconnected_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_internet_disconnected_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_internet_disconnected_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -232,10 +203,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_kiosk_wifi_tv
         name: TV screensaver
-      - entity: input_boolean.attention_kiosk_wifi_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_kiosk_wifi_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_kiosk_wifi_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_kiosk_wifi_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_kiosk_wifi_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_kiosk_wifi_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_kiosk_wifi_pause_until
         name: Pause all routes until
   - type: markdown
@@ -252,10 +227,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_dyson_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_dyson_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_dyson_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_dyson_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_dyson_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_dyson_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_dyson_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_dyson_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -270,10 +249,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_black_fan_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_black_fan_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_black_fan_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_black_fan_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_black_fan_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_black_fan_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_black_fan_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_black_fan_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -288,10 +271,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_kids_tv_plug_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_kids_tv_plug_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_kids_tv_plug_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_kids_tv_plug_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_kids_tv_plug_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_kids_tv_plug_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_kids_tv_plug_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_kids_tv_plug_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -306,10 +293,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_internet_plug_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_internet_plug_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_internet_plug_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_internet_plug_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_internet_plug_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_internet_plug_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_internet_plug_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_internet_plug_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -324,10 +315,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_kiosk_charger_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_kiosk_charger_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_kiosk_charger_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_kiosk_charger_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_kiosk_charger_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_kiosk_charger_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_kiosk_charger_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_kiosk_charger_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -342,10 +337,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_air_conditioner_fingerbot_unavailable_pause_until
         name: Pause all routes until
   - type: markdown
@@ -362,10 +361,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_living_room_tv_lights_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_living_room_tv_lights_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_living_room_tv_lights_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_living_room_tv_lights_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_living_room_tv_lights_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_living_room_tv_lights_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_living_room_tv_lights_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_living_room_tv_lights_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -380,10 +383,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_living_room_dining_lights_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_living_room_dining_lights_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_living_room_dining_lights_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_living_room_dining_lights_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_living_room_dining_lights_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_living_room_dining_lights_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_living_room_dining_lights_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_living_room_dining_lights_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -398,10 +405,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_living_room_hoop_lights_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_living_room_hoop_lights_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -416,10 +427,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_kitchen_lights_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_kitchen_lights_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_kitchen_lights_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_kitchen_lights_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_kitchen_lights_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_kitchen_lights_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_kitchen_lights_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_kitchen_lights_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -434,10 +449,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_kitchen_entrance_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_kitchen_entrance_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_kitchen_entrance_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_kitchen_entrance_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_kitchen_entrance_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_kitchen_entrance_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_kitchen_entrance_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_kitchen_entrance_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -452,10 +471,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_ensuite_lights_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_ensuite_lights_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_ensuite_lights_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_ensuite_lights_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_ensuite_lights_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_ensuite_lights_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_ensuite_lights_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_ensuite_lights_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -470,10 +493,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_bathroom_lights_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_bathroom_lights_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_bathroom_lights_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_bathroom_lights_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_bathroom_lights_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_bathroom_lights_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_bathroom_lights_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_bathroom_lights_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -488,10 +515,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_main_bedroom_lights_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_main_bedroom_lights_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_main_bedroom_lights_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_main_bedroom_lights_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_main_bedroom_lights_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_main_bedroom_lights_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_main_bedroom_lights_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_main_bedroom_lights_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -506,10 +537,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_kids_bedroom_lights_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_kids_bedroom_lights_unavailable_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -524,10 +559,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_laundry_light_unavailable_tv
         name: TV screensaver
-      - entity: input_boolean.attention_laundry_light_unavailable_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_laundry_light_unavailable_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_laundry_light_unavailable_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_laundry_light_unavailable_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_laundry_light_unavailable_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_laundry_light_unavailable_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_laundry_light_unavailable_pause_until
         name: Pause all routes until
   - type: markdown
@@ -544,10 +583,14 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_washer_cleaning_tv
         name: TV screensaver
-      - entity: input_boolean.attention_washer_cleaning_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_washer_cleaning_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_washer_cleaning_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_washer_cleaning_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_washer_cleaning_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_washer_cleaning_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_washer_cleaning_pause_until
         name: Pause all routes until
   - type: vertical-stack
@@ -562,9 +605,13 @@ views:
         name: HA dashboard
       - entity: input_boolean.attention_upgrades_available_tv
         name: TV screensaver
-      - entity: input_boolean.attention_upgrades_available_lachlan_phone
-        name: Lachlan phone
-      - entity: input_boolean.attention_upgrades_available_nic_phone
-        name: Nic phone
+      - entity: input_boolean.attention_upgrades_available_lachlan_home
+        name: Lachlan phone when home
+      - entity: input_boolean.attention_upgrades_available_lachlan_away
+        name: Lachlan phone when away
+      - entity: input_boolean.attention_upgrades_available_nic_home
+        name: Nic phone when home
+      - entity: input_boolean.attention_upgrades_available_nic_away
+        name: Nic phone when away
       - entity: input_datetime.attention_upgrades_available_pause_until
         name: Pause all routes until
