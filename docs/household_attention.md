@@ -35,6 +35,43 @@ still needs runtime verification after enabling its registered sensor.
 Lights, battery-drain and authentication still lack reviewed
 source policies/signals and are not silently added.
 
+### Router-presence investigation - 14 November 2026
+
+Lachlan proposed using the router as home-presence authority, and potentially
+sending regardless of presence when neither iOS nor the app supplies evidence.
+The latter remains a proposed unknown-presence fallback, not an accepted change
+to washing's home-only rule. Current code still suppresses uncertain home-only
+delivery pending that policy decision.
+
+Read-only HA inventory confirms the router model is TP-Link Archer AX73. Its
+existing UPnP integration exposes WAN/network statistics; it does not supply
+client-presence trackers. The current device-tracker registry contains only the
+three mobile-app trackers, with no router-based phone trackers (including
+disabled ones in that domain). Router hardware/firmware revisions were not
+exposed by the returned device metadata, and the router itself was not logged
+into or changed.
+
+TP-Link's AX73 manual documents a connected-client list in Network Map. The
+third-party TP-Link Router integration documents client tracking by MAC address
+and lists AX73 V1/V2.0 support. It is a candidate, not verified compatibility with
+this router's exact firmware. Its README warns about firmware compatibility and
+polling competing with the router's single admin session. No custom integration
+has been installed, and no router credentials were requested or read.
+
+Proposed next design: use fresh router client evidence for network presence,
+retain GPS as supplementary evidence, and expose unknown separately if the
+router data is unavailable/stale. A missing phone from Wi-Fi does not by itself
+prove its owner is away. Only a verified supported integration and real phone
+mapping should enter the source/routing configuration. Existing direct references
+to mobile-app trackers in the routing code must be reviewed if the presence source
+changes; merely attaching a new tracker to Person would not update that freshness
+check.
+
+Sources: [UPnP capabilities](https://www.home-assistant.io/integrations/upnp/),
+[AX73 client-list manual](https://static.tp-link.com/upload/manual/2024/202412/20241213/1910013878_Archer%20AX73_UG_REV2.0.1.pdf),
+[TP-Link Router integration](https://github.com/AlexandrErohin/home-assistant-tplink-router),
+[Person tracker combination](https://www.home-assistant.io/integrations/person/).
+
 ## Ownership and implementation
 
 Native HA owns observation, lifecycle and delivery. There is no AI runtime,
