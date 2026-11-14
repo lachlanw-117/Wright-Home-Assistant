@@ -18,10 +18,16 @@ pass. Tests use the actual production templates/reducers without a separate HA
 installation, fake devices or simulated delivery service. Local tests do not prove
 HA schema/include loading, restoration or physical behaviour.
 
-Trial status: not deployed. Keep this PR open through an approved trial of its
-exact feature-branch commit on the backed-up Pi. Live-file drift comparison is
-pending because the file connector lacks SSH transport. Kiosk Connection Type
-is registered but disabled and needs approved enablement/runtime verification.
+Trial status: installed from exact runtime commit `6b36c4a` on 14 November 2026,
+following explicit backup confirmation and installation/restart/setup approval.
+Direct SSH/SCP verified both existing files against baseline and saved rollback
+copies before installation. All ten installed hashes match; HA configuration
+validation and one Core restart passed. Nine source records, expected controls,
+three-view dashboard configuration and starting preferences loaded. Shared
+routing is on, with no existing-notice replay or phone-send calls observed.
+Keep this PR open. Kiosk Connection Type is still disabled and needs manual HA
+entity-setting enablement and real report verification. Phone/light, visual UI,
+fault lifecycle and continuity across a later approved restart remain pending.
 No TV application changes or third-party router integration are included. Lights,
 rapid battery drain and auth sources have no reviewed adapters in this slice.
 

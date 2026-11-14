@@ -1,34 +1,39 @@
-# Household attention — as built locally
+# Household attention — as built and trial status
 
-**Review status:** local implementation only; not deployed or accepted on the Pi.
+**Review status:** installed on the Pi for trial; live acceptance is incomplete.
 This document describes runtime commit
 `6b36c4a9518a4f424582b4a4240aef17809ba6ff`. The companion
 [user guide](household_attention_user_guide.md) explains everyday operation and
 the differences between the new handler and existing washing delivery.
 
-Lachlan has put push, PR creation and trial approval on hold until these documents
-are reviewed. No backup-complete confirmation or live-change approval is recorded.
+After reviewing these documents, Lachlan confirmed his Pi backup complete and
+explicitly approved the push/PR and named `6b36c4a` trial, including one Core
+restart and setup. That installation and restart are complete; shared routing is
+on. Kiosk enablement, actual phones/light/UI and restoration checks remain pending.
+See the [trial record](household_attention_trial.md) for hashes, times and evidence.
 
 Branch: `feature/household-attention-handler`, based on
 `9b6513203ac89764d8669aaaf998b1878e2199ba`. The supplied
 [accepted handoff](household_attention_accepted_handoff.txt) is a historical
 requirements record. The decisions below supersede its earlier proposals.
-No feature deployment, backup confirmation, push or merge has occurred.
+The branch is pushed through documentation commit `78528d8`, and
+[PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) is open.
+Installed runtime files match `6b36c4a` exactly. No merge has occurred.
 
 ## Implementation status at a glance
 
 | Capability | Actual implementation | Verification status |
 |---|---|---|
-| Shared attention store | One native trigger-based sensor, one current/last record per source | Local reducer checks; actual HA restoration pending |
+| Shared attention store | One native trigger-based sensor, one current/last record per source | Loaded with nine records on Pi; later restart restoration pending |
 | Nine source rules | Fridge, Dyson, WAN, washer availability, kiosk Wi-Fi, wash completion, cleaning, backup failure, upgrades | Real mappings inspected; kiosk is registered but disabled |
-| Everyday controls | Four active destinations per row plus an absolute row pause | Static definitions/templates checked; live UI pending |
+| Everyday controls | Four active destinations per row plus an absolute row pause | Expected helpers and all starting values checked live; visual UI pending |
 | Presence split | Parked; old home/away helpers dormant | Routing test proves they do not control current delivery |
 | Phone delivery | Once per occurrence; current destination/pause rechecked before sending | Local selection/receipt checks; real push receipt not tested |
 | Washing migration | Legacy phone branches kept behind shared-routing handover; light action preserved | Exact original triggers/actions checked locally; real wash pending |
-| Dashboard/inbox | YAML views and HA sensors | Not installed; no live layout screenshots available |
+| Dashboard/inbox | YAML views and HA sensors | Sensors and three-view authenticated configuration loaded; visual layout pending |
 | TV delivery | HA-owned filtered data contract only | No TV app consumer implementation or visible TV delivery in this change |
 | Health/coverage | Fault-only operational health; separate source uncertainty | Actual inline template test passes |
-| Trial materials | Exact-commit ten-file ZIP, hashes, review diff, rollback and acceptance record | Archive/hash checks pass; no installation performed |
+| Trial materials | Exact-commit ten-file ZIP, hashes, review diff, rollback and acceptance record | Installed ten-file hashes match; rollback copies saved; acceptance incomplete |
 
 ## Current decisions - 14 November 2026
 
@@ -230,12 +235,15 @@ prove actual restoration or check physical delivery/UI layout. The [trial record
 must record what was actually observed and what remains pending natural events.
 Relevant pending acceptance keeps the PR open; local/CI tests alone do not pass it.
 
-A deliberate read-only attempt to compare live `configuration.yaml` and
-`automations.yaml` failed because the file connector lacks SSH configuration.
-No new access method/add-on was installed and no credentials were inspected.
-**Live-file drift is not checked yet.** Use the existing approved Pi access
-workflow or a user-assisted named-file comparison during trial preparation;
-never treat Git or entity existence as proof of deployed content.
+The file connector lacks SSH configuration, but direct SSH/SCP with existing
+authentication and strict saved-host verification succeeded during the approved
+trial. Live `configuration.yaml` and `automations.yaml` matched baseline `9b65132`
+byte for byte before staging and installation. All eight new files were absent.
+Rollback copies were saved before installation; all ten installed hashes matched
+`6b36c4a` both before and after the approved restart. No new access method/add-on
+was installed and no credentials were inspected. HA's configuration check passed;
+the store and dashboard configuration loaded. Kiosk is still disabled and actual
+phones/light/UI/restoration acceptance remains pending in the trial record.
 
 ## Exact-commit trial and rollback
 

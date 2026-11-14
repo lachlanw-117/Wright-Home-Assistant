@@ -1,13 +1,16 @@
 # Household attention — user guide
 
-**Status: built locally, not installed on the Pi.**
+**Status: installed on the Pi for trial; acceptance is still in progress.**
 
 This guide describes runtime code at commit
 `6b36c4a9518a4f424582b4a4240aef17809ba6ff` on
-`feature/household-attention-handler`. The dashboard and controls described below
-would become available after an approved installation. They are not live now.
-Nothing has been pushed, no PR has been opened, and no deployment or restart has
-been approved. The requested review comes first.
+`feature/household-attention-handler`. Following your review, backup confirmation
+and explicit approval, this exact runtime commit was installed on 14 November
+2026. HA's configuration check passed and one approved Core restart completed.
+Starting preferences were checked and shared routing is on.
+[PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) remains open.
+The kiosk sensor is not enabled yet, and real phone/light and restart-continuity
+acceptance remain pending. See the [trial record](household_attention_trial.md).
 
 ## What has been built
 
@@ -230,12 +233,17 @@ checks. The exact-commit trial archive's ten payload files matched its SHA-256
 manifest. These checks used no separate HA installation, fake devices or simulated
 notification service.
 
-The real entity map was inspected read-only, but the local configuration has not
-been installed or validated by the live HA configuration checker. Phone delivery,
-dashboard layout, restart behaviour, kiosk reporting and normal household events
-still need the Pi trial. Live-file drift has not been checked because the file
-connector has no SSH transport configured.
+The live configuration passed HA's checker. All ten installed file hashes match
+the approved commit. The inbox, four active controls per row, nine pause helpers
+and three-view dashboard configuration loaded. The starting switch values match
+the table above. Enabling shared routing did not replay existing notices.
 
-The next step is your review of this guide and the [as-built document](household_attention.md).
-Push, PR and trial remain on hold. Backup confirmation and the relevant approvals
-will be revisited after that review, with the PR kept open through live acceptance.
+Live-file drift and rollback copies were checked through direct SSH/SCP using
+existing authentication. No key material or credentials were viewed or copied.
+Phone delivery, visual dashboard layout, continuity across a later approved
+restart, kiosk reporting and new household events still need trial acceptance.
+
+The next steps are to enable the existing kiosk Connection Type sensor through
+its HA entity settings, inspect the dashboard and observe normal washing/phone/
+light behaviour. The [trial record](household_attention_trial.md) separates passed
+checks from outstanding acceptance. The PR stays open; merge is not approved.
