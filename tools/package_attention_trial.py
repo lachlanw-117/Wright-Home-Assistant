@@ -28,14 +28,25 @@ def git(*args):
     return subprocess.check_output(['git', *args], cwd=ROOT)
 
 
-def build(revision, output):
+def build(revision, output, installed_revision=None):
     commit = git('rev-parse', '--verify', f'{revision}^{{commit}}').decode().strip()
     if git('status', '--porcelain', '--', *FILES).strip():
         raise SystemExit('Commit the runtime files before packaging the trial.')
     contents = {name: git('show', f'{commit}:{name}') for name in FILES}
+    installed = git('rev-parse', '--verify', f'{installed_revision}^{{commit}}').decode().strip() if installed_revision else None
+    previous = {name: git('show', f'{installed}:{name}') for name in FILES} if installed else {}
+    changed = [name for name in FILES if contents[name] != previous.get(name)]
+    def starting_routes(data):
+        return {line[2:].strip() for line in data.decode().splitlines()
+                if line.startswith('- input_boolean.')}
+    new_starting = sorted(starting_routes(contents['attention/starting_destinations.yaml']) -
+                          starting_routes(previous.get('attention/starting_destinations.yaml', b'')))
     manifest = {
         'source_commit': commit,
-        'comparison_base': BASE,
+        'comparison_base': installed or BASE,
+        'installed_revision': installed,
+        'changed_runtime_files': changed,
+        'new_starting_destinations': new_starting,
         'branch': 'feature/household-attention-handler',
         'files': [{
             'path': name, 'sha256': hashlib.sha256(data).hexdigest(),
@@ -52,7 +63,7 @@ def build(revision, output):
             'Separate merge approval after acceptance',
         ],
     }
-    patch = git('diff', '--binary', BASE, commit, '--', *FILES)
+    patch = git('diff', '--binary', installed or BASE, commit, '--', *FILES)
     readme = (
         f'Source commit: {commit}\n\n'
         'This is a review/trial package, not approval to install.\n'
@@ -65,9 +76,13 @@ def build(revision, output):
         'only the approved restart. Compare actual installed hashes with manifest.\n'
         'If a reviewed live merge differs from this payload, record its deployed hash\n'
         'and reconcile that exact content to Git before proceeding with the trial.\n'
-        'Inspect controls and apply starting preferences once; enable shared routing\n'
-        'only after verifying the store and while no washer completion is processing.\n'
-        'Enable/report/verify the existing kiosk Connection Type sensor only as approved.\n'
+        'On an existing installation, preserve all restored preferences and pauses.\n'
+        'Never rerun global starting preferences: enable only the separately approved\n'
+        'new_starting_destinations listed in the manifest. Compare old values before/after.\n'
+        'For a fresh install only, apply starting preferences once and enable shared\n'
+        'routing after inspecting the store while no washer completion is processing.\n'
+        'Kiosk Connection Type was enabled during the earlier trial; verify reporting\n'
+        'rather than changing entity settings without a separate need and approval.\n'
         'Keep the PR open. Record acceptance before requesting merge approval.\n\n'
         'Rollback: restore only affected pre-trial copies, preserving later unrelated\n'
         'edits; remove only feature files verified absent before trial. Validate and\n'
@@ -95,5 +110,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--revision', default='HEAD')
     parser.add_argument('--output', required=True)
+    parser.add_argument('--installed-revision', help='Recorded runtime commit to compare; live drift still requires verification')
     args = parser.parse_args()
-    build(args.revision, args.output)
+    build(args.revision, args.output, args.installed_revision)

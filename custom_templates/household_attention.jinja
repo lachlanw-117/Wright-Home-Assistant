@@ -96,7 +96,8 @@
     {% set active = false %}
     {% set resolved = at %}
   {% endif %}
-  {% do returns(dict(key=source.key, title=source.title, category=source.category,
+  {% do returns(dict(key=source.key, title=source.title,
+    display_name=source.get('display_name', source.title), category=source.category,
     kind=source.kind, severity=source.severity, active=active,
     occurrence_id=occurrence, first_detected=first, resolved_at=resolved,
     last_valid_observation=at if observation.quality == 'valid'

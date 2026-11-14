@@ -416,7 +416,11 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(set(BY_KEY['washing_finished']['starting_destinations']),
                          {'dashboard', 'tv', 'lachlan_phone', 'nic_phone'})
         dashboard = yaml.safe_load((ROOT / 'dashboards/household_attention.yaml').read_text(encoding='utf8'))
-        for card in dashboard['views'][2]['cards']:
+        def cards_in(cards):
+            for card in cards:
+                yield card
+                yield from cards_in(card.get('cards', []))
+        for card in cards_in(dashboard['views'][2]['cards']):
             for row in card.get('entities', []):
                 entity = row['entity'] if isinstance(row, dict) else row
                 self.assertFalse(entity.endswith(('_home', '_away')))
@@ -449,8 +453,109 @@ class ConfigurationTests(unittest.TestCase):
         for name, expected in module.outputs().items():
             self.assertEqual((ROOT / name).read_text(encoding='utf8'), expected)
         controls = yaml.safe_load((ROOT / 'attention/delivery_controls.yaml').read_text(encoding='utf8'))
-        self.assertEqual(len(controls), len(SOURCES) * 8 + 2)
+        self.assertEqual(len(controls), 158)
+        self.assertEqual(sum(source.get('preserve_legacy_presence_helpers', False) for source in SOURCES), 12)
+        for source in SOURCES:
+            key = source['key']
+            for suffix in ['dashboard', 'tv', 'lachlan_phone', 'nic_phone']:
+                self.assertIn(f'attention_{key}_{suffix}', controls)
+            for suffix in ['lachlan_home', 'lachlan_away', 'nic_home', 'nic_away']:
+                self.assertEqual(f'attention_{key}_{suffix}' in controls,
+                                 source.get('preserve_legacy_presence_helpers', False))
         self.assertTrue(all('initial' not in helper for helper in controls.values()))
+
+    def test_grouped_switch_mappings_and_new_defaults(self):
+        expected = {
+            'kitchen_lights': ['light.bench', 'light.dish_rack', 'light.pantry', 'light.stove'],
+            'kitchen_entrance': ['light.entrance'],
+            'ensuite_lights': ['light.toilet', 'light.mirror', 'light.shower'],
+            'bathroom_lights': ['light.centre', 'light.sink'],
+            'main_bedroom_lights': ['light.in_front_of_sink', 'light.living_room_tradfri'],
+            'kids_bedroom_lights': ['light.kids_room_kids_bedroom_light_1', 'light.kids_room_kids_bedroom_light_2'],
+            'laundry_light': ['light.laundry_led_strip'],
+            'black_fan': ['fan.living_room_black_fan'],
+            'bookcase_blind': ['cover.book_case_window'], 'tv_blind': ['cover.tv_window'],
+            'middle_blind': ['cover.middle_window'],
+            'kids_tv_plug': ['switch.kids_room_kids_tv_plug'],
+            'internet_plug': ['switch.internet_plug'],
+            'kiosk_charger': ['switch.living_room_kiosk_phone_charger'],
+            'air_conditioner_fingerbot': ['switch.split_system_finger_bot'],
+        }
+        self.assertEqual(len(SOURCES), 27)
+        for prefix, entities in expected.items():
+            source = BY_KEY[prefix + '_unavailable']
+            self.assertEqual(source['entities'], entities)
+            self.assertEqual(source['starting_destinations'], ['dashboard', 'tv'])
+            self.assertEqual(source['delivery_delay_seconds'], 900)
+            self.assertFalse(source.get('preserve_legacy_presence_helpers', False))
+
+    def test_short_names_do_not_reset_occurrences_or_notification_titles(self):
+        source = BY_KEY['living_room_tv_lights_unavailable']
+        values = {entity: 'unavailable' for entity in source['entities']}
+        values.update({'input_boolean.attention_routing_enabled': 'on',
+                       'input_boolean.attention_living_room_tv_lights_unavailable_lachlan_phone': 'on'})
+        f = functions(values)
+        records = f.reconcile([source], {}, AT)
+        records = f.reconcile([source], records, AT + 900)
+        old = records[source['key']]
+        renamed = dict(source, display_name='TV lights renamed')
+        record = f.reconcile([renamed], records, AT + 960)[source['key']]
+        self.assertEqual(record['display_name'], 'TV lights renamed')
+        self.assertEqual(record['title'], source['title'])
+        for field in ['occurrence_id', 'first_detected', 'phone_evaluated', 'selected_phone_routes']:
+            self.assertEqual(record[field], old[field])
+        self.assertEqual(record['phone_routes'], [])
+        legacy = dict(source)
+        legacy.pop('display_name')
+        self.assertEqual(f.reconcile([legacy], records, AT + 960)[source['key']]['display_name'], source['title'])
+
+    def test_dashboard_names_fall_back_and_distinguish_conditions(self):
+        source = BY_KEY['living_room_tv_lights_unavailable']
+        record = functions().advance(source, {}, evidence(), AT)
+        env = SandboxedEnvironment(undefined=StrictUndefined)
+        dashboard = yaml.safe_load((ROOT / 'dashboards/household_attention.yaml').read_text(encoding='utf8'))
+        for modern in [True, False]:
+            item = dict(record)
+            if not modern:
+                item.pop('display_name')
+            attributes = {'items': [item], 'coverage': 'complete', 'health': 'faults',
+                          'fault_count': 1, 'uncertain_sources': [], 'recent_events': []}
+            env.globals['state_attr'] = lambda entity, attribute: attributes[attribute]
+            for view in dashboard['views'][:2]:
+                rendered = env.from_string(view['cards'][0]['content']).render()
+                self.assertIn('Faults', rendered)
+                self.assertIn('Maintenance', rendered)
+                self.assertIn(source['title'], rendered)
+                if modern:
+                    self.assertIn('TV lights', rendered)
+
+    def test_all_new_availability_sets_handle_partial_failure_and_uncertain_recovery(self):
+        for source in SOURCES:
+            if source.get('preserve_legacy_presence_helpers', False):
+                continue
+            with self.subTest(source=source['key']):
+                key, entities = source['key'], source['entities']
+                values = {entity: 'off' for entity in entities}
+                record = functions(values).reconcile([source], {}, AT)
+                self.assertFalse(record[key]['active'])
+                values[entities[0]] = 'unavailable'
+                record = functions(values).reconcile([source], record, AT + 60)
+                first = record[key]['occurrence_id']
+                for entity in entities:
+                    values[entity] = 'unavailable'
+                record = functions(values).reconcile([source], record, AT + 120)
+                self.assertEqual(record[key]['occurrence_id'], first)
+                values.update({entity: 'off' for entity in entities})
+                values[entities[-1]] = 'unknown'
+                record = functions(values).reconcile([source], record, AT + 180)
+                self.assertTrue(record[key]['active'])
+                self.assertEqual(record[key]['quality'], 'unknown')
+                values[entities[-1]] = 'off'
+                record = functions(values).reconcile([source], record, AT + 240)
+                self.assertFalse(record[key]['active'])
+                values[entities[0]] = 'unavailable'
+                record = functions(values).reconcile([source], record, AT + 300)
+                self.assertNotEqual(record[key]['occurrence_id'], first)
 
     def test_no_excluded_device_or_dynamic_whole_instance_scan(self):
         entities = {entity for source in SOURCES for entity in source['entities']}

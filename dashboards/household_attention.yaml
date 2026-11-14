@@ -6,9 +6,17 @@ views:
   - type: markdown
     title: Household attention
     content: |-
-      {% for item in state_attr('sensor.household_attention_dashboard', 'items') or [] %}
-      - **{{ item.title }}** ({{ item.quality }})
-      {% else %}No routed dashboard items. All active items remain in Inbox.{% endfor %}
+      {% set items = state_attr('sensor.household_attention_dashboard', 'items') or [] %}
+      {% for kind, label in [('fault', 'Faults'), ('attention', 'Maintenance'), ('event', 'Events')] %}
+      ## {{ label }}
+      {% for category, category_items in items | selectattr('kind', 'eq', kind) | groupby('category') %}
+      ### {{ category | title }}
+      {% for item in category_items %}
+      - **{{ item.get('display_name', item.title) }}** — {{ item.title }} ({{ item.kind }}, {{ item.quality }})
+      {% endfor %}
+      {% else %}None.{% endfor %}
+      {% endfor %}
+      All active items remain in Inbox. Coverage: {{ state_attr('sensor.household_attention_inbox', 'coverage') }}
 - title: Inbox
   path: inbox
   cards:
@@ -19,8 +27,13 @@ views:
       Health: {{ state_attr('sensor.household_attention_inbox', 'health') }}
       Coverage: {{ state_attr('sensor.household_attention_inbox', 'coverage') }}
       Confirmed faults: {{ state_attr('sensor.household_attention_inbox', 'fault_count') }}
-      {% for item in items %}
-      ### {{ item.title }}
+      {% for kind, label in [('fault', 'Faults'), ('attention', 'Maintenance'), ('event', 'Events')] %}
+      ## {{ label }}
+      {% for category, category_items in items | selectattr('kind', 'eq', kind) | groupby('category') %}
+      ### {{ category | title }}
+      {% for item in category_items %}
+      #### {{ item.get('display_name', item.title) }}
+      {{ item.title }}
       {{ item.kind }} · {{ item.severity }} · observation {{ item.quality }}
       {% for evidence in item.evidence %}
       - {{ evidence.entity_id }}: {{ evidence.state }}
@@ -28,11 +41,13 @@ views:
       {% for detail in item.details %}
       - {{ detail.component }}: {{ detail.installed_version }} → {{ detail.latest_version }}
       {% endfor %}
-      {% else %}No active items. Check coverage below.{% endfor %}
+      {% endfor %}
+      {% else %}None.{% endfor %}
+      {% endfor %}
       Coverage gaps: {{ state_attr('sensor.household_attention_inbox', 'uncertain_sources') }}
 
       {% for item in state_attr('sensor.household_attention_inbox', 'recent_events') or [] %}
-      Recent event: **{{ item.title }}** - delivery {{ item.delivery_state }}.
+      Recent event: **{{ item.get('display_name', item.title) }}** - {{ item.title }} - delivery {{ item.delivery_state }}.
       {% endfor %}
 - title: Delivery controls
   path: controls
@@ -51,171 +66,505 @@ views:
     - script.household_attention_apply_starting_preferences
     - input_boolean.attention_preferences_configured
     - input_boolean.attention_routing_enabled
-  - type: entities
-    title: HA cannot reach the fridge through one or more channels
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_fridge_unavailable_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_fridge_unavailable_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_fridge_unavailable_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_fridge_unavailable_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_fridge_unavailable_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: HA cannot reach the Dyson Purifier Hot+Cool De-NOx
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_dyson_unavailable_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_dyson_unavailable_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_dyson_unavailable_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_dyson_unavailable_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_dyson_unavailable_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: HA cannot reach one or both living-room TV lights
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_living_room_tv_lights_unavailable_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_living_room_tv_lights_unavailable_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_living_room_tv_lights_unavailable_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_living_room_tv_lights_unavailable_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_living_room_tv_lights_unavailable_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: HA cannot reach one or both dining-table lights
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_living_room_dining_lights_unavailable_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_living_room_dining_lights_unavailable_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_living_room_dining_lights_unavailable_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_living_room_dining_lights_unavailable_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_living_room_dining_lights_unavailable_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: HA cannot reach one or both basketball-hoop lights
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_living_room_hoop_lights_unavailable_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_living_room_hoop_lights_unavailable_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_living_room_hoop_lights_unavailable_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_living_room_hoop_lights_unavailable_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_living_room_hoop_lights_unavailable_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: Router reports WAN disconnected or HA cannot read WAN status
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_internet_disconnected_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_internet_disconnected_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_internet_disconnected_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_internet_disconnected_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_internet_disconnected_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: HA cannot reach the washer
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_washer_unavailable_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_washer_unavailable_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_washer_unavailable_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_washer_unavailable_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_washer_unavailable_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: Kiosk phone reports it is off Wi-Fi
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_kiosk_wifi_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_kiosk_wifi_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_kiosk_wifi_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_kiosk_wifi_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_kiosk_wifi_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: Washing finished
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_washing_finished_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_washing_finished_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_washing_finished_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_washing_finished_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_washing_finished_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: Washer needs a cleaning cycle
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_washer_cleaning_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_washer_cleaning_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_washer_cleaning_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_washer_cleaning_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_washer_cleaning_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: A backup failed; check backup settings and destinations
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_backup_failed_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_backup_failed_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_backup_failed_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_backup_failed_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_backup_failed_pause_until
-      name: Pause all routes until
-  - type: entities
-    title: Upgrades are available
-    show_header_toggle: false
-    entities:
-    - entity: input_boolean.attention_upgrades_available_dashboard
-      name: HA dashboard
-    - entity: input_boolean.attention_upgrades_available_tv
-      name: TV screensaver
-    - entity: input_boolean.attention_upgrades_available_lachlan_phone
-      name: Lachlan phone
-    - entity: input_boolean.attention_upgrades_available_nic_phone
-      name: Nic phone
-    - entity: input_datetime.attention_upgrades_available_pause_until
-      name: Pause all routes until
+  - type: markdown
+    content: '## Appliances'
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Fridge
+      content: HA cannot reach the fridge through one or more channels
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_fridge_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_fridge_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_fridge_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_fridge_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_fridge_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Washing machine
+      content: HA cannot reach the washer
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_washer_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_washer_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_washer_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_washer_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_washer_unavailable_pause_until
+        name: Pause all routes until
+  - type: markdown
+    content: '## Backups'
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Backups
+      content: A backup failed; check backup settings and destinations
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_backup_failed_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_backup_failed_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_backup_failed_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_backup_failed_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_backup_failed_pause_until
+        name: Pause all routes until
+  - type: markdown
+    content: '## Blinds'
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Bookcase blind
+      content: HA cannot reach the bookcase blind
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_bookcase_blind_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_bookcase_blind_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_bookcase_blind_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_bookcase_blind_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_bookcase_blind_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: TV blind
+      content: HA cannot reach the TV blind
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_tv_blind_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_tv_blind_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_tv_blind_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_tv_blind_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_tv_blind_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Middle blind
+      content: HA cannot reach the middle blind
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_middle_blind_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_middle_blind_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_middle_blind_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_middle_blind_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_middle_blind_unavailable_pause_until
+        name: Pause all routes until
+  - type: markdown
+    content: '## Chores'
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Washing machine
+      content: Washing finished
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_washing_finished_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_washing_finished_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_washing_finished_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_washing_finished_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_washing_finished_pause_until
+        name: Pause all routes until
+  - type: markdown
+    content: '## Connectivity'
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Internet
+      content: Router reports WAN disconnected or HA cannot read WAN status
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_internet_disconnected_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_internet_disconnected_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_internet_disconnected_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_internet_disconnected_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_internet_disconnected_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Kiosk phone
+      content: Kiosk phone reports it is off Wi-Fi
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_kiosk_wifi_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_kiosk_wifi_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_kiosk_wifi_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_kiosk_wifi_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_kiosk_wifi_pause_until
+        name: Pause all routes until
+  - type: markdown
+    content: '## Devices'
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Dyson
+      content: HA cannot reach the Dyson Purifier Hot+Cool De-NOx
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_dyson_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_dyson_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_dyson_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_dyson_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_dyson_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Black fan
+      content: HA cannot reach the black fan
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_black_fan_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_black_fan_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_black_fan_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_black_fan_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_black_fan_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Kids’ TV plug
+      content: HA cannot reach the kids’ TV plug
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_kids_tv_plug_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_kids_tv_plug_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_kids_tv_plug_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_kids_tv_plug_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_kids_tv_plug_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Internet plug
+      content: HA cannot reach the internet plug
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_internet_plug_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_internet_plug_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_internet_plug_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_internet_plug_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_internet_plug_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Kiosk charger
+      content: HA cannot reach the kiosk charger
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_kiosk_charger_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_kiosk_charger_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_kiosk_charger_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_kiosk_charger_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_kiosk_charger_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Air-conditioner FingerBot
+      content: HA cannot reach the air-conditioner FingerBot
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_air_conditioner_fingerbot_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_air_conditioner_fingerbot_unavailable_pause_until
+        name: Pause all routes until
+  - type: markdown
+    content: '## Lighting'
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: TV lights
+      content: HA cannot reach one or both living-room TV lights
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_living_room_tv_lights_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_living_room_tv_lights_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_living_room_tv_lights_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_living_room_tv_lights_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_living_room_tv_lights_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Dining-table lights
+      content: HA cannot reach one or both dining-table lights
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_living_room_dining_lights_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_living_room_dining_lights_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_living_room_dining_lights_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_living_room_dining_lights_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_living_room_dining_lights_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Basketball-hoop lights
+      content: HA cannot reach one or both basketball-hoop lights
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_living_room_hoop_lights_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_living_room_hoop_lights_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Kitchen lights
+      content: HA cannot reach one or more kitchen lights
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_kitchen_lights_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_kitchen_lights_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_kitchen_lights_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_kitchen_lights_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_kitchen_lights_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Kitchen entrance
+      content: HA cannot reach the kitchen entrance
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_kitchen_entrance_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_kitchen_entrance_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_kitchen_entrance_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_kitchen_entrance_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_kitchen_entrance_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Ensuite lights
+      content: HA cannot reach one or more ensuite lights
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_ensuite_lights_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_ensuite_lights_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_ensuite_lights_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_ensuite_lights_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_ensuite_lights_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Bathroom lights
+      content: HA cannot reach one or more bathroom lights
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_bathroom_lights_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_bathroom_lights_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_bathroom_lights_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_bathroom_lights_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_bathroom_lights_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Main-bedroom lights
+      content: HA cannot reach one or more main-bedroom lights
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_main_bedroom_lights_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_main_bedroom_lights_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_main_bedroom_lights_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_main_bedroom_lights_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_main_bedroom_lights_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Kids’ bedroom lights
+      content: HA cannot reach one or more kids’ bedroom lights
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_kids_bedroom_lights_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_kids_bedroom_lights_unavailable_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Laundry light
+      content: HA cannot reach the laundry light
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_laundry_light_unavailable_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_laundry_light_unavailable_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_laundry_light_unavailable_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_laundry_light_unavailable_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_laundry_light_unavailable_pause_until
+        name: Pause all routes until
+  - type: markdown
+    content: '## Maintenance'
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Washing machine
+      content: Washer needs a cleaning cycle
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_washer_cleaning_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_washer_cleaning_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_washer_cleaning_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_washer_cleaning_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_washer_cleaning_pause_until
+        name: Pause all routes until
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      title: Updates
+      content: Upgrades are available
+    - type: entities
+      show_header_toggle: false
+      entities:
+      - entity: input_boolean.attention_upgrades_available_dashboard
+        name: HA dashboard
+      - entity: input_boolean.attention_upgrades_available_tv
+        name: TV screensaver
+      - entity: input_boolean.attention_upgrades_available_lachlan_phone
+        name: Lachlan phone
+      - entity: input_boolean.attention_upgrades_available_nic_phone
+        name: Nic phone
+      - entity: input_datetime.attention_upgrades_available_pause_until
+        name: Pause all routes until
