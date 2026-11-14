@@ -205,6 +205,11 @@ installation, updates and rollback.
 | `blueprints/` | Home Assistant automation, script and template blueprints |
 | `.gitignore` | Exclusions for secrets, runtime state, databases, logs and backups |
 
+The household attention feature is **local and not deployed**. Read the
+[user guide](docs/household_attention_user_guide.md) for behaviour, starting rules
+and controls, or the [as-built document](docs/household_attention.md) for the
+implementation, verified mappings and remaining trial checks.
+
 ## Reusing anything from here
 
 This configuration is specific to our home and will not work unchanged somewhere else.

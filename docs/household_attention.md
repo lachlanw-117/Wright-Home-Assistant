@@ -1,10 +1,34 @@
-# Household attention handler
+# Household attention — as built locally
+
+**Review status:** local implementation only; not deployed or accepted on the Pi.
+This document describes runtime commit
+`6b36c4a9518a4f424582b4a4240aef17809ba6ff`. The companion
+[user guide](household_attention_user_guide.md) explains everyday operation and
+the differences between the new handler and existing washing delivery.
+
+Lachlan has put push, PR creation and trial approval on hold until these documents
+are reviewed. No backup-complete confirmation or live-change approval is recorded.
 
 Branch: `feature/household-attention-handler`, based on
 `9b6513203ac89764d8669aaaf998b1878e2199ba`. The supplied
 [accepted handoff](household_attention_accepted_handoff.txt) is a historical
 requirements record. The decisions below supersede its earlier proposals.
 No feature deployment, backup confirmation, push or merge has occurred.
+
+## Implementation status at a glance
+
+| Capability | Actual implementation | Verification status |
+|---|---|---|
+| Shared attention store | One native trigger-based sensor, one current/last record per source | Local reducer checks; actual HA restoration pending |
+| Nine source rules | Fridge, Dyson, WAN, washer availability, kiosk Wi-Fi, wash completion, cleaning, backup failure, upgrades | Real mappings inspected; kiosk is registered but disabled |
+| Everyday controls | Four active destinations per row plus an absolute row pause | Static definitions/templates checked; live UI pending |
+| Presence split | Parked; old home/away helpers dormant | Routing test proves they do not control current delivery |
+| Phone delivery | Once per occurrence; current destination/pause rechecked before sending | Local selection/receipt checks; real push receipt not tested |
+| Washing migration | Legacy phone branches kept behind shared-routing handover; light action preserved | Exact original triggers/actions checked locally; real wash pending |
+| Dashboard/inbox | YAML views and HA sensors | Not installed; no live layout screenshots available |
+| TV delivery | HA-owned filtered data contract only | No TV app consumer implementation or visible TV delivery in this change |
+| Health/coverage | Fault-only operational health; separate source uncertainty | Actual inline template test passes |
+| Trial materials | Exact-commit ten-file ZIP, hashes, review diff, rollback and acceptance record | Archive/hash checks pass; no installation performed |
 
 ## Current decisions - 14 November 2026
 
@@ -157,6 +181,12 @@ being processed. Existing already-captured issues remain in the inbox without a
 surprise resend. The completion light action remains independent: red RGBW
 `[255, 0, 0, 0]`, 20%, long flash on `light.laundry_led_strip`. No extra light helper
 is introduced, as requested.
+
+This gate is a handover control, not a global notification mute. Setting it off
+returns washing and cleaning to their original direct phone actions, which ignore
+the new row switches/pauses. The original completion light action also remains
+outside handler routing. After handover, everyday suppression should use the
+row's recipient controls or pause, with shared routing left on.
 
 Washing is a one-shot event. Each selected successful HA notify call emits an
 occurrence/recipient receipt. After all selected calls are accepted the event

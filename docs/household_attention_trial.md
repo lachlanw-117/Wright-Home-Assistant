@@ -2,6 +2,9 @@
 
 Status: **not deployed; no live acceptance claimed**. No Pi backup confirmation,
 push, install, restart, sensor enablement or merge approval has been recorded.
+Lachlan has explicitly held push, PR creation and trial until the user guide and
+as-built explanation have been reviewed. Earlier approval questions are unanswered;
+they must not be interpreted as consent.
 Use the exact source SHA and manifest from the generated trial bundle. Keep the
 PR open until relevant acceptance passes.
 
