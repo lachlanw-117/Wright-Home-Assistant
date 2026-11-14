@@ -14,6 +14,10 @@ DESTINATIONS = {
     'lachlan_home': 'Lachlan phone when home', 'lachlan_away': 'Lachlan phone when away',
     'nic_home': 'Nic phone when home', 'nic_away': 'Nic phone when away',
 }
+ACTIVE_DESTINATIONS = {
+    'dashboard': 'HA dashboard', 'tv': 'TV screensaver',
+    'lachlan_phone': 'Lachlan phone', 'nic_phone': 'Nic phone',
+}
 
 
 class ReadableDumper(yaml.SafeDumper):
@@ -37,7 +41,8 @@ def outputs():
     pauses, watched, starting = {}, set(), []
     cards = [
         {'type': 'markdown', 'title': 'Delivery preferences', 'content':
-         'Each row has six independent destinations. The inbox always keeps active items. '
+         'Each row has dashboard, TV and one phone switch per person. Phone delivery does not depend on location. '
+         'The inbox always keeps active items. '
          'All switches start off on first install and restore thereafter. '
          'A row pause expires automatically and preserves switches. '
          'Apply starting preferences once during the reviewed setup, then enable shared phone routing. '
@@ -51,11 +56,14 @@ def outputs():
         key = source['key']
         watched.update(source['entities'])
         rows = []
-        for suffix, label in DESTINATIONS.items():
+        # Preserve the earlier six helper IDs and restored values. Home/away
+        # helpers are dormant and hidden while the presence split is parked.
+        for suffix, label in (DESTINATIONS | ACTIVE_DESTINATIONS).items():
             entity = f'attention_{key}_{suffix}'
             # Omit initial: deploying/restarting must preserve restored values.
             controls[entity] = {'name': f'{key.replace("_", " ").title()} - {label}'}
-            rows.append({'entity': f'input_boolean.{entity}', 'name': label})
+            if suffix in ACTIVE_DESTINATIONS:
+                rows.append({'entity': f'input_boolean.{entity}', 'name': label})
             if suffix in source.get('starting_destinations', []):
                 starting.append(f'input_boolean.{entity}')
         pause = f'attention_{key}_pause_until'
@@ -68,6 +76,7 @@ def outputs():
     # immediately; phone decisions happen only once when the source becomes due.
     content = """{% set items = state_attr('sensor.household_attention_inbox', 'items') or [] %}
 Health: {{ state_attr('sensor.household_attention_inbox', 'health') }}
+Coverage: {{ state_attr('sensor.household_attention_inbox', 'coverage') }}
 Confirmed faults: {{ state_attr('sensor.household_attention_inbox', 'fault_count') }}
 {% for item in items %}
 ### {{ item.title }}

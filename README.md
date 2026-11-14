@@ -200,6 +200,7 @@ installation, updates and rollback.
 | `scripts.yaml` | Reusable lighting and appliance-control logic |
 | `scenes.yaml` | Home Assistant scene definitions |
 | `dashboards/` | YAML-managed Home Assistant dashboards |
+| `attention/`, `packages/`, `custom_templates/` | Feature-branch household attention rules, restored controls and inbox; [trial status and runbook](docs/household_attention.md) |
 | `custom_zha_quirks/` | Custom Zigbee device support |
 | `blueprints/` | Home Assistant automation, script and template blueprints |
 | `.gitignore` | Exclusions for secrets, runtime state, databases, logs and backups |

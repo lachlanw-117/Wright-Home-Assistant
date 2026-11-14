@@ -5,6 +5,7 @@ Input values exercise pure functions, using the reviewed source configuration.
 HA's real include loading/restoration and physical delivery require Pi acceptance.
 """
 import datetime as dt
+import ast
 import importlib.util
 import pathlib
 import types
@@ -13,6 +14,7 @@ import unittest
 import yaml
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.sandbox import SandboxedEnvironment
+from jinja2.nativetypes import NativeEnvironment
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = yaml.safe_load((ROOT / 'attention/sources.yaml').read_text(encoding='utf8'))
@@ -174,48 +176,34 @@ class LifecycleTests(unittest.TestCase):
 
 
 class RoutingTests(unittest.TestCase):
-    def test_unselected_presence_age_suppresses_home_only_not_fridge(self):
-        values = {'person.lachlan': 'home',
-                  'input_boolean.attention_washing_finished_lachlan_home': 'on',
-                  'input_boolean.attention_fridge_unavailable_lachlan_home': 'on',
-                  'input_boolean.attention_fridge_unavailable_lachlan_away': 'on'}
-        tracker = 'device_tracker.big_lws_iphone_14'
-        f = functions(values, reported={tracker: AT})
-        self.assertFalse(f.recipient_route('washing_finished', 'lachlan', tracker, AT, None))
-        self.assertTrue(f.recipient_route('fridge_unavailable', 'lachlan', tracker, AT, None))
-
-    def test_per_recipient_presence_freshness_and_independent_route(self):
-        key = 'fridge_unavailable'
-        for home, away, presence, age, expected in [
-            (True, False, 'home', 60, True),
-            (True, False, 'not_home', 60, False),
-            (False, True, 'work', 60, True),
-            (True, False, 'home', 86401, False),
-            (False, True, 'unknown', 60, False),
-            (True, True, 'unknown', 86401, True),
-        ]:
-            with self.subTest(home=home, away=away, presence=presence, age=age):
-                values = {f'input_boolean.attention_{key}_nic_home': 'on' if home else 'off',
-                          f'input_boolean.attention_{key}_nic_away': 'on' if away else 'off',
-                          'person.nic': presence}
-                f = functions(values, reported={'device_tracker.nichola_s_iphone': AT - age})
-                self.assertEqual(f.recipient_route(key, 'nic', 'device_tracker.nichola_s_iphone', AT, 86400), expected)
-                self.assertFalse(f.recipient_route(key, 'lachlan', 'device_tracker.big_lws_iphone_14', AT, 86400))
+    def test_recipient_switch_is_independent_of_presence_and_dormant_helpers(self):
+        key = 'washing_finished'
+        for presence in ['home', 'not_home', 'unknown', 'unavailable']:
+            values = {'person.lachlan': presence,
+                      f'input_boolean.attention_{key}_lachlan_phone': 'on',
+                      f'input_boolean.attention_{key}_lachlan_home': 'off',
+                      f'input_boolean.attention_{key}_lachlan_away': 'off'}
+            f = functions(values)
+            self.assertTrue(f.recipient_route(key, 'lachlan'))
+            self.assertFalse(f.recipient_route(key, 'nic'))
+        values[f'input_boolean.attention_{key}_lachlan_phone'] = 'off'
+        values[f'input_boolean.attention_{key}_lachlan_home'] = 'on'
+        values[f'input_boolean.attention_{key}_lachlan_away'] = 'on'
+        self.assertFalse(functions(values).recipient_route(key, 'lachlan'))
 
     def test_delay_consumed_even_disabled_no_preference_backlog(self):
         source = dict(BY_KEY['fridge_unavailable'], delivery_delay_seconds=600)
         plug, lg = source['entities']
         values = {plug: 'unavailable', lg: '3', 'input_boolean.attention_routing_enabled': 'on'}
         f = functions(values)
-        records = f.reconcile([source], {}, AT, 86400)
-        records = f.reconcile([source], records, AT + 599, 86400)
+        records = f.reconcile([source], {}, AT)
+        records = f.reconcile([source], records, AT + 599)
         self.assertFalse(records[source['key']]['phone_evaluated'])
-        records = f.reconcile([source], records, AT + 600, 86400)
+        records = f.reconcile([source], records, AT + 600)
         self.assertTrue(records[source['key']]['phone_evaluated'])
         self.assertEqual(records[source['key']]['phone_routes'], [])
-        values.update({f'input_boolean.attention_{source["key"]}_lachlan_home': 'on',
-                       f'input_boolean.attention_{source["key"]}_lachlan_away': 'on'})
-        records = functions(values).reconcile([source], records, AT + 660, 86400)
+        values[f'input_boolean.attention_{source["key"]}_lachlan_phone'] = 'on'
+        records = functions(values).reconcile([source], records, AT + 660)
         self.assertEqual(records[source['key']]['phone_routes'], [])
 
     def test_new_eligible_occurrence_routes_once_and_pause_expires(self):
@@ -223,34 +211,32 @@ class RoutingTests(unittest.TestCase):
         key = source['key']
         values = {source['entities'][0]: 'unavailable', source['entities'][1]: '3',
                   'input_boolean.attention_routing_enabled': 'on',
-                  f'input_boolean.attention_{key}_lachlan_home': 'on',
-                  f'input_boolean.attention_{key}_lachlan_away': 'on',
+                  f'input_boolean.attention_{key}_lachlan_phone': 'on',
                   f'input_boolean.attention_{key}_tv': 'on'}
         f = functions(values)
-        records = f.reconcile([source], {}, AT, 86400)
+        records = f.reconcile([source], {}, AT)
         self.assertEqual(records[key]['phone_routes'], ['lachlan'])
-        records = f.reconcile([source], records, AT + 60, 86400)
+        records = f.reconcile([source], records, AT + 60)
         self.assertEqual(records[key]['phone_routes'], [])
         values[f'input_datetime.attention_{key}_pause_until'] = AT + 120
         f = functions(values)
-        paused = f.reconcile([source], {}, AT, 86400)
+        paused = f.reconcile([source], {}, AT)
         self.assertTrue(paused[key]['active'])
         self.assertEqual(paused[key]['phone_routes'], [])
         self.assertEqual(f.visible(paused, 'tv', AT), [])
         self.assertEqual(len(f.visible(paused, 'tv', AT + 121)), 1)
-        self.assertEqual(f.reconcile([source], paused, AT + 121, 86400)[key]['phone_routes'], [])
+        self.assertEqual(f.reconcile([source], paused, AT + 121)[key]['phone_routes'], [])
 
     def test_unreviewed_policy_legacy_and_disabled_router_never_send(self):
         source = dict(BY_KEY['fridge_unavailable'], delivery_delay_seconds=None)
         f = functions({source['entities'][0]: 'unavailable', source['entities'][1]: '3'})
-        records = f.reconcile([source], {}, AT, 86400)
+        records = f.reconcile([source], {}, AT)
         self.assertFalse(records[source['key']]['phone_evaluated'])
         washing = dict(BY_KEY['washing_finished'], delivery_delay_seconds=0, legacy_delivery=True)
         values = {washing['entities'][0]: '2026-11-14T01:00:00Z',
-                  'input_boolean.attention_washing_finished_lachlan_home': 'on',
-                  'input_boolean.attention_washing_finished_lachlan_away': 'on'}
+                  'input_boolean.attention_washing_finished_lachlan_phone': 'on'}
         f = functions(values, {washing['entities'][0]: {'event_type': 'washing_is_complete'}})
-        records = f.reconcile([washing], {}, AT, 86400)
+        records = f.reconcile([washing], {}, AT)
         self.assertEqual(records[washing['key']]['phone_routes'], [])
 
     def test_one_shot_washing_resolves_only_matching_accepted_routes(self):
@@ -259,46 +245,44 @@ class RoutingTests(unittest.TestCase):
         event = source['entities'][0]
         values = {event: EVENT,
                   'input_boolean.attention_routing_enabled': 'on',
-                  'input_boolean.attention_washing_finished_lachlan_home': 'on',
-                  'input_boolean.attention_washing_finished_nic_home': 'on',
-                  'person.lachlan': 'home', 'person.nic': 'home'}
-        reported = {'device_tracker.big_lws_iphone_14': AT,
-                    'device_tracker.nichola_s_iphone': AT}
-        f = functions(values, {event: {'event_type': 'washing_is_complete'}}, reported)
-        records = f.reconcile([source], {}, AT, 86400)
+                  'input_boolean.attention_washing_finished_lachlan_phone': 'on',
+                  'input_boolean.attention_washing_finished_nic_phone': 'on',
+                  'person.lachlan': 'not_home', 'person.nic': 'unknown'}
+        f = functions(values, {event: {'event_type': 'washing_is_complete'}})
+        records = f.reconcile([source], {}, AT)
         occurrence = records[key]['occurrence_id']
         self.assertEqual(records[key]['phone_routes'], ['lachlan', 'nic'])
         receipt = dict(key=key, occurrence_id='earlier-event', recipient='lachlan')
-        records = f.reconcile([source], records, AT + 1, 86400, delivery=receipt)
+        records = f.reconcile([source], records, AT + 1, delivery=receipt)
         self.assertEqual(records[key]['delivered_to'], [])
         receipt['occurrence_id'] = occurrence
-        records = f.reconcile([source], records, AT + 2, 86400, delivery=receipt)
+        records = f.reconcile([source], records, AT + 2, delivery=receipt)
         self.assertTrue(records[key]['active'])
         receipt['recipient'] = 'nic'
-        records = f.reconcile([source], records, AT + 3, 86400, delivery=receipt)
+        records = f.reconcile([source], records, AT + 3, delivery=receipt)
         self.assertFalse(records[key]['active'])
         self.assertEqual(records[key]['delivery_state'], 'accepted')
         self.assertEqual(records[key]['resolved_at'], AT + 3)
-        again = f.reconcile([source], records, AT + 60, 86400)
+        again = f.reconcile([source], records, AT + 60)
         self.assertFalse(again[key]['active'])
         self.assertEqual(again[key]['phone_routes'], [])
 
-    def test_washing_away_suppresses_without_arrival_backlog(self):
+    def test_washing_disabled_recipient_has_no_later_backlog(self):
         source = BY_KEY['washing_finished']
         key, event = source['key'], source['entities'][0]
         values = {event: EVENT,
                   'input_boolean.attention_routing_enabled': 'on',
-                  'input_boolean.attention_washing_finished_lachlan_home': 'on',
+                  'input_boolean.attention_washing_finished_lachlan_phone': 'off',
                   'person.lachlan': 'not_home'}
         f = functions(values, {event: {'event_type': 'washing_is_complete'}},
                       {'device_tracker.big_lws_iphone_14': AT})
-        records = f.reconcile([source], {}, AT, 86400)
+        records = f.reconcile([source], {}, AT)
         self.assertFalse(records[key]['active'])
         self.assertEqual(records[key]['delivery_state'], 'suppressed')
-        values['person.lachlan'] = 'home'
+        values['input_boolean.attention_washing_finished_lachlan_phone'] = 'on'
         again = functions(values, {event: {'event_type': 'washing_is_complete'}},
                           {'device_tracker.big_lws_iphone_14': AT + 60}).reconcile(
-                              [source], records, AT + 60, 86400)
+                              [source], records, AT + 60)
         self.assertEqual(again[key]['phone_routes'], [])
 
     def test_washing_dispatch_timeout_is_not_a_claim_of_success(self):
@@ -306,13 +290,13 @@ class RoutingTests(unittest.TestCase):
         key, event = source['key'], source['entities'][0]
         values = {event: EVENT,
                   'input_boolean.attention_routing_enabled': 'on',
-                  'input_boolean.attention_washing_finished_lachlan_home': 'on',
+                  'input_boolean.attention_washing_finished_lachlan_phone': 'on',
                   'person.lachlan': 'home'}
         f = functions(values, {event: {'event_type': 'washing_is_complete'}},
                       {'device_tracker.big_lws_iphone_14': AT})
-        records = f.reconcile([source], {}, AT, 86400)
+        records = f.reconcile([source], {}, AT)
         self.assertTrue(records[key]['active'])
-        records = f.reconcile([source], records, AT + 300, 86400)
+        records = f.reconcile([source], records, AT + 300)
         self.assertFalse(records[key]['active'])
         self.assertEqual(records[key]['delivery_state'], 'unconfirmed')
 
@@ -321,12 +305,12 @@ class RoutingTests(unittest.TestCase):
         key, event = source['key'], source['entities'][0]
         values = {event: EVENT,
                   'input_boolean.attention_routing_enabled': 'on',
-                  'input_boolean.attention_washing_finished_lachlan_home': 'on',
+                  'input_boolean.attention_washing_finished_lachlan_phone': 'on',
                   'input_boolean.attention_washing_finished_tv': 'on',
                   'person.lachlan': 'home'}
         f = functions(values, {event: {'event_type': 'washing_is_complete'}},
                       {'device_tracker.big_lws_iphone_14': AT + 3600})
-        records = f.reconcile([source], {}, AT + 3600, 86400)
+        records = f.reconcile([source], {}, AT + 3600)
         self.assertFalse(records[key]['active'])
         self.assertEqual(records[key]['phone_routes'], [])
         self.assertEqual(f.visible(records, 'tv', AT + 3600), [])
@@ -335,19 +319,63 @@ class RoutingTests(unittest.TestCase):
         source = dict(BY_KEY['dyson_unavailable'])
         key, entity = source['key'], source['entities'][0]
         values = {entity: 'unavailable', 'input_boolean.attention_routing_enabled': 'on',
-                  f'input_boolean.attention_{key}_lachlan_home': 'on',
-                  f'input_boolean.attention_{key}_lachlan_away': 'on'}
-        records = functions(values).reconcile([source], {}, AT, 86400)
+                  f'input_boolean.attention_{key}_lachlan_phone': 'on'}
+        records = functions(values).reconcile([source], {}, AT)
         values[entity] = 'unknown'
-        records = functions(values).reconcile([source], records, AT + 900, 86400)
+        records = functions(values).reconcile([source], records, AT + 900)
         self.assertTrue(records[key]['active'])
         self.assertFalse(records[key]['phone_evaluated'])
         values[entity] = 'unavailable'
-        records = functions(values).reconcile([source], records, AT + 960, 86400)
+        records = functions(values).reconcile([source], records, AT + 960)
         self.assertEqual(records[key]['phone_routes'], ['lachlan'])
 
 
 class ConfigurationTests(unittest.TestCase):
+    def test_health_uses_only_fault_sources_and_coverage_is_separate(self):
+        package = yaml.load((ROOT / 'packages/household_attention.yaml').read_text(encoding='utf8'),
+                            Loader=yaml.BaseLoader)
+        attrs = package['template'][1]['sensor'][0]['attributes']
+        records = {
+            'fridge': dict(kind='fault', category='appliances', active=False, quality='valid'),
+            'washing': dict(kind='event', category='chores', active=True, quality='valid'),
+            'updates': dict(kind='attention', category='maintenance', active=True, quality='unknown'),
+        }
+        env = NativeEnvironment()
+        env.globals['state_attr'] = lambda entity, attribute: records
+        def render(name):
+            result = env.from_string(attrs[name]).render()
+            if isinstance(result, str):
+                try:
+                    return ast.literal_eval(result.strip())
+                except (ValueError, SyntaxError):
+                    return result.strip()
+            return result
+        self.assertEqual(render('health'), 'healthy')
+        self.assertEqual(render('coverage'), 'incomplete')
+        self.assertEqual(render('fault_count'), 0)
+        self.assertEqual(render('category_health')['chores'], 'not_applicable')
+        records['fridge']['quality'] = 'unknown'
+        self.assertEqual(render('health'), 'incomplete')
+        records['fridge']['active'] = True
+        self.assertEqual(render('health'), 'faults')
+        self.assertEqual(render('fault_count'), 1)
+
+    def test_current_profile_and_controls_park_the_presence_split(self):
+        for key in ['internet_disconnected', 'washer_unavailable', 'backup_failed', 'washer_cleaning']:
+            routes = BY_KEY[key]['starting_destinations']
+            self.assertIn('lachlan_phone', routes)
+            self.assertNotIn('nic_phone', routes)
+        self.assertEqual(set(BY_KEY['washing_finished']['starting_destinations']),
+                         {'dashboard', 'tv', 'lachlan_phone', 'nic_phone'})
+        dashboard = yaml.safe_load((ROOT / 'dashboards/household_attention.yaml').read_text(encoding='utf8'))
+        for card in dashboard['views'][2]['cards']:
+            for row in card.get('entities', []):
+                entity = row['entity'] if isinstance(row, dict) else row
+                self.assertFalse(entity.endswith(('_home', '_away')))
+        package = (ROOT / 'packages/household_attention.yaml').read_text(encoding='utf8')
+        self.assertNotIn('device_tracker.', package)
+        self.assertNotIn('attention/policy.yaml', package)
+
     def test_inline_template_syntax(self):
         env = SandboxedEnvironment(extensions=['jinja2.ext.do'])
         env.filters['as_function'] = as_function
@@ -373,7 +401,7 @@ class ConfigurationTests(unittest.TestCase):
         for name, expected in module.outputs().items():
             self.assertEqual((ROOT / name).read_text(encoding='utf8'), expected)
         controls = yaml.safe_load((ROOT / 'attention/delivery_controls.yaml').read_text(encoding='utf8'))
-        self.assertEqual(len(controls), len(SOURCES) * 6 + 2)
+        self.assertEqual(len(controls), len(SOURCES) * 8 + 2)
         self.assertTrue(all('initial' not in helper for helper in controls.values()))
 
     def test_no_excluded_device_or_dynamic_whole_instance_scan(self):

@@ -8,7 +8,7 @@
   kind: fault
   severity: important
   adapter: availability
-  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away, nic_home, nic_away]
+  starting_destinations: [dashboard, tv, lachlan_phone, nic_phone]
   entities:
     - switch.kitchen_fridge_power_plug
     - number.refrigerator_fridge_temperature
@@ -20,7 +20,7 @@
   kind: fault
   severity: warning
   adapter: availability
-  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
+  starting_destinations: [dashboard, tv, lachlan_phone]
   entities: [fan.purifier_hot_cool_de_nox]
   delivery_delay_seconds: 900
 - key: internet_disconnected
@@ -29,7 +29,7 @@
   kind: fault
   severity: warning
   adapter: availability
-  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
+  starting_destinations: [dashboard, tv, lachlan_phone]
   entities: [binary_sensor.archer_ax73_wan_status]
   disconnected_states: ['off']
   delivery_delay_seconds: 900
@@ -39,7 +39,7 @@
   kind: fault
   severity: warning
   adapter: availability
-  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
+  starting_destinations: [dashboard, tv, lachlan_phone]
   entities: [sensor.washer_current_status]
   delivery_delay_seconds: 900
 - key: kiosk_wifi
@@ -48,7 +48,7 @@
   kind: fault
   severity: warning
   adapter: wifi
-  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
+  starting_destinations: [dashboard, tv, lachlan_phone]
   # Real registered mobile_app entity, currently disabled. Enable/report/verify
   # in the separately approved setup before accepting runtime coverage.
   entities: [sensor.iphone_8_connection_type]
@@ -60,7 +60,7 @@
   kind: event
   severity: info
   adapter: event
-  starting_destinations: [dashboard, tv, lachlan_home, nic_home]
+  starting_destinations: [dashboard, tv, lachlan_phone, nic_phone]
   entities: [event.washer_notification]
   event_type: washing_is_complete
   # One-shot delivery event, not a pending chore. Lighting stays independent.
@@ -75,7 +75,7 @@
   kind: attention
   severity: info
   adapter: threshold
-  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
+  starting_destinations: [dashboard, tv, lachlan_phone]
   entities: [sensor.washer_cycles]
   threshold: 30
   delivery_delay_seconds: 900
@@ -85,7 +85,7 @@
   kind: fault
   severity: important
   adapter: backup
-  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
+  starting_destinations: [dashboard, tv, lachlan_phone]
   entities:
     - event.backup_automatic_backup
     - sensor.backup_last_successful_automatic_backup

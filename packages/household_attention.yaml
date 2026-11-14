@@ -13,7 +13,6 @@ template:
         event_type: household_attention_phone_accepted
     variables:
       attention_sources: !include ../attention/sources.yaml
-      attention_policy: !include ../attention/policy.yaml
     sensor:
       - name: Household Attention Store
         unique_id: household_attention_store
@@ -24,7 +23,7 @@ template:
             {% from 'household_attention.jinja' import reconcile %}
             {% set reconcile_fn = reconcile | as_function %}
             {{ reconcile_fn(attention_sources, this.attributes.get('records', {}),
-                            as_timestamp(now()), attention_policy.presence_max_age_seconds,
+                            as_timestamp(now()),
                             delivery=trigger.event.data if trigger.platform == 'event' else none) }}
 
   - sensor:
@@ -50,16 +49,24 @@ template:
             {{ records.values() | rejectattr('quality', 'eq', 'valid') | map(attribute='key') | list }}
           health: >-
             {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
-            {% set faults = records.values() | selectattr('active') | selectattr('kind', 'eq', 'fault') | list %}
+            {% set fault_sources = records.values() | selectattr('kind', 'eq', 'fault') | list %}
+            {% set faults = fault_sources | selectattr('active') | list %}
+            {% set uncertain = fault_sources | rejectattr('quality', 'eq', 'valid') | list %}
+            {{ 'faults' if faults else ('incomplete' if uncertain or not fault_sources else 'healthy') }}
+          coverage: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
             {% set uncertain = records.values() | rejectattr('quality', 'eq', 'valid') | list %}
-            {{ 'faults' if faults else ('incomplete' if uncertain or not records else 'healthy') }}
+            {{ 'incomplete' if uncertain or not records else 'complete' }}
           category_health: >-
             {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
             {% set ns = namespace(result={}) %}
             {% for category, items in records.values() | groupby('category') %}
-              {% set faults = items | selectattr('active') | selectattr('kind', 'eq', 'fault') | list %}
-              {% set uncertain = items | rejectattr('quality', 'eq', 'valid') | list %}
-              {% set ns.result = dict(ns.result, **{category: 'faults' if faults else ('incomplete' if uncertain else 'healthy')}) %}
+              {% set fault_sources = items | selectattr('kind', 'eq', 'fault') | list %}
+              {% set faults = fault_sources | selectattr('active') | list %}
+              {% set uncertain = fault_sources | rejectattr('quality', 'eq', 'valid') | list %}
+              {% set result = 'not_applicable' if not fault_sources else
+                   ('faults' if faults else ('incomplete' if uncertain else 'healthy')) %}
+              {% set ns.result = dict(ns.result, **{category: result}) %}
             {% endfor %}
             {{ ns.result }}
       - name: Household Attention Dashboard
@@ -145,8 +152,6 @@ script:
     alias: Household attention - send one phone notice
     mode: parallel
     max: 10
-    variables:
-      attention_policy: !include ../attention/policy.yaml
     sequence:
       # Recheck at dispatch so a pause/cutover reversal can stop queued calls.
       - condition: state
@@ -156,12 +161,9 @@ script:
         value_template: >-
           {% from 'household_attention.jinja' import recipient_route %}
           {% set route_fn = recipient_route | as_function %}
-          {% set tracker = 'device_tracker.big_lws_iphone_14' if recipient == 'lachlan'
-             else 'device_tracker.nichola_s_iphone' %}
           {{ as_timestamp(states('input_datetime.attention_' ~ record.key ~ '_pause_until'), 0)
                <= as_timestamp(now())
-             and route_fn(record.key, recipient, tracker, as_timestamp(now()),
-                          attention_policy.presence_max_age_seconds) }}
+             and route_fn(record.key, recipient) }}
       # A failed call stops this script before the receipt. The caller continues
       # to the other person independently; no false delivery claim is recorded.
       - action: >-

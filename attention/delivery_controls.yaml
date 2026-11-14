@@ -15,6 +15,10 @@ attention_fridge_unavailable_nic_home:
   name: Fridge Unavailable - Nic phone when home
 attention_fridge_unavailable_nic_away:
   name: Fridge Unavailable - Nic phone when away
+attention_fridge_unavailable_lachlan_phone:
+  name: Fridge Unavailable - Lachlan phone
+attention_fridge_unavailable_nic_phone:
+  name: Fridge Unavailable - Nic phone
 attention_dyson_unavailable_dashboard:
   name: Dyson Unavailable - HA dashboard
 attention_dyson_unavailable_tv:
@@ -27,6 +31,10 @@ attention_dyson_unavailable_nic_home:
   name: Dyson Unavailable - Nic phone when home
 attention_dyson_unavailable_nic_away:
   name: Dyson Unavailable - Nic phone when away
+attention_dyson_unavailable_lachlan_phone:
+  name: Dyson Unavailable - Lachlan phone
+attention_dyson_unavailable_nic_phone:
+  name: Dyson Unavailable - Nic phone
 attention_internet_disconnected_dashboard:
   name: Internet Disconnected - HA dashboard
 attention_internet_disconnected_tv:
@@ -39,6 +47,10 @@ attention_internet_disconnected_nic_home:
   name: Internet Disconnected - Nic phone when home
 attention_internet_disconnected_nic_away:
   name: Internet Disconnected - Nic phone when away
+attention_internet_disconnected_lachlan_phone:
+  name: Internet Disconnected - Lachlan phone
+attention_internet_disconnected_nic_phone:
+  name: Internet Disconnected - Nic phone
 attention_washer_unavailable_dashboard:
   name: Washer Unavailable - HA dashboard
 attention_washer_unavailable_tv:
@@ -51,6 +63,10 @@ attention_washer_unavailable_nic_home:
   name: Washer Unavailable - Nic phone when home
 attention_washer_unavailable_nic_away:
   name: Washer Unavailable - Nic phone when away
+attention_washer_unavailable_lachlan_phone:
+  name: Washer Unavailable - Lachlan phone
+attention_washer_unavailable_nic_phone:
+  name: Washer Unavailable - Nic phone
 attention_kiosk_wifi_dashboard:
   name: Kiosk Wifi - HA dashboard
 attention_kiosk_wifi_tv:
@@ -63,6 +79,10 @@ attention_kiosk_wifi_nic_home:
   name: Kiosk Wifi - Nic phone when home
 attention_kiosk_wifi_nic_away:
   name: Kiosk Wifi - Nic phone when away
+attention_kiosk_wifi_lachlan_phone:
+  name: Kiosk Wifi - Lachlan phone
+attention_kiosk_wifi_nic_phone:
+  name: Kiosk Wifi - Nic phone
 attention_washing_finished_dashboard:
   name: Washing Finished - HA dashboard
 attention_washing_finished_tv:
@@ -75,6 +95,10 @@ attention_washing_finished_nic_home:
   name: Washing Finished - Nic phone when home
 attention_washing_finished_nic_away:
   name: Washing Finished - Nic phone when away
+attention_washing_finished_lachlan_phone:
+  name: Washing Finished - Lachlan phone
+attention_washing_finished_nic_phone:
+  name: Washing Finished - Nic phone
 attention_washer_cleaning_dashboard:
   name: Washer Cleaning - HA dashboard
 attention_washer_cleaning_tv:
@@ -87,6 +111,10 @@ attention_washer_cleaning_nic_home:
   name: Washer Cleaning - Nic phone when home
 attention_washer_cleaning_nic_away:
   name: Washer Cleaning - Nic phone when away
+attention_washer_cleaning_lachlan_phone:
+  name: Washer Cleaning - Lachlan phone
+attention_washer_cleaning_nic_phone:
+  name: Washer Cleaning - Nic phone
 attention_backup_failed_dashboard:
   name: Backup Failed - HA dashboard
 attention_backup_failed_tv:
@@ -99,6 +127,10 @@ attention_backup_failed_nic_home:
   name: Backup Failed - Nic phone when home
 attention_backup_failed_nic_away:
   name: Backup Failed - Nic phone when away
+attention_backup_failed_lachlan_phone:
+  name: Backup Failed - Lachlan phone
+attention_backup_failed_nic_phone:
+  name: Backup Failed - Nic phone
 attention_upgrades_available_dashboard:
   name: Upgrades Available - HA dashboard
 attention_upgrades_available_tv:
@@ -111,3 +143,7 @@ attention_upgrades_available_nic_home:
   name: Upgrades Available - Nic phone when home
 attention_upgrades_available_nic_away:
   name: Upgrades Available - Nic phone when away
+attention_upgrades_available_lachlan_phone:
+  name: Upgrades Available - Lachlan phone
+attention_upgrades_available_nic_phone:
+  name: Upgrades Available - Nic phone

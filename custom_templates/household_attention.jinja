@@ -114,20 +114,13 @@
     legacy_delivery=source.get('legacy_delivery', false))) %}
 {%- endmacro %}
 
-{% macro recipient_route(key, person, tracker, at, freshness, returns) -%}
-  {% set home = is_state('input_boolean.attention_' ~ key ~ '_' ~ person ~ '_home', 'on') %}
-  {% set away = is_state('input_boolean.attention_' ~ key ~ '_' ~ person ~ '_away', 'on') %}
-  {% set state = states('person.' ~ person) %}
-  {% set tracked = expand(tracker) | list %}
-  {% set fresh = freshness is number and tracked | count == 1 and
-       0 <= at - as_timestamp(tracked[0].last_reported, 0) <= freshness %}
-  {# Both destinations on means independent of presence, including unknown/stale.
-     This preserves the agreed fridge route even while away or coverage is poor. #}
-  {% do returns((home and away) or (fresh and state not in ['unknown', 'unavailable']
-      and ((state == 'home' and home) or (state != 'home' and away)))) %}
+{% macro recipient_route(key, person, returns) -%}
+  {# Presence split parked by Lachlan. Only this restored recipient switch routes
+     phones; dormant home/away helpers retain their values for later review. #}
+  {% do returns(is_state('input_boolean.attention_' ~ key ~ '_' ~ person ~ '_phone', 'on')) %}
 {%- endmacro %}
 
-{% macro reconcile(sources, previous, at, freshness, returns, delivery=none) -%}
+{% macro reconcile(sources, previous, at, returns, delivery=none) -%}
   {% set ns = namespace(records={}) %}
   {% set observe_fn = observe | as_function %}
   {% set advance_fn = advance | as_function %}
@@ -147,9 +140,8 @@
       {% if is_state('input_boolean.attention_routing_enabled', 'on')
            and not paused and not source.get('legacy_delivery', false)
            and observation.observation == 'bad' and recent %}
-        {% for person, tracker in [('lachlan', 'device_tracker.big_lws_iphone_14'),
-                                 ('nic', 'device_tracker.nichola_s_iphone')] %}
-          {% if route_fn(source.key, person, tracker, at, freshness) %}
+        {% for person in ['lachlan', 'nic'] %}
+          {% if route_fn(source.key, person) %}
             {% set routes.values = routes.values + [person] %}
           {% endif %}
         {% endfor %}

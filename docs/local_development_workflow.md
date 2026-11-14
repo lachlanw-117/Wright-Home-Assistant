@@ -11,8 +11,11 @@ explicit deployment. Neither side automatically proves what is on the other.
 Distinguish configuration edits from ordinary runtime preferences. For the planned
 Bravia notice controls, Git will own helper definitions and routing logic, while
 the restored helper values will be changed in HA. Toggling a destination will not
-require a Git edit or later source reconciliation. Those controls are not yet
-implemented; see the [companion host notes](bravia_ambient_host.md).
+require a Git edit or later source reconciliation. The feature-branch
+[household attention implementation](household_attention.md) defines these
+controls; deployment and live acceptance remain separate. Home/away splitting
+is parked in the current slice, which uses one phone control per recipient.
+See also the [companion host notes](bravia_ambient_host.md).
 
 ## Make and review changes
 
