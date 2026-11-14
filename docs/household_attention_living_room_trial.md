@@ -141,3 +141,14 @@ does not itself send a phone message or change the physical light state.
 | Two pair faults recover independently | Pending |
 | Pair routing/pause behaviour | Pending |
 | Merge approval | Not requested |
+
+## Subsequent user acceptance — 14 November 2026
+
+After the step-by-step TV-light phone test, Lachlan reported “ok it works”. This
+confirms successful handset notification for that test. Exact latency, recovery,
+repeat suppression and acceptance of the other fittings were not separately
+reported and remain pending. He also reported the separately updated TV app
+working. Earlier statements above describe the installation-time snapshot.
+The kiosk Connection Type sensor was subsequently observed enabled and reporting
+Wi-Fi. The [grouped-device candidate](household_attention_grouped_trial.md) records
+the next extension; it has not been installed.

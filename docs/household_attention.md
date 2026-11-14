@@ -1,7 +1,10 @@
 # Household attention — as built and trial status
 
-**Review status:** installed on the Pi for trial; live acceptance is incomplete.
-This document describes runtime commit
+**Review status:** 12-source baseline installed for trial; the local 27-source
+extension at runtime commit `e2f0bbc` is not installed. See the [documentation index](household_attention_index.md),
+[generated catalogue](household_attention_coverage.md) and
+[candidate trial](household_attention_grouped_trial.md).
+The detailed baseline below describes runtime commit
 `3cc457301a148a7f34b62ee47c9aed9e3768bcaa`. The companion
 [user guide](household_attention_user_guide.md) explains everyday operation and
 the differences between the new handler and existing washing delivery.
@@ -11,7 +14,9 @@ explicitly approved the push/PR and named `6b36c4a` trial, including one Core
 restart and setup. That installation and restart are complete; shared routing is
 on. He separately approved the `3cc4573` pair extension and one additional Core
 restart. That installation passed validation, hashes and original preference/
-record continuity checks. Kiosk enablement and actual phones/light/UI remain pending.
+record continuity checks. Kiosk reporting has since been observed enabled;
+Lachlan confirmed the real phone test and reported the updated TV consumer working.
+Other lifecycle/visual checks remain pending rather than inferred from that report.
 See the [trial record](household_attention_trial.md) for hashes, times and evidence.
 
 Branch: `feature/household-attention-handler`, based on
@@ -37,13 +42,13 @@ for `6b36c4a`.
 | Capability | Actual implementation | Verification status |
 |---|---|---|
 | Shared attention store | One native trigger-based sensor, one current/last record per source | Twelve records loaded; original nine record summaries survived extension restart |
-| Twelve source rules | Three living-room light pairs plus fridge, Dyson, WAN, washer availability, kiosk Wi-Fi, wash completion, cleaning, backup failure, upgrades | Real mappings inspected; kiosk is registered but disabled |
+| Installed twelve source rules | Three living-room light pairs plus fridge, Dyson, WAN, washer availability, kiosk Wi-Fi, wash completion, cleaning, backup failure, upgrades | Real mappings inspected; kiosk Connection Type subsequently enabled and reporting |
 | Everyday controls | Four active destinations per row plus an absolute row pause | Expected helpers and all starting values checked live; visual UI pending |
 | Presence split | Parked; old home/away helpers dormant | Routing test proves they do not control current delivery |
-| Phone delivery | Once per occurrence; current destination/pause rechecked before sending | Local selection/receipt checks; real push receipt not tested |
+| Phone delivery | Once per occurrence; current destination/pause rechecked before sending | Local selection/receipt checks; Lachlan subsequently confirmed the real phone test |
 | Washing migration | Legacy phone branches kept behind shared-routing handover; light action preserved | Exact original triggers/actions checked locally; real wash pending |
 | Dashboard/inbox | YAML views and HA sensors | Sensors and three-view authenticated configuration loaded; visual layout pending |
-| TV delivery | HA-owned filtered data contract only | No TV app consumer implementation or visible TV delivery in this change |
+| TV delivery | HA-owned filtered data contract only | Consumer is in the companion repo; user reports visible TV delivery working |
 | Health/coverage | Fault-only operational health; separate source uncertainty | Actual inline template test passes |
 | Trial materials | Exact-commit ten-file ZIP, hashes, review diff, rollback and acceptance record | Installed ten-file hashes match; rollback copies saved; acceptance incomplete |
 
@@ -103,7 +108,7 @@ runtime storage or backup contents were read or copied.
 | Washer cleaning | `sensor.washer_cycles >= 30`; invalid/missing is not zero |
 | Backup | `event.backup_automatic_backup` and `sensor.backup_last_successful_automatic_backup` |
 | Upgrades | Explicit verified entity list in `attention/sources.yaml`, excluding Dad's desk plug |
-| Kiosk Wi-Fi | Registered `sensor.iphone_8_connection_type`, currently disabled; enable and verify reports during separately approved setup |
+| Kiosk Wi-Fi | `sensor.iphone_8_connection_type`, enabled and observed reporting Wi-Fi during the trial |
 
 Fridge unavailability is plug OR LG, retaining both channels' evidence. One good
 channel cannot clear the other bad/unknown channel. Wording says HA has lost
@@ -114,17 +119,18 @@ Kiosk `Wi-Fi` is connected; `Cellular`/`No Connection` are explicit off-Wi-Fi
 reports. Draft sample freshness is 15 minutes. Old reports become `stale` /
 uncertain, never proof the phone powered off. GPS, charger state and stale battery
 alone are not outage detectors. This adapter is prepared against a real registered
-entity, but runtime coverage remains pending enabling and verifying that sensor.
+entity, subsequently enabled and observed reporting Wi-Fi. Continued reporting
+cadence determines whether coverage is valid or stale.
 
 Phone actions were verified as `notify.mobile_app_big_lws_iphone_14` (Lachlan)
 and `notify.mobile_app_nichola_s_iphone` (Nic), matching existing washer device IDs.
 Source rules remain reviewed Git configuration; daily destination values live
 in restored HA state.
 
-The first draft covers backup failures, washing, grouped upgrades and curated
-availability, now including the three reviewed living-room pairs. Other lighting
-groups, rapid battery-drop thresholds and actionable authentication sources have
-not been agreed/verified and are not silently enabled.
+The installed baseline covers backup failures, washing, grouped upgrades and curated
+availability, including the three living-room pairs. The local candidate adds the
+15 grouped-device sources in the catalogue. Rapid battery-drop thresholds and
+actionable authentication sources remain excluded.
 Real battery histories were inspected but do not establish reliable rapid-drain
 rules. Backup staleness, external HA/Pi outage monitoring and causal dependency
 grouping remain outside this slice. The inbox is not whole-house assurance.
@@ -235,7 +241,7 @@ python -m unittest discover -s tests -v
 git diff --check
 ```
 
-Local results: **27 tests passed**, generated-file checks passed, YAML syntax
+Candidate local results: **31 tests passed**, generated-file checks passed, YAML syntax
 passed for 19 repository files, and diff whitespace checks passed. Python
 3.13.18 and the pre-existing ignored `.tools/pydeps` were used because `python`
 on this laptop points to the Windows Store alias. No separate HA installation,
@@ -264,8 +270,9 @@ extension install similarly matched `3cc4573` before/after its separately
 approved restart, and preserved the original preferences, pauses and compared
 record summaries. No new access method/add-on
 was installed and no credentials were inspected. HA's configuration check passed;
-the store and dashboard configuration loaded. Kiosk is still disabled and actual
-phones/light/UI and pair wall-switch acceptance remains pending in the trial records.
+the store and dashboard configuration loaded. Later kiosk reporting and successful
+phone delivery were observed/reported as recorded in the candidate trial document.
+Other physical and visual checks remain pending.
 
 ## Exact-commit trial and rollback
 

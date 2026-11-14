@@ -1,42 +1,51 @@
-# Add a shared household attention inbox and editable destinations
+# Add a shared household inbox with grouped devices and editable delivery
 
-Household faults, washing messages and available upgrades currently have separate
-delivery paths. This change adds a native HA-owned typed inbox with independent
-source occurrences, recovery, monitoring coverage and dashboard/TV/phone routing.
-Fridge visibility loss notifies both people immediately; other configured faults
-notify Lachlan once after 15 minutes. Updates form one summary. Washing is a
-one-shot notice with its existing red laundry-light action preserved.
-Three separate living-room light-pair records cover TV, dining table and
-basketball hoop. Each watches both physical bulbs and resolves only when both
-are reachable; dashboard/TV routes start on and phones off.
+Device faults, washing and maintenance currently have separate delivery paths.
+This change adds a native HA inbox with independent occurrences, recovery,
+coverage and dashboard/TV/phone routing. The candidate now covers 27 sources:
+physical light sets, fans, plugs, blinds, FingerBot, appliances, WAN, kiosk Wi-Fi,
+backups and grouped upgrades. Dashboard headings use device names while messages
+retain useful fault descriptions.
 
-The latest scope parks home/away phone splitting. Four active switches per row
-control dashboard, TV, Lachlan phone and Nic phone. Earlier home/away helper IDs
-remain dormant without resets. Everyday values restore in HA and are never
-overwritten by deployment. The legacy washing phone actions remain available
-until an explicit shared-routing cutover avoids duplicate delivery.
+Kitchen lights are grouped four-plus-entrance, ensuite three and bathroom two.
+Any unavailable member creates one item; recovery requires every member valid.
+New sources start with dashboard/TV only. Existing fridge timing, recipients,
+preferences, pauses, washing handover and independent laundry lighting remain.
+Home/away splitting is parked. Existing dormant helpers retain their IDs; new
+rows receive four active destination controls without forced initial values.
 
-Validation: 27 local tests, YAML syntax, generated-file consistency and diff checks
-pass. Tests use the actual production templates/reducers without a separate HA
-installation, fake devices or simulated delivery service. Local tests do not prove
-HA schema/include loading, restoration or physical behaviour.
+## Validation and limits
 
-Trial status: exact runtime commit `3cc4573` installed on 14 November 2026, after
-the initial `6b36c4a` trial and separate approval for the light-pair extension,
-push, installation and one additional restart. Direct SSH/SCP checked drift and
-saved fresh six-file rollback copies. All ten installed hashes match. HA config
-validation, CI and the approved restart passed. Twelve source records and expected
-controls loaded. All 74 original preferences, nine original pauses and nine record
-summaries survived the restart. Only the six new pair dashboard/TV routes were
-enabled; their phones stay off. Shared routing remains on, with no handler
-phone-send calls observed.
-Keep this PR open. Kiosk Connection Type is still disabled and needs manual HA
-entity-setting enablement and real report verification. Phone/light, visual UI,
-fault lifecycle and physical wall-switch pair tests remain pending.
-No TV application changes or third-party router integration are included. Other
-lights, rapid battery drain and auth sources remain outside this slice.
+31 local tests pass, including production reducer/routing checks, grouped
+partial failure, uncertain recovery, recurrence, name migration and legacy
+helper preservation. YAML parsing, generated-file consistency and diff checks
+pass. No HA instance, fake devices or simulated delivery environment was created.
+Local checks do not prove HA restoration, physical availability or handset delivery.
 
-Follow `docs/household_attention.md` and record actual acceptance/rollback metadata
-in `docs/household_attention_trial.md` and `docs/household_attention_living_room_trial.md`.
-Merge requires relevant live acceptance
-and separate explicit approval.
+The current recorded Pi runtime remains `3cc4573` (12 sources), following the
+separately approved initial and light-pair trials. Its hashes, validation,
+restart and preference continuity passed. Lachlan subsequently confirmed a real
+phone test and reported the separately updated TV consumer working. Kiosk
+Connection Type was observed enabled and reporting Wi-Fi. These outcomes do not
+imply unreported lifecycle, duplicate-suppression or washing acceptance.
+
+Runtime candidate `e2f0bbc7adebcfca6a993c36f4ac038f355328d6` has not been pushed
+or installed. All three blinds currently
+report unknown and will show coverage gaps. Kitchen's physical four-plus-one
+split and the new dashboard layout still need acceptance. The additive
+`display_name` field retains the v1 descriptive-title contract checked against
+Bravia source revision `5941e01`; its actual deployed revision is not established.
+
+## Trial and approval
+
+Keep [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) open.
+Review the exact candidate commit and runtime manifest, obtain separate push
+and installation/restart approvals, confirm backup readiness and recheck drift.
+Preserve rollback copies and all existing preferences; enable only the 30 new
+display controls, with new phones off. Never rerun global starting preferences.
+
+Follow the [candidate trial procedure](household_attention_grouped_trial.md) and
+record actual acceptance before requesting separate merge approval. Documentation
+and local checks do not pass the physical/visual gate. See the
+[documentation index](household_attention_index.md) for the current guide,
+coverage catalogue and historical installation evidence.

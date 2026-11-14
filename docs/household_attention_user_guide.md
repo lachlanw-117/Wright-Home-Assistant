@@ -2,20 +2,27 @@
 
 **Status: installed on the Pi for trial; acceptance is still in progress.**
 
-This guide describes runtime code at commit
+The installed baseline is runtime code at commit
 `3cc457301a148a7f34b62ee47c9aed9e3768bcaa` on
 `feature/household-attention-handler`. Following your review, backup confirmation
 and explicit approval, this exact runtime commit was installed on 14 November
 2026. HA's configuration check passed and its separately approved Core restart completed.
 Starting preferences were checked and shared routing is on.
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) remains open.
-The kiosk sensor is not enabled yet, and real phone/light/UI acceptance remains
-pending. Original preferences, pauses and record summaries survived the approved
+The kiosk Connection Type sensor has since been observed enabled and reporting Wi-Fi.
+Lachlan confirmed a real phone push test and reported the updated companion TV working.
+Other physical lifecycle and visual acceptance checks remain explicit. Original preferences, pauses and record summaries survived the approved
 extension restart. See the [trial records](household_attention_trial.md).
 
 The installed [living-room pair extension](household_attention_living_room_trial.md)
 adds separate TV, dining-table and basketball-hoop fault rows. Their dashboard/TV
-routes are on and phone routes off. It is ready for the described wall-switch test.
+routes started on and phone routes off. Runtime preferences may since have changed
+for testing; deployment must preserve them.
+
+The local candidate at runtime commit `e2f0bbc` extends this to **27 sources**, with short device-name headings
+and grouped kitchen, ensuite, bathroom and bedroom lights. It is not installed yet.
+See the [coverage catalogue](household_attention_coverage.md) and
+[grouped-device trial](household_attention_grouped_trial.md).
 
 ## What has been built
 
@@ -26,7 +33,7 @@ each person's phone.
 
 The local implementation includes:
 
-- A shared inbox for twelve source rules, including three independent light pairs,
+- A shared inbox for 27 candidate source rules (12 currently installed), including physical light sets,
   other faults, washing and upgrades.
 - A dashboard with an Inbox tab and editable Delivery controls.
 - Four active destination switches per row: dashboard, TV, Lachlan phone and Nic phone.
@@ -48,7 +55,9 @@ These are the settings the first-install setup applies. You can later change
 destinations without changing code. The inbox keeps tracking an active issue
 even when every destination for that row is off.
 
-**Dashboard and TV data are enabled for all twelve rows in the starting profile.**
+**Dashboard and TV are the starting destinations for all 27 candidate rows.**
+The 15 new rows start with both phones off; approved setup enables only their
+new display switches, preserving existing preferences. Do not rerun global setup.
 The phone delay below does not delay initial capture in the inbox or filtering
 into the dashboard/TV data.
 
@@ -76,9 +85,8 @@ channels**. It does not claim the fridge has stopped cooling. A successful backu
 attempt is not enough to clear a backup failure: the successful automatic-backup
 timestamp must be later than the failure.
 
-**Kiosk coverage is not ready yet.** Its existing Connection Type sensor is
-registered but disabled. It must be enabled and its real reporting behaviour
-checked during the separately approved setup. A report older than 15 minutes is
+**Kiosk Connection Type is enabled and has reported Wi-Fi.** Its ongoing reporting
+behaviour still determines coverage. A report older than 15 minutes is
 treated as uncertain. The code cannot reliably infer that a powered-off phone is
 offline from an old Wi-Fi value.
 
@@ -123,10 +131,10 @@ or acknowledgement button in this version.
 
 ### What the TV switch currently does
 
-**The TV display application has not been changed.** The switch filters data held
-in Home Assistant, ready for a compatible TV consumer. It does not itself put a
-card on the television, change the TV screen or interrupt photos. Visible TV
-delivery still needs the companion application to consume that data.
+The switch filters the HA feed consumed by the separately maintained Bravia app.
+Lachlan reports that the updated TV integration is working. This repository does
+not deploy the TV application. The new short dashboard names leave its existing
+descriptive title contract intact.
 
 ### Pausing one row
 
@@ -237,24 +245,23 @@ run a preference-reset action.
 
 ## What has actually been checked
 
-The local code passed 27 tests, YAML syntax checks, generated-file checks and diff
+The installed baseline passed 27 tests; the 27-source candidate passes 31 tests, YAML syntax checks, generated-file checks and diff
 checks. The exact-commit trial archive's ten payload files matched its SHA-256
 manifest. These checks used no separate HA installation, fake devices or simulated
 notification service.
 
 The live configuration passed HA's checker. All ten installed file hashes match
 the approved commit. The inbox, four active controls per row, twelve pause helpers
-and three-view dashboard configuration loaded. The starting switch values match
-the table above. Enabling shared routing did not replay existing notices.
+and three-view dashboard configuration loaded. The starting switch values matched the installed profile at setup; current
+user changes are runtime preferences. Enabling shared routing did not replay existing notices.
 
 Live-file drift and rollback copies were checked through direct SSH/SCP using
 existing authentication. No key material or credentials were viewed or copied.
 All 74 original preference values, nine original pauses and nine original record
-summaries survived the extension restart. Phone delivery, visual dashboard
-layout, kiosk reporting, wall-switch loss/recovery and new household events still
-need trial acceptance.
+summaries survived the extension restart. The later phone test succeeded and
+kiosk reporting was observed. Visual acceptance of the new candidate, detailed
+wall-switch recovery/repeat checks and new household events still need evidence.
 
-The next steps are to enable the existing kiosk Connection Type sensor through
-its HA entity settings, inspect the dashboard and observe normal washing/phone/
-light behaviour. The [trial record](household_attention_trial.md) separates passed
+The next steps are review and approved trial of the grouped-device candidate,
+visual inspection and observation of normal washing/light behaviour. The [trial record](household_attention_trial.md) separates passed
 checks from outstanding acceptance. The PR stays open; merge is not approved.

@@ -61,6 +61,22 @@ This means the physical interaction can stay simple even when the devices behind
 - **Keep the kiosk phone available:** the [charging watchdog](docs/automation_reliability.md#kiosk-phone-charging) requests power when battery feedback is missing, invalid or too old. It favours a working household control over strict battery optimisation, with the telemetry and startup limitations documented.
 - **Show what feedback actually proves:** the [black fan controls](docs/arlec_black_fan_dashboard_notes.md) highlight speed from reported percentage, but swing from the last requested scene because Tuya does not report physical oscillation. The dashboard keeps that distinction explicit.
 
+## Household attention
+
+Device faults, washing and maintenance share one inbox with editable dashboard,
+TV and phone delivery. Cards use device names; the explanation sits underneath.
+Physical bulb sets are monitored together without letting an available group
+entity hide a failed member. Unknown observations remain visible as coverage gaps.
+
+The Pi's last recorded runtime is `3cc4573` (12 sources). The local extension adds
+15 grouped-device sources, for 27 total, and awaits review and approved trial
+of runtime commit `e2f0bbc`.
+Lachlan confirmed a real phone push test and reported the companion TV working.
+[PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) stays open.
+See the [attention documentation](docs/household_attention_index.md),
+[coverage catalogue](docs/household_attention_coverage.md) and
+[candidate trial procedure](docs/household_attention_grouped_trial.md).
+
 ## Lighting
 
 ### Day and night behaviour
@@ -130,9 +146,12 @@ status-sensor trigger remains in the automation but is disabled.
 
 When a cycle finishes:
 
-- Mobile notifications are sent.
-- The laundry LED strip turns red and flashes.
-- Everyone loses the ability to claim they did not know the washing was finished. It also sends annoying messages to my wife!
+- The shared handler sends one phone notice to each enabled recipient, wherever they are.
+- The laundry LED strip independently turns red and flashes at 20%.
+- The completed-washing notice resolves after delivery handling; it is not a persistent chore to acknowledge.
+
+The original phone actions remain behind the shared-routing handover. Turning
+shared routing off restores that legacy path; it is not an all-notifications mute.
 
 ## Internet recovery
 
