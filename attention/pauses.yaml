@@ -7,6 +7,18 @@ attention_dyson_unavailable_pause_until:
   name: Dyson Unavailable pause until
   has_date: true
   has_time: true
+attention_living_room_tv_lights_unavailable_pause_until:
+  name: Living Room Tv Lights Unavailable pause until
+  has_date: true
+  has_time: true
+attention_living_room_dining_lights_unavailable_pause_until:
+  name: Living Room Dining Lights Unavailable pause until
+  has_date: true
+  has_time: true
+attention_living_room_hoop_lights_unavailable_pause_until:
+  name: Living Room Hoop Lights Unavailable pause until
+  has_date: true
+  has_time: true
 attention_internet_disconnected_pause_until:
   name: Internet Disconnected pause until
   has_date: true

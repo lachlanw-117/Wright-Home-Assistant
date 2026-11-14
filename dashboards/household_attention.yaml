@@ -80,6 +80,48 @@ views:
     - entity: input_datetime.attention_dyson_unavailable_pause_until
       name: Pause all routes until
   - type: entities
+    title: HA cannot reach one or both living-room TV lights
+    show_header_toggle: false
+    entities:
+    - entity: input_boolean.attention_living_room_tv_lights_unavailable_dashboard
+      name: HA dashboard
+    - entity: input_boolean.attention_living_room_tv_lights_unavailable_tv
+      name: TV screensaver
+    - entity: input_boolean.attention_living_room_tv_lights_unavailable_lachlan_phone
+      name: Lachlan phone
+    - entity: input_boolean.attention_living_room_tv_lights_unavailable_nic_phone
+      name: Nic phone
+    - entity: input_datetime.attention_living_room_tv_lights_unavailable_pause_until
+      name: Pause all routes until
+  - type: entities
+    title: HA cannot reach one or both dining-table lights
+    show_header_toggle: false
+    entities:
+    - entity: input_boolean.attention_living_room_dining_lights_unavailable_dashboard
+      name: HA dashboard
+    - entity: input_boolean.attention_living_room_dining_lights_unavailable_tv
+      name: TV screensaver
+    - entity: input_boolean.attention_living_room_dining_lights_unavailable_lachlan_phone
+      name: Lachlan phone
+    - entity: input_boolean.attention_living_room_dining_lights_unavailable_nic_phone
+      name: Nic phone
+    - entity: input_datetime.attention_living_room_dining_lights_unavailable_pause_until
+      name: Pause all routes until
+  - type: entities
+    title: HA cannot reach one or both basketball-hoop lights
+    show_header_toggle: false
+    entities:
+    - entity: input_boolean.attention_living_room_hoop_lights_unavailable_dashboard
+      name: HA dashboard
+    - entity: input_boolean.attention_living_room_hoop_lights_unavailable_tv
+      name: TV screensaver
+    - entity: input_boolean.attention_living_room_hoop_lights_unavailable_lachlan_phone
+      name: Lachlan phone
+    - entity: input_boolean.attention_living_room_hoop_lights_unavailable_nic_phone
+      name: Nic phone
+    - entity: input_datetime.attention_living_room_hoop_lights_unavailable_pause_until
+      name: Pause all routes until
+  - type: entities
     title: Router reports WAN disconnected or HA cannot read WAN status
     show_header_toggle: false
     entities:

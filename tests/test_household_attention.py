@@ -110,6 +110,54 @@ class LifecycleTests(unittest.TestCase):
             f = functions({source['entities'][0]: 'off'})
             self.assertEqual(f.observe(source, {}, AT)['observation'], expected)
 
+    def test_living_room_pairs_detect_member_loss_and_require_complete_recovery(self):
+        for name, member_prefix in [('tv', 'tv'), ('dining', 'dining_table'),
+                                    ('hoop', 'basketball_hoop')]:
+            source = BY_KEY[f'living_room_{name}_lights_unavailable']
+            members = source['entities']
+            self.assertEqual(set(members), {
+                f'light.living_room_{member_prefix}_light_1',
+                f'light.living_room_{member_prefix}_light_2',
+            })
+            self.assertEqual(set(source['starting_destinations']), {'dashboard', 'tv'})
+            values = {entity: 'off' for entity in members}
+            # Aggregate entities can look normal while a physical bulb is missing.
+            values['light.living_room_living_room_lights'] = 'off'
+            values[f'light.living_room_{member_prefix}_light'] = 'off'
+            self.assertEqual(functions(values).observe(source, {}, AT)['observation'], 'good')
+            for member in members:
+                with self.subTest(pair=name, member=member):
+                    changed = dict(values, **{member: 'unavailable'})
+                    records = functions(changed).reconcile([source], {}, AT)
+                    first = records[source['key']]
+                    self.assertTrue(first['active'])
+                    self.assertEqual(len(first['evidence']), 2)
+                    changed.update({entity: 'unavailable' for entity in members})
+                    records = functions(changed).reconcile([source], records, AT + 60)
+                    self.assertEqual(len(records), 1)
+                    self.assertEqual(records[source['key']]['occurrence_id'], first['occurrence_id'])
+                    changed = dict(values, **{member: 'unknown'})
+                    records = functions(changed).reconcile([source], records, AT + 120)
+                    self.assertTrue(records[source['key']]['active'])
+                    self.assertEqual(records[source['key']]['quality'], 'unknown')
+                    records = functions(values).reconcile([source], records, AT + 180)
+                    self.assertFalse(records[source['key']]['active'])
+                    changed = dict(values, **{member: 'unavailable'})
+                    again = functions(changed).reconcile([source], records, AT + 240)
+                    self.assertNotEqual(again[source['key']]['occurrence_id'], first['occurrence_id'])
+
+    def test_living_room_pairs_recover_independently(self):
+        sources = [BY_KEY[f'living_room_{name}_lights_unavailable']
+                   for name in ['tv', 'dining', 'hoop']]
+        values = {entity: 'unavailable' for source in sources for entity in source['entities']}
+        records = functions(values).reconcile(sources, {}, AT)
+        self.assertEqual(sum(record['active'] for record in records.values()), 3)
+        values.update({entity: 'off' for entity in sources[0]['entities']})
+        records = functions(values).reconcile(sources, records, AT + 60)
+        self.assertFalse(records[sources[0]['key']]['active'])
+        self.assertTrue(records[sources[1]['key']]['active'])
+        self.assertTrue(records[sources[2]['key']]['active'])
+
     def test_kiosk_wifi_requires_fresh_explicit_connection_evidence(self):
         source = BY_KEY['kiosk_wifi']
         entity = source['entities'][0]

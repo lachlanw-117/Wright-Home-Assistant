@@ -23,6 +23,44 @@
   starting_destinations: [dashboard, tv, lachlan_phone]
   entities: [fan.purifier_hot_cool_de_nox]
   delivery_delay_seconds: 900
+- key: living_room_tv_lights_unavailable
+  title: HA cannot reach one or both living-room TV lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  # Monitor each verified two-bulb fitting independently, not the room aggregate.
+  # A pair group can still be available when one physical bulb has lost power.
+  # light.living_room_tradfri is actually Main Bedroom Light 2; do not include it.
+  starting_destinations: [dashboard, tv]
+  entities:
+    - light.living_room_tv_light_1
+    - light.living_room_tv_light_2
+  # Inbox/dashboard capture is immediate on HA reporting unavailability.
+  # If a phone route is later selected, retain the shared 15-minute policy.
+  delivery_delay_seconds: 900
+- key: living_room_dining_lights_unavailable
+  title: HA cannot reach one or both dining-table lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv]
+  entities:
+    - light.living_room_dining_table_light_1
+    - light.living_room_dining_table_light_2
+  delivery_delay_seconds: 900
+- key: living_room_hoop_lights_unavailable
+  title: HA cannot reach one or both basketball-hoop lights
+  category: lighting
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv]
+  entities:
+    - light.living_room_basketball_hoop_light_1
+    - light.living_room_basketball_hoop_light_2
+  delivery_delay_seconds: 900
 - key: internet_disconnected
   title: Router reports WAN disconnected or HA cannot read WAN status
   category: connectivity

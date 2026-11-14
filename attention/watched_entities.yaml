@@ -3,6 +3,12 @@
 - event.backup_automatic_backup
 - event.washer_notification
 - fan.purifier_hot_cool_de_nox
+- light.living_room_basketball_hoop_light_1
+- light.living_room_basketball_hoop_light_2
+- light.living_room_dining_table_light_1
+- light.living_room_dining_table_light_2
+- light.living_room_tv_light_1
+- light.living_room_tv_light_2
 - number.refrigerator_fridge_temperature
 - sensor.backup_last_successful_automatic_backup
 - sensor.iphone_8_connection_type

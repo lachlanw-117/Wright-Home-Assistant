@@ -8,6 +8,10 @@ shared-routing setup. These approvals do not include merge, forced outages or
 another restart. Keep [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11)
 open until relevant acceptance passes.
 
+Later work: [three living-room pair rows](household_attention_living_room_trial.md)
+are prepared locally at Lachlan's request, pending a new exact-revision install
+and restart approval. They are not part of the installed nine-row evidence below.
+
 ## Revision and rollback record
 
 | Field | Value |

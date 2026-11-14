@@ -12,6 +12,11 @@ Starting preferences were checked and shared routing is on.
 The kiosk sensor is not enabled yet, and real phone/light and restart-continuity
 acceptance remain pending. See the [trial record](household_attention_trial.md).
 
+A later [living-room pair extension](household_attention_living_room_trial.md)
+is prepared locally but not installed: separate TV, dining-table and
+basketball-hoop fault rows, dashboard/TV routes on and phone routes off by default.
+Its wall-switch test must wait for the new revision's approved installation.
+
 ## What has been built
 
 The handler gives Home Assistant one place to keep household issues and notices.

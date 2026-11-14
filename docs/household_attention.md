@@ -20,6 +20,15 @@ The branch is pushed through documentation commit `78528d8`, and
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) is open.
 Installed runtime files match `6b36c4a` exactly. No merge has occurred.
 
+## Prepared living-room extension — not yet installed
+
+The latest request adds separate availability records for the TV, dining-table
+and basketball-hoop light pairs, each watching its two verified physical bulbs.
+The [extension and wall-switch trial](household_attention_living_room_trial.md)
+documents the member map, twelve-row candidate, six-file delta, checks and proposed
+installation. Existing installed nine-row results below remain historical trial
+evidence for `6b36c4a`; the new revision has no live acceptance yet.
+
 ## Implementation status at a glance
 
 | Capability | Actual implementation | Verification status |

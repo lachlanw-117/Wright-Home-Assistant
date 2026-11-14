@@ -35,6 +35,54 @@ attention_dyson_unavailable_lachlan_phone:
   name: Dyson Unavailable - Lachlan phone
 attention_dyson_unavailable_nic_phone:
   name: Dyson Unavailable - Nic phone
+attention_living_room_tv_lights_unavailable_dashboard:
+  name: Living Room Tv Lights Unavailable - HA dashboard
+attention_living_room_tv_lights_unavailable_tv:
+  name: Living Room Tv Lights Unavailable - TV screensaver
+attention_living_room_tv_lights_unavailable_lachlan_home:
+  name: Living Room Tv Lights Unavailable - Lachlan phone when home
+attention_living_room_tv_lights_unavailable_lachlan_away:
+  name: Living Room Tv Lights Unavailable - Lachlan phone when away
+attention_living_room_tv_lights_unavailable_nic_home:
+  name: Living Room Tv Lights Unavailable - Nic phone when home
+attention_living_room_tv_lights_unavailable_nic_away:
+  name: Living Room Tv Lights Unavailable - Nic phone when away
+attention_living_room_tv_lights_unavailable_lachlan_phone:
+  name: Living Room Tv Lights Unavailable - Lachlan phone
+attention_living_room_tv_lights_unavailable_nic_phone:
+  name: Living Room Tv Lights Unavailable - Nic phone
+attention_living_room_dining_lights_unavailable_dashboard:
+  name: Living Room Dining Lights Unavailable - HA dashboard
+attention_living_room_dining_lights_unavailable_tv:
+  name: Living Room Dining Lights Unavailable - TV screensaver
+attention_living_room_dining_lights_unavailable_lachlan_home:
+  name: Living Room Dining Lights Unavailable - Lachlan phone when home
+attention_living_room_dining_lights_unavailable_lachlan_away:
+  name: Living Room Dining Lights Unavailable - Lachlan phone when away
+attention_living_room_dining_lights_unavailable_nic_home:
+  name: Living Room Dining Lights Unavailable - Nic phone when home
+attention_living_room_dining_lights_unavailable_nic_away:
+  name: Living Room Dining Lights Unavailable - Nic phone when away
+attention_living_room_dining_lights_unavailable_lachlan_phone:
+  name: Living Room Dining Lights Unavailable - Lachlan phone
+attention_living_room_dining_lights_unavailable_nic_phone:
+  name: Living Room Dining Lights Unavailable - Nic phone
+attention_living_room_hoop_lights_unavailable_dashboard:
+  name: Living Room Hoop Lights Unavailable - HA dashboard
+attention_living_room_hoop_lights_unavailable_tv:
+  name: Living Room Hoop Lights Unavailable - TV screensaver
+attention_living_room_hoop_lights_unavailable_lachlan_home:
+  name: Living Room Hoop Lights Unavailable - Lachlan phone when home
+attention_living_room_hoop_lights_unavailable_lachlan_away:
+  name: Living Room Hoop Lights Unavailable - Lachlan phone when away
+attention_living_room_hoop_lights_unavailable_nic_home:
+  name: Living Room Hoop Lights Unavailable - Nic phone when home
+attention_living_room_hoop_lights_unavailable_nic_away:
+  name: Living Room Hoop Lights Unavailable - Nic phone when away
+attention_living_room_hoop_lights_unavailable_lachlan_phone:
+  name: Living Room Hoop Lights Unavailable - Lachlan phone
+attention_living_room_hoop_lights_unavailable_nic_phone:
+  name: Living Room Hoop Lights Unavailable - Nic phone
 attention_internet_disconnected_dashboard:
   name: Internet Disconnected - HA dashboard
 attention_internet_disconnected_tv:
