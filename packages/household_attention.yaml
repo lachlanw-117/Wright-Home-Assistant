@@ -1,0 +1,176 @@
+# Standalone native HA package. Repairs and washing's light action are independent.
+input_boolean: !include ../attention/delivery_controls.yaml
+input_datetime: !include ../attention/pauses.yaml
+template:
+  - triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: /1
+      - trigger: state
+        entity_id: !include ../attention/watched_entities.yaml
+      - trigger: event
+        event_type: household_attention_phone_accepted
+    variables:
+      attention_sources: !include ../attention/sources.yaml
+    sensor:
+      - name: Household Attention Store
+        unique_id: household_attention_store
+        state: ready
+        attributes:
+          schema_version: 1
+          records: >-
+            {% from 'household_attention.jinja' import reconcile %}
+            {% set reconcile_fn = reconcile | as_function %}
+            {{ reconcile_fn(attention_sources, this.attributes.get('records', {}),
+                            as_timestamp(now()), 86400,
+                            delivery=trigger.event.data if trigger.platform == 'event' else none) }}
+
+  - sensor:
+      - name: Household Attention Inbox
+        unique_id: household_attention_inbox
+        availability: "{{ is_state('sensor.household_attention_store', 'ready') }}"
+        state: >-
+          {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+          {{ records.values() | selectattr('active') | list | count }}
+        attributes:
+          items: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {{ records.values() | selectattr('active') | list }}
+          recent_events: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {{ records.values() | selectattr('kind', 'eq', 'event')
+               | selectattr('display_until', 'gt', as_timestamp(now())) | list }}
+          fault_count: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {{ records.values() | selectattr('active') | selectattr('kind', 'eq', 'fault') | list | count }}
+          uncertain_sources: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {{ records.values() | rejectattr('quality', 'eq', 'valid') | map(attribute='key') | list }}
+          health: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {% set faults = records.values() | selectattr('active') | selectattr('kind', 'eq', 'fault') | list %}
+            {% set uncertain = records.values() | rejectattr('quality', 'eq', 'valid') | list %}
+            {{ 'faults' if faults else ('incomplete' if uncertain or not records else 'healthy') }}
+          category_health: >-
+            {% set records = state_attr('sensor.household_attention_store', 'records') or {} %}
+            {% set ns = namespace(result={}) %}
+            {% for category, items in records.values() | groupby('category') %}
+              {% set faults = items | selectattr('active') | selectattr('kind', 'eq', 'fault') | list %}
+              {% set uncertain = items | rejectattr('quality', 'eq', 'valid') | list %}
+              {% set ns.result = dict(ns.result, **{category: 'faults' if faults else ('incomplete' if uncertain else 'healthy')}) %}
+            {% endfor %}
+            {{ ns.result }}
+      - name: Household Attention Dashboard
+        unique_id: household_attention_dashboard
+        availability: "{{ is_state('sensor.household_attention_store', 'ready') }}"
+        state: ready
+        attributes:
+          items: >-
+            {% from 'household_attention.jinja' import visible %}
+            {% set visible_fn = visible | as_function %}
+            {{ visible_fn(state_attr('sensor.household_attention_store', 'records') or {},
+                          'dashboard', as_timestamp(now())) }}
+      - name: Household Attention TV
+        unique_id: household_attention_tv
+        availability: "{{ is_state('sensor.household_attention_store', 'ready') }}"
+        state: ready
+        attributes:
+          schema_version: 1
+          items: >-
+            {% from 'household_attention.jinja' import visible %}
+            {% set visible_fn = visible | as_function %}
+            {{ visible_fn(state_attr('sensor.household_attention_store', 'records') or {},
+                          'tv', as_timestamp(now())) }}
+
+automation:
+  - id: household_attention_deliver
+    alias: Household attention - deliver newly eligible phone notices
+    description: One attempt per occurrence; runtime preferences never replay backlog.
+    mode: queued
+    max: 20
+    triggers:
+      - trigger: state
+        entity_id: sensor.household_attention_store
+    conditions:
+      # Do not deliver restored state before reconciliation, or from an absent store.
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state is not none and trigger.to_state is not none
+             and trigger.to_state.state == 'ready' }}
+    actions:
+      - variables:
+          records: "{{ trigger.to_state.attributes.get('records', {}) }}"
+          previous: "{{ trigger.from_state.attributes.get('records', {}) }}"
+      - repeat:
+          for_each: "{{ records.values() | list }}"
+          sequence:
+            - variables:
+                record: "{{ repeat.item }}"
+                old: "{{ previous.get(repeat.item.key, {}) }}"
+            - if:
+                - condition: template
+                  value_template: >-
+                    {{ record.active and record.phone_evaluated
+                       and (not old.get('phone_evaluated', false)
+                            or old.get('occurrence_id') != record.occurrence_id) }}
+              then:
+                - repeat:
+                    for_each: "{{ record.phone_routes }}"
+                    sequence:
+                      - action: script.household_attention_send_phone
+                        continue_on_error: true
+                        data:
+                          recipient: "{{ repeat.item }}"
+                          record: "{{ record }}"
+
+script:
+  household_attention_apply_starting_preferences:
+    alias: Household attention - apply starting preferences once
+    description: Explicit first-install setup; never runs on deploy/restart or overwrites a completed setup.
+    mode: single
+    sequence:
+      - condition: template
+        value_template: "{{ not is_state('input_boolean.attention_preferences_configured', 'on') }}"
+      - action: input_boolean.turn_on
+        target:
+          entity_id: !include ../attention/starting_destinations.yaml
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.attention_preferences_configured
+      # Deliberately leave shared routing off: inspect the values before cutover.
+
+  household_attention_send_phone:
+    alias: Household attention - send one phone notice
+    mode: parallel
+    max: 10
+    sequence:
+      # Recheck at dispatch so a pause/cutover reversal can stop queued calls.
+      - condition: state
+        entity_id: input_boolean.attention_routing_enabled
+        state: 'on'
+      - condition: template
+        value_template: >-
+          {% from 'household_attention.jinja' import recipient_route %}
+          {% set route_fn = recipient_route | as_function %}
+          {% set tracker = 'device_tracker.big_lws_iphone_14' if recipient == 'lachlan'
+             else 'device_tracker.nichola_s_iphone' %}
+          {{ as_timestamp(states('input_datetime.attention_' ~ record.key ~ '_pause_until'), 0)
+               <= as_timestamp(now())
+             and route_fn(record.key, recipient, tracker, as_timestamp(now()), 86400) }}
+      # A failed call stops this script before the receipt. The caller continues
+      # to the other person independently; no false delivery claim is recorded.
+      - action: >-
+          {{ 'notify.mobile_app_big_lws_iphone_14' if recipient == 'lachlan'
+             else 'notify.mobile_app_nichola_s_iphone' }}
+        data:
+          title: Household attention
+          message: "{{ record.title }}"
+          data:
+            tag: "{{ record.key }}"
+            url: /household-attention/inbox
+      - event: household_attention_phone_accepted
+        event_data:
+          key: "{{ record.key }}"
+          occurrence_id: "{{ record.occurrence_id }}"
+          recipient: "{{ recipient }}"

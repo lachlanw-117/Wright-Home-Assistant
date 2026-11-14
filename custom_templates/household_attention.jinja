@@ -1,0 +1,181 @@
+{# One bounded current/last occurrence per reviewed source. No runtime AI or repairs.
+   Pure functions allow local checks of the actual lifecycle/routing templates. #}
+{% macro observe(source, previous, at, returns) -%}
+  {% set ns = namespace(evidence=[], failed=false, uncertain=false, details=[]) %}
+  {% for entity in source.entities %}
+    {% set value = states(entity) %}
+    {% set ns.evidence = ns.evidence + [dict(entity_id=entity, state=value)] %}
+    {% if value == 'unknown' or (value == 'unavailable' and source.adapter != 'availability') %}
+      {% set ns.uncertain = true %}
+    {% endif %}
+    {% if source.adapter == 'availability' %}
+      {% if value == 'unavailable' or value in source.get('disconnected_states', []) %}
+        {% set ns.failed = true %}
+      {% endif %}
+    {% elif source.adapter == 'updates' %}
+      {% if value == 'on' %}
+        {% set ns.failed = true %}
+        {% set ns.details = ns.details + [dict(entity_id=entity,
+          component=state_attr(entity, 'friendly_name') or entity,
+          installed_version=state_attr(entity, 'installed_version'),
+          latest_version=state_attr(entity, 'latest_version'))] %}
+      {% elif value != 'off' %}
+        {% set ns.uncertain = true %}
+        {# Preserve last confirmed pending component until explicitly off. #}
+        {% for detail in previous.get('details', []) if detail.entity_id == entity %}
+          {% set ns.details = ns.details + [detail] %}
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% set identity = '' %}
+  {% set observation = 'bad' if ns.failed else ('unknown' if ns.uncertain else 'good') %}
+  {% set quality = 'unknown' if ns.uncertain else 'valid' %}
+  {% if source.adapter == 'event' %}
+    {% set value = states(source.entities[0]) %}
+    {% set identity = value if as_timestamp(value, 0) > 0
+       and state_attr(source.entities[0], 'event_type') == source.event_type else '' %}
+    {# Event state is the occurrence timestamp, not a duration or health signal. #}
+    {% set observation = 'bad' if identity else 'unknown' %}
+    {% set quality = 'valid' if identity else 'unknown' %}
+  {% elif source.adapter == 'threshold' %}
+    {% set value = states(source.entities[0]) %}
+    {% set observation = ('bad' if value | float >= source.threshold else 'good')
+       if is_number(value) else 'unknown' %}
+    {% set quality = 'valid' if is_number(value) else 'unknown' %}
+  {% elif source.adapter == 'backup' %}
+    {% set event_at = as_timestamp(states(source.entities[0]), 0) %}
+    {% set success_at = as_timestamp(states(source.entities[1]), 0) %}
+    {% set failure_at = previous.get('failure_at', 0) %}
+    {% if state_attr(source.entities[0], 'event_type') == 'failed' and event_at > 0 %}
+      {% set failure_at = [failure_at, event_at] | max %}
+    {% endif %}
+    {# A new attempt/in_progress never clears a failure. Only a later successful
+       automatic backup satisfies this draft matching rule. #}
+    {% set observation = 'bad' if failure_at > success_at else
+       ('good' if success_at > failure_at else 'unknown') %}
+    {% set quality = 'valid' if observation != 'unknown' and not ns.uncertain else 'unknown' %}
+  {% endif %}
+  {% do returns(dict(observation=observation, quality=quality,
+     evidence=ns.evidence, details=ns.details, identity=identity,
+     failure_at=failure_at | default(0))) %}
+{%- endmacro %}
+
+{% macro advance(source, previous, observation, at, returns) -%}
+  {% set old = previous if previous is mapping else {} %}
+  {% set active = old.get('active', false) %}
+  {% set occurrence = old.get('occurrence_id', '') %}
+  {% set first = old.get('first_detected', 0) %}
+  {% set resolved = old.get('resolved_at', none) %}
+  {% set event_new = observation.identity != '' and
+       as_timestamp(observation.identity, 0) > as_timestamp(old.get('source_occurrence', ''), 0) %}
+  {% set new = observation.observation == 'bad' and
+       (event_new if source.adapter == 'event' else not active) %}
+  {% if new %}
+    {% set active = true %}
+    {% set first = at %}
+    {% set occurrence = source.key ~ ':' ~ (observation.identity or at | string) %}
+    {% set resolved = none %}
+  {% endif %}
+  {% if active and source.adapter != 'event' and observation.observation == 'good' %}
+    {% set active = false %}
+    {% set resolved = at %}
+  {% endif %}
+  {% do returns(dict(key=source.key, title=source.title, category=source.category,
+    kind=source.kind, severity=source.severity, active=active,
+    occurrence_id=occurrence, first_detected=first, resolved_at=resolved,
+    last_valid_observation=at if observation.quality == 'valid'
+      else old.get('last_valid_observation', none),
+    quality=observation.quality, evidence=observation.evidence,
+    details=observation.details, failure_at=observation.failure_at,
+    source_occurrence=observation.identity if event_new else old.get('source_occurrence', ''),
+    phone_evaluated=false if new else old.get('phone_evaluated', false),
+    phone_routes=[],
+    selected_phone_routes=[] if new else old.get('selected_phone_routes', []),
+    delivered_to=[] if new else old.get('delivered_to', []),
+    delivery_state='pending' if new else old.get('delivery_state', 'pending'),
+    display_until=(as_timestamp(observation.identity, at) + source.get('display_seconds', 0)) if new
+      else old.get('display_until', 0),
+    legacy_delivery=source.get('legacy_delivery', false))) %}
+{%- endmacro %}
+
+{% macro recipient_route(key, person, tracker, at, freshness, returns) -%}
+  {% set home = is_state('input_boolean.attention_' ~ key ~ '_' ~ person ~ '_home', 'on') %}
+  {% set away = is_state('input_boolean.attention_' ~ key ~ '_' ~ person ~ '_away', 'on') %}
+  {% set state = states('person.' ~ person) %}
+  {% set tracked = expand(tracker) | list %}
+  {% set fresh = tracked | count == 1 and
+       0 <= at - as_timestamp(tracked[0].last_reported, 0) <= freshness %}
+  {# Both destinations on means independent of presence, including unknown/stale.
+     This preserves the agreed fridge route even while away or coverage is poor. #}
+  {% do returns((home and away) or (fresh and state not in ['unknown', 'unavailable']
+      and ((state == 'home' and home) or (state != 'home' and away)))) %}
+{%- endmacro %}
+
+{% macro reconcile(sources, previous, at, freshness, returns, delivery=none) -%}
+  {% set ns = namespace(records={}) %}
+  {% set observe_fn = observe | as_function %}
+  {% set advance_fn = advance | as_function %}
+  {% set route_fn = recipient_route | as_function %}
+  {% for source in sources %}
+    {% set old = previous.get(source.key, {}) if previous is mapping else {} %}
+    {% set observation = observe_fn(source, old, at) %}
+    {% set record = advance_fn(source, old, observation, at) %}
+    {% set paused = as_timestamp(states('input_datetime.attention_' ~ source.key ~ '_pause_until'), 0) > at %}
+    {% set delay = source.get('delivery_delay_seconds') %}
+    {% if record.active and not record.phone_evaluated and delay is number
+         and at - record.first_detected >= delay
+         and observation.observation == 'bad' %}
+      {% set routes = namespace(values=[]) %}
+      {% set recent = source.adapter != 'event' or
+           0 <= at - as_timestamp(observation.identity, 0) <= source.get('max_event_age_seconds', 900) %}
+      {% if is_state('input_boolean.attention_routing_enabled', 'on')
+           and not paused and not source.get('legacy_delivery', false)
+           and observation.observation == 'bad' and recent %}
+        {% for person, tracker in [('lachlan', 'device_tracker.big_lws_iphone_14'),
+                                 ('nic', 'device_tracker.nichola_s_iphone')] %}
+          {% if route_fn(source.key, person, tracker, at, freshness) %}
+            {% set routes.values = routes.values + [person] %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      {# Consume this occurrence even with no route: changing preferences, expiry
+         of pause, recovery of presence, or restarting cannot resend a backlog. #}
+      {% set record = dict(record, phone_evaluated=true, phone_routes=routes.values,
+           selected_phone_routes=routes.values,
+           delivery_state='dispatching' if routes.values else 'suppressed') %}
+    {% endif %}
+    {# Receipts mean HA's notify action accepted the call, not handset read proof.
+       Check identity so a late receipt cannot resolve a later wash occurrence. #}
+    {% if delivery is mapping and delivery.get('key') == source.key
+         and delivery.get('occurrence_id') == record.occurrence_id
+         and delivery.get('recipient') in record.selected_phone_routes %}
+      {% set delivered = (record.delivered_to + [delivery.recipient]) | unique | list %}
+      {% set complete = delivered | count == record.selected_phone_routes | count %}
+      {% set record = dict(record, delivered_to=delivered,
+           delivery_state='accepted' if complete else 'dispatching') %}
+    {% endif %}
+    {% if source.get('resolve_after_delivery', false) and record.active and record.phone_evaluated %}
+      {% if record.delivery_state in ['accepted', 'suppressed'] %}
+        {% set record = dict(record, active=false, resolved_at=at) %}
+      {% elif at - record.first_detected >= source.get('dispatch_timeout_seconds', 300) %}
+        {% set record = dict(record, active=false, resolved_at=at,
+             delivery_state='unconfirmed') %}
+      {% endif %}
+    {% endif %}
+    {% set ns.records = dict(ns.records, **{source.key: record}) %}
+  {% endfor %}
+  {% do returns(ns.records) %}
+{%- endmacro %}
+
+{% macro visible(records, destination, at, returns) -%}
+  {% set ns = namespace(items=[]) %}
+  {% for key, record in records.items() if record.active or
+       (record.kind == 'event' and record.get('display_until', 0) > at) %}
+    {% if is_state('input_boolean.attention_' ~ key ~ '_' ~ destination, 'on')
+       and as_timestamp(states('input_datetime.attention_' ~ key ~ '_pause_until'), 0) <= at %}
+      {% set ns.items = ns.items + [record] %}
+    {% endif %}
+  {% endfor %}
+  {% do returns(ns.items) %}
+{%- endmacro %}

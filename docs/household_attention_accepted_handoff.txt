@@ -1,0 +1,149 @@
+Home Assistant fault-state analysis
+14 November 2026 · Repository analysis and proposed implementation scope
+Current build workflow — confirmed by Lachlan: develop on feature/household-attention-handler, run appropriate local repository checks, then trial the reviewed change on the existing Pi after he backs it up. No isolated HA installation, Linux test host, fake devices or simulated-notification environment. Keep the PR open through the real Pi trial and refine before merging. This supersedes the earlier lab/prototype recommendation.
+Recommendation
+Build one HA-owned household attention handler shared with the Bravia notice design. Purpose confirmed by Lachlan on 14 November: tell me there is a problem, or I need to do something. Capture faults, chores, approvals and maintenance needs (including stale credentials), with per-source records and destination rules. Existing automatic fixes are independent consumers of the same underlying conditions, not prerequisites for creating attention records. Keep source observation, incident lifecycle, automatic remediation and notification delivery separate. Derive operational health only from fault records, not from washing tasks or available updates.
+What the repository establishes
+HA baseline: 9b6513203ac89764d8669aaaf998b1878e2199ba. Inspected configuration.yaml, all of automations.yaml, templates.yaml and scripts.yaml, TODO.md, reliability notes, configuration dependencies and relevant Bravia host notes. The open-PR lookup returned no open HA PRs. This is not an audit of every branch or of UI-managed live configuration. Bravia ROADMAP.md and DECISIONS.md were read from main; their fetched blob SHAs were ab2e1a1cbef6ac8529787f95b17cd84b68f05698 and 908084189ed1811b5000f29409936cc29f6b81a8.
+Existing protections are local controllers: internet power cycling after two minutes offline, and kiosk charging fallback for stale/invalid telemetry. Washer completion and cleaning reminders deliver directly. The checked templates provide Dyson/party/fan feedback. No shared incident store, fault count, category health, destination controls or notice inbox was found in the inspected configuration. UI-only equivalents remain unknown.
+The existing Bravia roadmap is background. Current first-draft scope confirmed by Lachlan on 14 November is backup failures, washing notifications, grouped available upgrades and persistent device/connectivity unavailability. Internet, Dyson, fridge and kiosk phone belong to the same availability model; internet/kiosk are not special automation-failure-only sources. Existing repair automations keep working independently. Credential/authentication attention belongs to the general handler purpose; exact first-draft auth sources remain to map. This supersedes the earlier backup-only scope and the subsequent outcome-only internet/kiosk interpretation. Design refinement does not claim deployment or notification migration.
+Coverage and missing-detector matrix
+Internet — Monitor disconnected/off or unavailable connectivity as an attention condition, with source-specific state interpretation. This belongs in the shared HA inbox/dashboard even though the existing NBN power-cycle automation may repair it. Recovery resolves the same incident; an attempted repair does not. Repeated source reports/repair attempts do not create duplicate incidents. Delivery debounce and severity are policy choices separate from capture. External phone delivery may fail during an outage. Keep automation 1786235041388 unchanged.
+Kiosk — Monitor actual kiosk phone reachability/availability, independently of automation 1789173535286. Lachlan recalls an online/offline entity; its existence, semantics and freshness need verification rather than assumption. Phone power-off/offline deserves a shared notice, TV card and probably phone alert. Charger switch on does not prove the phone is alive; stale battery percentage alone does not prove it is dead. The charging watchdog remains an independent existing solution. Do not add a second charger controller or gate notices on its failure.
+Washing — Existing completion event and cleaning-count notifications are useful accepted Phase 3 sources. Missing: typed occurrence capture, deduplication and expiry. A completed wash is an informational event, not a home fault. Keep phone notifications and laundry lighting intact during capture-only work.
+Backups — No monitored failure/staleness detector found. Accepted Phase 3 source and best first fault lifecycle example. Need exact installed backup entities/events, configured cadence, expected completion time and recovery evidence. A successful backup can resolve a failure only under an explicitly defined matching policy; starting one is insufficient.
+Updates — No grouped attention record found. Phase 3 requires one summary, distinct component/version details in the private inbox, removal as confirmed updates clear, and no per-component phone alerts. Unknown states mean incomplete coverage, not zero available updates. Updates are attention items and should not automatically degrade household operational health.
+Thread/dependency recovery — Repository records the household interruption where HA/photos worked but the user manually recovered Thread and SSH. Missing: verified required-dependency inventory, startup grace and dependency grouping. Phase 6 candidate. SSH is optional maintenance and must not be assumed permanently required. A running add-on alone does not establish usable Thread lighting.
+Device availability — Use a curated device/source map including the user’s examples: internet, Dyson fan, fridge and kiosk phone. Off means disconnected for some connectivity sources but is a normal operating state for a fan/light; interpret per source. An unavailable entity is a useful HA visibility problem even when physical device failure is unproven. Say 'HA cannot reach the fridge' rather than claim cooling stopped. Distinguish unknown/missing monitoring data in record wording/quality; never treat it as healthy. Group multiple entities for one device and known shared-dependency failures. Exclude deliberate maintenance/sleeping/intentional disconnection. Previous general persistence proposal was more than one hour; whether fridge/kiosk/internet need shorter notification delays is unresolved. Capture and delivery timing are separate; duration gates should not erase source evidence.
+HA/Pi/power outage — An HA-hosted foundation cannot reliably report its own complete outage. Independent monitoring is a separate optional design; not included or promised here.
+Small native model
+Implementation choice remains open after the 14 November comparative research below. Compare Alert2 with a small native HA implementation before committing to source-specific restored template records; evaluate Supernotify only if needed for delivery. Keep one clear owner for each attention record and a stable HA-facing contract for inbox/TV consumers. Validate feasibility, reconciliation and persistence against installed versions. Restoration is continuity, not a fresh observation or guaranteed archival durability.
+Proposed minimum fields: stable incident key; occurrence identity; category; kind (fault/event/attention); severity; active/resolved lifecycle; observation quality (valid/unknown/stale); first detected, last valid observation and resolved timestamps; concise text; source reference; optional dependency parent. Keep previously active incidents active when evidence becomes unknown, with their observation quality marked uncertain. Healthy→unknown becomes a monitoring gap, not an invented physical failure. Maintenance suppresses routing/evaluation as explicitly defined; it does not manufacture recovery.
+Repeated failure observations update one occurrence. A verified recovery resolves it. A later genuine failure starts a new occurrence. Do not replace occurrence IDs or first-seen timestamps on each periodic check. Separate active faults from retained history and expiring one-off events. A finite prototype retains the current/last occurrence only; unbounded searchable history needs an explicit retention design.
+Derive active-fault count and category/overall health; never let independent detectors set and clear one global boolean. Report coverage separately: e.g. no confirmed faults with 2 sources unknown. Do not show an unqualified green/healthy state when required observations are incomplete. Destination preferences remain restored everyday HA controls; phone delivery cannot depend on the TV/photo host.
+First implementation slice
+First draft, revised by Lachlan on 14 November: cover backup failures, washing notifications, grouped available upgrades and selected persistent device unavailability. Build the common typed records, private HA inbox, source adapters and six delivery preferences. Use existing local checks and focused tests as useful; do not create a separate HA environment or fake devices. Runtime validation occurs on the backed-up Pi. A backup-only prototype does not satisfy first-draft coverage. Preserve existing washing behaviour until its reviewed migration avoids duplicate delivery.
+Capture the attention condition independently of any repair action. Internet/kiosk auto-fixes can resolve records when the observed source recovers, but their presence must not suppress detection. Each source policy defines meaning, persistence, importance, user action, recovery/expiry, and destination/delay. Inbox and HA dashboard show relevant records; the TV gets suitable cards; important fridge and likely kiosk outages route to Lachlan’s phone. These are design intentions, not a claim routes are deployed. Avoid duplicates with existing washing messages when migration is later authorised.
+Local implementation files should contain the focused HA attention configuration, preference controls, dashboard/TV-facing data and operating notes; choose the include structure after inspecting the checkout. Reusable Bravia application source stays in its companion repository. Feature branch feature/household-attention-handler exists; no feature implementation or live changes have been performed by this document update.
+Acceptance checklist for local checks and Pi trial
+Behaviour acceptance checklist, using appropriate local checks and real Pi observations rather than a fake-device environment: duplicate reports stay one item; concurrent faults recover independently; unknown/stale input does not resolve faults; records and delivery preferences survive restart; already-present failures are reconciled; exclusions/maintenance work; recurring faults get distinct occurrences; washing and upgrades retain their different meanings; source-specific delays/grouping work; existing repair automations do not suppress detection; fridge wording reflects evidence; credentials clear on verified recovery. Record what has actually been checked and what awaits a natural event or an agreed live check. Do not require deliberately disconnecting household devices merely to manufacture examples.
+Check startup, periodic reconciliation and changes. Do not rely only on transition triggers: an already-true condition may not trigger after setup. HA documents restoration for trigger-based sensor/binary-sensor state and attributes, while trigger for-duration waits have restart/reload limitations. Use explicit timestamps/reconciliation and test the chosen primitives; do not generalise one primitive’s persistence to all timers.
+No feature code has been changed or implementation tests run by this planning work. Local/CI checks do not prove live entity mappings or physical behaviour. Validate these during the backed-up Pi trial and record results before merging; no separate HA lab is required.
+Evidence and continuation
+HA source links:
+https://github.com/lachlanw-117/Wright-Home-Assistant/blob/9b6513203ac89764d8669aaaf998b1878e2199ba/automations.yaml#L576
+https://github.com/lachlanw-117/Wright-Home-Assistant/blob/9b6513203ac89764d8669aaaf998b1878e2199ba/automations.yaml#L799
+https://github.com/lachlanw-117/Wright-Home-Assistant/blob/9b6513203ac89764d8669aaaf998b1878e2199ba/templates.yaml
+https://github.com/lachlanw-117/Wright-Home-Assistant/blob/9b6513203ac89764d8669aaaf998b1878e2199ba/docs/bravia_ambient_host.md
+Accepted companion decisions:
+https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/ROADMAP.md
+https://github.com/lachlanw-117/Bravia-Ambient-Display/blob/main/DECISIONS.md
+Official technical references checked 14 November 2026:
+https://www.home-assistant.io/integrations/template/
+https://www.home-assistant.io/docs/automation/trigger/
+https://www.home-assistant.io/docs/automation/troubleshooting/
+Next executable step, revised after comparative research: inspect the actual device/entity inventory and installed versions, compare Alert2 versus native HA with optional Supernotify routing, then conduct the prefilled per-device/combination interview using the saved starting matrix below. Resolve only missing choices before adapters and tests. Overall project remains open.
+
+Research and device-policy starting points — 14 November 2026
+Lachlan requested research before implementation, followed by an interview per device and, where useful, per combination of devices. The following examples are saved requirements for that interview; do not ask him to restate them. Destinations below are intended behaviour, not deployed changes. Timings, entity IDs and outstanding choices remain unconfirmed.
+TV scope: provide HA-owned card content, state and routing configuration for the TV to consume. Do not change the TV application, force a screen switch or add TV-side behaviour in this work. Existing repair automations remain independent.
+
+
+Condition
+Starting behaviour
+Presence rule
+Unresolved choices
+Dad’s desk plug unavailable
+Ignore entirely in this handler: no checks, attention record, TV card or phone message.
+No presence evaluation needed.
+Map exact device/entity for the exclusion.
+Either Dyson unavailable
+TV card data/config in HA + Lachlan phone. Identify which Dyson; retain separate device evidence.
+Not specified yet.
+Exact entities, delay, grouping if both fail, repeats and recovery.
+Light or light group unavailable
+TV card data/config in HA only.
+Not specified yet.
+Which lights/groups; member failure versus whole group; delay and clearance.
+Switch battery drops significantly
+TV card data/config in HA + Lachlan phone, if a useful signal exists.
+Not specified yet.
+Which switches; battery entity/history; significant-drop threshold/window; low-level versus rapid-drop rule.
+Fridge plug OR fridge through LG unavailable
+TV card data/config in HA + Lachlan AND Nic phones. One fridge item retaining each source’s status; unavailable means loss of HA visibility.
+Notify both even when away; do not apply washing’s home-only rule.
+Exact entities, delay/urgency, repeated escalation, recovery, overlap with network failures.
+Washing finished
+TV card data/config in HA + Nic phone + Lachlan phone + laundry coloured-light action.
+Lachlan: only when home. Confirm whether Nic should also be home-only.
+Verify existing colour/action; completion signal, attended/clear rule, reminder/expiry, return-home delivery and light restoration.
+
+Research conclusion and implementation decision
+The architecture is supported by existing approaches: source-specific detection, independent attention state, and delivery policies for people, presence and destination. This is an engineering assessment from the documented examples, not a live validation on this household. The earlier requirement to use only restored template records was premature. Compare existing tools before choosing or building the foundation; no package installation is approved or performed by this research.
+Alert2 is the strongest first candidate for the attention lifecycle: it supports both condition and event alerts, acknowledgement/reminders, notification controls and alert hierarchies. Its supersedes feature suppresses subordinate notifications; it is not proof of a shared physical cause. Documentation warns that recently fired alerts can be lost across restart because restoration is periodically saved. Test restart/reconciliation and do not assume archival durability. Determine how its exposed state could feed the HA/TV record contract.
+https://github.com/redstone99/hass-alert2/blob/master/README.md
+Supernotify is a routing candidate if it materially reduces custom configuration: occupancy can filter individual recipients, and deliveries can have priority/condition constraints. Its duplicate check is a short-lived message cache, cleared on restart, and normalises digits; this cannot replace stable device/incident identity. Evaluate it as an optional delivery layer, not a competing incident store. Alert2 plus small native routing scripts should also be compared; no need to adopt two integrations automatically.
+https://supernotify.rhizomatics.org.uk/latest/configuration/deliveries/
+https://supernotify.rhizomatics.org.uk/latest/configuration/dupe_detection/
+Blacky’s Appliance Notifications & Actions blueprint provides a concrete comparable example: completion/reminder notifications, device-zone recipient filtering, dashboard run status and custom actions. Borrow its treatment of “finished and still needs attending” and independent outputs; do not replace the existing working washing detector merely to adopt a blueprint.
+https://community.home-assistant.io/t/appliance-notifications-actions-washing-machine-clothes-dryer-dish-washer-etc/650166
+Blacky’s Low Battery Notifications & Actions supports battery thresholds, exclusions, independent groups and separate low/unknown/unavailable handling. It does not establish a reliable rapid-drain detector for these switches. Verify the actual battery entity and history before defining a significant drop and measurement window; missing data is not 0%.
+https://community.home-assistant.io/t/low-battery-notifications-actions/653754
+Watchman is useful for broken configuration references, not complete device monitoring: it checks references it finds in configuration and acknowledges heuristic misses/false positives. Spook’s Repairs extension exposes repair changes and counts, offering a candidate source for actionable repair/authentication problems. Verify the installed version, issue content and whether each integration exposes reauthentication through this path; not every expired credential is guaranteed to appear.
+https://github.com/dummylabs/thewatchman
+https://spook.boo/repairs/
+Home Assistant’s native Alert supports repeated condition alerts and acknowledgement, with template sensors for complex criteria; it is a simpler baseline to compare. Native Backup provides failure events and successful/attempted-backup timestamps. Update entities provide update availability. Prefer these actual signals where installed rather than infer success from an attempted action.
+https://www.home-assistant.io/integrations/alert/
+https://www.home-assistant.io/integrations/backup/
+https://www.home-assistant.io/integrations/update/
+Presence: Home Assistant Person can combine trackers. Companion iOS SSID sensors exist, but updates depend on iOS/background activity. A single old Wi-Fi reading must not be treated as definitive current presence. Inspect the existing person/router/app signals, then agree freshness and unknown-presence handling. For washing, delivery is evaluated per recipient; record the pending chore even when nobody is home. Whether to remind on arriving home is a separate interview decision. Fridge notifications must bypass home-only filtering.
+https://www.home-assistant.io/integrations/person/
+https://companion.home-assistant.io/docs/core/sensors/
+
+Design consequences and interview workflow
+Use an explicit monitored-device list or labels, with an early exclusion for Dad’s desk plug. Do not poll it or create attention records for it in this handler; normal HA integration processing is outside that promise. Prefer relevant entity changes and targeted reconciliation over repeated whole-instance scans.
+Keep one device/household attention item with its supporting evidence. For the fridge, plug unavailable OR LG unavailable is sufficient; retain which source failed. The item cannot clear just because one channel is healthy while the other remains unavailable. Do not conflate loss of visibility with proof cooling has stopped, or clear a physical-cooling concern using mere connectivity recovery.
+Combinations need explicit policies: members of a light group; both Dysons; fridge plug plus LG; many devices failing behind one integration or network dependency. Correlate only with evidence. Grouping should reduce duplicate notices while retaining affected devices; never silently suppress the fridge’s agreed phone route behind a generic internet alert.
+Interview after inventory: prefill exact devices, relevant entities, available signals and existing automations. Work through one device or meaningful combination at a time, showing the saved starting rule. Ask only missing choices: what counts as a problem, persistence/delay, destinations and recipient presence, quiet hours/urgency, repeats/escalation, acknowledgement versus resolution, return-home delivery, recovery and maintenance exceptions. Inherit shared defaults where agreed, with per-device overrides.
+Start with fridge (plug OR LG), then washing, each Dyson, lights/groups, switches/batteries, kiosk and internet; cover backup/update/authentication policies too. Existing scope remains four source families: backups, washing, upgrades and selected persistent offline devices. One hour is a previous general proposal, not a confirmed delay for all examples.
+Next step: inspect actual inventory and installed versions, produce a small capability comparison (Alert2, native HA; optional Supernotify), then begin the prefilled device interview. Preserve working washing messages/laundry lighting until a tested migration. No repository, live HA or TV changes were made.
+
+Build handoff — accepted direction and recommended workflow, 14 November 2026
+Accepted product boundary
+Source rules are maintained through conversation with Lachlan or another agent and stored as reviewed configuration. Delivery preferences are everyday HA UI controls, initially set together and subsequently editable quickly without a code change. One row represents device plus attention type; washing finished and washer unavailable are different rows.
+Each row has six independent destinations: HA dashboard; TV screensaver; Lachlan phone when home; Lachlan phone when away; Nic phone when home; Nic phone when away. The inbox remains the underlying record even if every destination is off. Dad’s desk plug is excluded at source, not merely silenced. Laundry lighting is an additional controllable action rather than a seventh phone destination.
+Definitions, source rules and routing logic belong in Git; user-selected preference values belong in restored HA runtime state. Deployment, restart or source-rule updates must not reset the selected values. Dashboard/TV changes re-filter active items; newly enabled phone destinations must not cause an unexpected backlog resend. Presence is per recipient, with explicit stale/unknown handling. Temporary category/channel pauses are a desired convenience, with automatic expiry and preserved previous settings. Final pause scope/behaviour can be refined in UI review.
+Notifications and record tracking run deterministically in HA; an AI conversation is for maintaining source rules, not a required runtime dependency. Existing auto-repair automations stay independent.
+Repository and environment
+Feature branch created from main commit 9b6513203ac89764d8669aaaf998b1878e2199ba:
+https://github.com/lachlanw-117/Wright-Home-Assistant/tree/feature/household-attention-handler
+The branch currently has no feature commits or PR. No Pi, laptop installation or live device changes have been made. Main had no open PRs at inspection.
+Recommended editor: VS Code with Codex on the main laptop. Develop directly against the existing feature branch. Lachlan explicitly declined a separate Home Assistant instance, lab host, fake devices and simulated-notification prototype. The White Yoga and container setup are not dependencies or work items for this feature.
+Deployment approach confirmed by Lachlan: develop and check locally, then trial on the existing production Pi after he backs it up. Do not build an isolated HA instance, create fake source entities or add a simulated-notification environment. Use real entity mappings and normal household events for runtime validation. Confirm the backup is complete before installing the reviewed change; keep the exact deployed revision and affected-file rollback information.
+Delivery sequence
+1. Bring this accepted contract and the saved per-device matrix into the feature checkout; read AGENTS.md and docs/local_development_workflow.md. Inspect current code and preserve unrelated changes.
+2. Implement the real feature path on the branch: verified source condition/event → persistent attention item → six editable delivery preferences → filtered HA dashboard/TV data and per-person phone routing. Use existing real devices/entities, with unverified mappings left explicit until checked. Prefer native HA primitives where they satisfy the contract; justify dependencies against actual gaps. No third-party alert system is preselected.
+3. Exercise duplicates, simultaneous issues and independent recovery, restart/reload continuity, missing/stale signals, per-recipient home/away/unknown status, runtime preference preservation, and changes to preferences while an item is active.
+4. Use the saved requirements to interview Lachlan per device/combination; confirm actual relevant entities before connecting adapters. Complete first-draft coverage for backup failures, washing, grouped upgrades and selected persistent offline devices. Add battery/auth sources where the agreed signals exist.
+5. Run the repository’s existing local checks and focused tests appropriate to the change. Review the diff and PR; prepare the exact-commit Pi deployment and rollback steps. A separate test HA instance, fake-device inventory and simulated delivery demonstration are not prerequisites.
+6. Once Lachlan’s Pi backup is confirmed and the named trial is authorised, deploy the reviewed feature-branch commit to the Pi. Recheck affected live files for drift, validate HA configuration, and use real events and agreed UI/notification checks to record acceptance. Keep the PR open while refining the trial; merge after acceptance and explicit merge approval. This workflow update does not claim a backup or deployment has already occurred.
+Repository commands (Python 3.13):
+python -m pip install -r tests/requirements.txt
+python tests/validate_yaml.py
+python -m unittest discover -s tests -v
+Existing checks do not resolve HA includes/secrets and do not replace real HA configuration validation or device acceptance. Shared TV/phone integration needs a deliberate tested migration to avoid duplicate washing notifications. Existing delivery stays intact until that migration.
+Model recommendation
+Use GPT-6.1 Sol for implementation, medium effort for routine work and high for lifecycle/persistence design and tricky failures if available. Consider Astra for a focused architecture/final review, not as a requirement for every edit. Model availability is client/account dependent. These are workload recommendations, not benchmark claims.
+Session continuity
+Do not assume a fresh VS Code thread automatically receives this conversation or connected Google Docs. Provide the written handoff and saved device rules directly in the checkout/thread. No automatic transfer into VS Code was performed here.
+
+VS Code starting prompt — current workflow
+Work on feature/household-attention-handler. Read AGENTS.md and docs/local_development_workflow.md first.
+
+Follow the latest accepted requirements and Build handoff in the document below. Inspect the existing code and verify real entity mappings, then implement the household attention handler and six editable delivery controls.
+
+Develop on the feature branch and run appropriate local checks. Do not set up a separate Home Assistant instance, fake devices or simulated-notification environment.
+
+Show the reviewed diff, check results and deployment steps. I will back up the Pi before deployment; confirm that backup is complete before installing the change. Trial the exact feature-branch commit on the Pi, refine it, and keep the PR open until acceptance. Pushes and merging follow the repository's approval rules.
+
+Ask only for decisions missing from the saved requirements.

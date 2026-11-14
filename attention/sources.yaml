@@ -1,0 +1,129 @@
+# Verified read-only on HA 2026.11.0, 14 November 2026.
+# Accepted timing: capture immediately, fridge phones immediately, other faults
+# after 15 minutes; no repeats/recovery messages. Setup choices live in HA helpers.
+# Dad's desk plug and its firmware entity are deliberately absent from all lists.
+- key: fridge_unavailable
+  title: HA cannot reach the fridge through one or more channels
+  category: appliances
+  kind: fault
+  severity: important
+  adapter: availability
+  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away, nic_home, nic_away]
+  entities:
+    - switch.kitchen_fridge_power_plug
+    - number.refrigerator_fridge_temperature
+  # Latest answer supersedes the earlier ten-minute proposal.
+  delivery_delay_seconds: 0
+- key: dyson_unavailable
+  title: HA cannot reach the Dyson Purifier Hot+Cool De-NOx
+  category: devices
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv, lachlan_home, lachlan_away]
+  entities: [fan.purifier_hot_cool_de_nox]
+  delivery_delay_seconds: 900
+- key: internet_disconnected
+  title: Router reports WAN disconnected or HA cannot read WAN status
+  category: connectivity
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv]
+  entities: [binary_sensor.archer_ax73_wan_status]
+  disconnected_states: ['off']
+  delivery_delay_seconds: 900
+- key: washer_unavailable
+  title: HA cannot reach the washer
+  category: appliances
+  kind: fault
+  severity: warning
+  adapter: availability
+  starting_destinations: [dashboard, tv]
+  entities: [sensor.washer_current_status]
+  delivery_delay_seconds: 900
+- key: washing_finished
+  title: Washing finished
+  category: chores
+  kind: event
+  severity: info
+  adapter: event
+  starting_destinations: [dashboard, tv, lachlan_home, nic_home]
+  entities: [event.washer_notification]
+  event_type: washing_is_complete
+  # One-shot delivery event, not a pending chore. Lighting stays independent.
+  resolve_after_delivery: true
+  display_seconds: 900
+  max_event_age_seconds: 900
+  dispatch_timeout_seconds: 300
+  delivery_delay_seconds: 0
+- key: washer_cleaning
+  title: Washer needs a cleaning cycle
+  category: maintenance
+  kind: attention
+  severity: info
+  adapter: threshold
+  starting_destinations: [dashboard, tv]
+  entities: [sensor.washer_cycles]
+  threshold: 30
+  delivery_delay_seconds: 900
+- key: backup_failed
+  title: A backup failed; check backup settings and destinations
+  category: backups
+  kind: fault
+  severity: important
+  adapter: backup
+  starting_destinations: [dashboard, tv]
+  entities:
+    - event.backup_automatic_backup
+    - sensor.backup_last_successful_automatic_backup
+  delivery_delay_seconds: 900
+- key: upgrades_available
+  title: Upgrades are available
+  category: maintenance
+  kind: attention
+  severity: info
+  adapter: updates
+  starting_destinations: [dashboard, tv]
+  # Explicit inventory, including unknown firmware coverage; never scan all states.
+  entities:
+    - update.home_assistant_supervisor_update
+    - update.home_assistant_core_update
+    - update.home_assistant_operating_system_update
+    - update.matter_server_update
+    - update.file_editor_update
+    - update.openthread_border_router_update
+    - update.terminal_ssh_update
+    - update.bravia_ambient_photo_host_update
+    - update.apexcharts_card_update
+    - update.bureau_of_meteorology
+    - update.raspberry_pi_5_firmware
+    - update.kids_room_kids_tv_plug_firmware
+    - update.living_room_ikea_blind_button_firmware
+    - update.bathroom_red_button_firmware
+    - update.ensuite_button_firmware
+    - update.kitchen_fridge_power_plug_firmware
+    - update.book_case_window_firmware
+    - update.tv_window_firmware
+    - update.middle_window_firmware
+    - update.in_front_of_sink_firmware
+    - update.living_room_tradfri_firmware
+    - update.kitchen_fridge_ikea_button_x_4_firmware
+    - update.laundry_led_strip_firmware
+    - update.laundry_laundry_switch_firmware
+    - update.internet_plug_firmware
+    - update.split_system_finger_bot_firmware
+    - update.kids_room_kids_bedroom_button_firmware
+    - update.bedroom_main_bedroom_button_firmware
+    - update.kids_room_lucys_switch_firmware
+    - update.living_room_kiosk_phone_charger_firmware
+    - update.living_room_tv_light_1_firmware
+    - update.living_room_tv_light_2_firmware
+    - update.kids_room_kids_bedroom_light_1_firmware
+    - update.kids_room_kids_bedroom_light_2_firmware
+    - update.living_room_basketball_hoop_light_1_firmware
+    - update.living_room_basketball_hoop_light_2_firmware
+    - update.living_room_dining_table_light_1_firmware
+    - update.living_room_dining_table_light_2_firmware
+  # Initial phone switches remain off; one grouped record, no component alerts.
+  delivery_delay_seconds: 0
