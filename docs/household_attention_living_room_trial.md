@@ -1,10 +1,11 @@
 # Living-room light pairs — extension and wall-switch trial
 
-Status: **prepared locally; not installed**. The Pi still runs runtime commit
-`6b36c4a`. This extension adds three independent pair records to that handler;
-it does not replace the room's lighting controls. Deployment, another Core
-restart and pushing this revision require approval after review. PR #11 remains
-open; no merge is approved.
+Status: **installed for trial; wall-switch acceptance pending**. The Pi runs
+exact runtime commit `3cc457301a148a7f34b62ee47c9aed9e3768bcaa`. Lachlan explicitly
+approved pushing this revision, the six-file installation, fresh rollback copies,
+validation, one additional Core restart and setup of the six new display routes.
+PR #11 remains open; no merge is approved. This extension adds three independent
+pair records without changing the room's lighting controls.
 
 ## Verified mapping and rules
 
@@ -56,9 +57,38 @@ the runtime continues to use only plain per-person phone controls.
 27 local tests pass, including both-member loss, incomplete recovery, recurrence
 and independent pair recovery using the actual production functions. Generated
 files and YAML syntax checks pass. These checks create no HA instance, fake
-devices or notification environment. Physical acceptance is pending installation.
+devices or notification environment. Physical wall-switch acceptance is pending.
 
-## Proposed installation
+## Installation procedure and results
+
+Steps 1–6 below completed on 14 November 2026. The actual installation finished
+at 18:17:38 AEDT (`07:17:38Z`). All ten old runtime hashes matched `6b36c4a` before
+the change; all ten new hashes matched `3cc4573` before and after restart. CI and
+`ha core check` passed. Access used direct SSH/SCP with saved-host verification
+and existing authentication; no private key or credentials were viewed/copied.
+
+Fresh rollback copies of the six affected files and their verified hashes are
+in `/share/household-attention-trials/20261114-3cc4573/rollback/`. The previous
+ten-file manifest and new installed manifest are retained in the parent directory.
+The older `20261114-6b36c4a` trial/rollback directory remains intact.
+
+At 18:19:41 AEDT, the live twelve-row store was ready. All 74 original preference
+values, nine original pause values and nine original record summaries matched
+the pre-restart API snapshot. Compared record fields were occurrence ID,
+first-detected time, active status, phone-evaluated flag and delivery outcome.
+This establishes continuity across this approved restart, without claiming
+all periodically refreshed evidence timestamps are unchanged.
+
+All 24 new helper definitions loaded with values off, and all three new pauses
+were expired. At 18:20:04 AEDT, only the six new dashboard/TV destinations had
+been enabled. The six new phone destinations remained off. Original preferences
+still matched; shared routing and the setup flag remained on. No handler
+phone-send call had occurred. All six bulbs were valid `off`, with no pair fault.
+Authenticated dashboard configuration returned Dashboard, Inbox and Delivery
+controls, with fourteen cards on the controls view. Visual UI acceptance remains
+separate from that configuration check.
+
+The retained procedure is:
 
 1. Identify the exact new feature commit from its generated ten-file bundle
    manifest. Review its six-file runtime delta from installed `6b36c4a`.
@@ -104,9 +134,9 @@ does not itself send a phone message or change the physical light state.
 | Acceptance | Result |
 |---|---|
 | Local checks | Passed as above |
-| New exact revision installed / hashes | Pending |
-| Existing records/preferences survive restart | Pending |
-| All three pair rows/controls loaded | Pending |
+| New exact revision installed / hashes | Passed: `3cc4573`, all ten hashes, only six files replaced |
+| Existing records/preferences survive restart | Passed for 74 original preferences, nine pauses and nine compared record summaries |
+| All three pair rows/controls loaded | Passed: twelve records total, 24 new helpers, three pauses; intended six display switches on, six phone switches off |
 | Wall-switch member loss/recovery and no duplicates | Pending |
 | Two pair faults recover independently | Pending |
 | Pair routing/pause behaviour | Pending |

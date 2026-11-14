@@ -3,19 +3,19 @@
 **Status: installed on the Pi for trial; acceptance is still in progress.**
 
 This guide describes runtime code at commit
-`6b36c4a9518a4f424582b4a4240aef17809ba6ff` on
+`3cc457301a148a7f34b62ee47c9aed9e3768bcaa` on
 `feature/household-attention-handler`. Following your review, backup confirmation
 and explicit approval, this exact runtime commit was installed on 14 November
-2026. HA's configuration check passed and one approved Core restart completed.
+2026. HA's configuration check passed and its separately approved Core restart completed.
 Starting preferences were checked and shared routing is on.
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) remains open.
-The kiosk sensor is not enabled yet, and real phone/light and restart-continuity
-acceptance remain pending. See the [trial record](household_attention_trial.md).
+The kiosk sensor is not enabled yet, and real phone/light/UI acceptance remains
+pending. Original preferences, pauses and record summaries survived the approved
+extension restart. See the [trial records](household_attention_trial.md).
 
-A later [living-room pair extension](household_attention_living_room_trial.md)
-is prepared locally but not installed: separate TV, dining-table and
-basketball-hoop fault rows, dashboard/TV routes on and phone routes off by default.
-Its wall-switch test must wait for the new revision's approved installation.
+The installed [living-room pair extension](household_attention_living_room_trial.md)
+adds separate TV, dining-table and basketball-hoop fault rows. Their dashboard/TV
+routes are on and phone routes off. It is ready for the described wall-switch test.
 
 ## What has been built
 
@@ -26,7 +26,8 @@ each person's phone.
 
 The local implementation includes:
 
-- A shared inbox for nine source rules, including faults, washing and upgrades.
+- A shared inbox for twelve source rules, including three independent light pairs,
+  other faults, washing and upgrades.
 - A dashboard with an Inbox tab and editable Delivery controls.
 - Four active destination switches per row: dashboard, TV, Lachlan phone and Nic phone.
 - An expiry time for pausing all handler destinations for a row.
@@ -47,7 +48,7 @@ These are the settings the first-install setup applies. You can later change
 destinations without changing code. The inbox keeps tracking an active issue
 even when every destination for that row is off.
 
-**Dashboard and TV data are enabled for all nine rows in the starting profile.**
+**Dashboard and TV data are enabled for all twelve rows in the starting profile.**
 The phone delay below does not delay initial capture in the inbox or filtering
 into the dashboard/TV data.
 
@@ -55,6 +56,9 @@ into the dashboard/TV data.
 |---|---|---|---|---|
 | Fridge visibility loss | The fridge plug or LG fridge entity is unavailable | Lachlan and Nic | Immediately | Both channels must be valid again |
 | Dyson unavailable | The configured Dyson fan becomes unavailable; simply being off is normal | Lachlan | After 15 minutes | Valid fan availability returns |
+| Living-room TV lights | Either of the two physical bulbs becomes unavailable | Neither | No starting phone alert; 15 minutes if later enabled | Both bulbs reachable again |
+| Dining-table lights | Either of the two physical bulbs becomes unavailable | Neither | No starting phone alert; 15 minutes if later enabled | Both bulbs reachable again |
+| Basketball-hoop lights | Either of the two physical bulbs becomes unavailable | Neither | No starting phone alert; 15 minutes if later enabled | Both bulbs reachable again |
 | Internet disconnected | The router reports WAN disconnected, or the WAN entity is unavailable | Lachlan | After 15 minutes | Valid connected WAN status returns |
 | Washer unavailable | The washer status entity is unavailable | Lachlan | After 15 minutes | A valid washer status returns |
 | Kiosk off Wi-Fi | A fresh phone connection report says Cellular or No Connection | Lachlan | After 15 minutes | A fresh Wi-Fi report returns |
@@ -222,8 +226,8 @@ run a preference-reset action.
 
 - Automatic TV display behaviour or screen switching.
 - Home/away phone splitting or router-based people tracking.
-- Lights/group availability rules, rapid battery-drop alerts or authentication
-  alerts: their exact source rules have not been connected in this slice.
+- Additional lights/groups beyond the three reviewed living-room pairs,
+  rapid battery-drop alerts or authentication alerts.
 - The second Dyson, which is not in HA, or Dad's desk plug, which is deliberately excluded.
 - Backup overdue/staleness detection, reminders, critical-alert bypass or escalation.
 - Automatic fixes beyond the existing unchanged repair automations.
@@ -233,20 +237,22 @@ run a preference-reset action.
 
 ## What has actually been checked
 
-The local code passed 25 tests, YAML syntax checks, generated-file checks and diff
+The local code passed 27 tests, YAML syntax checks, generated-file checks and diff
 checks. The exact-commit trial archive's ten payload files matched its SHA-256
 manifest. These checks used no separate HA installation, fake devices or simulated
 notification service.
 
 The live configuration passed HA's checker. All ten installed file hashes match
-the approved commit. The inbox, four active controls per row, nine pause helpers
+the approved commit. The inbox, four active controls per row, twelve pause helpers
 and three-view dashboard configuration loaded. The starting switch values match
 the table above. Enabling shared routing did not replay existing notices.
 
 Live-file drift and rollback copies were checked through direct SSH/SCP using
 existing authentication. No key material or credentials were viewed or copied.
-Phone delivery, visual dashboard layout, continuity across a later approved
-restart, kiosk reporting and new household events still need trial acceptance.
+All 74 original preference values, nine original pauses and nine original record
+summaries survived the extension restart. Phone delivery, visual dashboard
+layout, kiosk reporting, wall-switch loss/recovery and new household events still
+need trial acceptance.
 
 The next steps are to enable the existing kiosk Connection Type sensor through
 its HA entity settings, inspect the dashboard and observe normal washing/phone/

@@ -2,39 +2,42 @@
 
 **Review status:** installed on the Pi for trial; live acceptance is incomplete.
 This document describes runtime commit
-`6b36c4a9518a4f424582b4a4240aef17809ba6ff`. The companion
+`3cc457301a148a7f34b62ee47c9aed9e3768bcaa`. The companion
 [user guide](household_attention_user_guide.md) explains everyday operation and
 the differences between the new handler and existing washing delivery.
 
 After reviewing these documents, Lachlan confirmed his Pi backup complete and
 explicitly approved the push/PR and named `6b36c4a` trial, including one Core
 restart and setup. That installation and restart are complete; shared routing is
-on. Kiosk enablement, actual phones/light/UI and restoration checks remain pending.
+on. He separately approved the `3cc4573` pair extension and one additional Core
+restart. That installation passed validation, hashes and original preference/
+record continuity checks. Kiosk enablement and actual phones/light/UI remain pending.
 See the [trial record](household_attention_trial.md) for hashes, times and evidence.
 
 Branch: `feature/household-attention-handler`, based on
 `9b6513203ac89764d8669aaaf998b1878e2199ba`. The supplied
 [accepted handoff](household_attention_accepted_handoff.txt) is a historical
 requirements record. The decisions below supersede its earlier proposals.
-The branch is pushed through documentation commit `78528d8`, and
+The branch is pushed through runtime commit `3cc4573`, and
 [PR #11](https://github.com/lachlanw-117/Wright-Home-Assistant/pull/11) is open.
-Installed runtime files match `6b36c4a` exactly. No merge has occurred.
+Installed runtime files match `3cc4573` exactly. No merge has occurred.
 
-## Prepared living-room extension — not yet installed
+## Installed living-room extension — wall-switch acceptance pending
 
 The latest request adds separate availability records for the TV, dining-table
 and basketball-hoop light pairs, each watching its two verified physical bulbs.
 The [extension and wall-switch trial](household_attention_living_room_trial.md)
-documents the member map, twelve-row candidate, six-file delta, checks and proposed
-installation. Existing installed nine-row results below remain historical trial
-evidence for `6b36c4a`; the new revision has no live acceptance yet.
+documents the member map, twelve-row installation, six-file delta, hash checks
+and successful restart continuity. Physical wall-switch loss/recovery and visual
+acceptance are pending. Initial nine-row trial evidence is retained separately
+for `6b36c4a`.
 
 ## Implementation status at a glance
 
 | Capability | Actual implementation | Verification status |
 |---|---|---|
-| Shared attention store | One native trigger-based sensor, one current/last record per source | Loaded with nine records on Pi; later restart restoration pending |
-| Nine source rules | Fridge, Dyson, WAN, washer availability, kiosk Wi-Fi, wash completion, cleaning, backup failure, upgrades | Real mappings inspected; kiosk is registered but disabled |
+| Shared attention store | One native trigger-based sensor, one current/last record per source | Twelve records loaded; original nine record summaries survived extension restart |
+| Twelve source rules | Three living-room light pairs plus fridge, Dyson, WAN, washer availability, kiosk Wi-Fi, wash completion, cleaning, backup failure, upgrades | Real mappings inspected; kiosk is registered but disabled |
 | Everyday controls | Four active destinations per row plus an absolute row pause | Expected helpers and all starting values checked live; visual UI pending |
 | Presence split | Parked; old home/away helpers dormant | Routing test proves they do not control current delivery |
 | Phone delivery | Once per occurrence; current destination/pause rechecked before sending | Local selection/receipt checks; real push receipt not tested |
@@ -63,6 +66,9 @@ or deployment file. Resuming presence routing requires a reviewed migration.
 |---|---|---|
 | Fridge visibility loss | Dashboard, TV, Lachlan, Nic | Immediate; one item; clear only when both channels recover |
 | Dyson unavailable | Dashboard, TV, Lachlan | 15 minutes; clear on valid recovery |
+| Living-room TV pair unavailable | Dashboard, TV | One item if either bulb is unavailable; clear when both recover; phones off initially |
+| Dining-table pair unavailable | Dashboard, TV | Same pair rule, independently of TV/hoop |
+| Basketball-hoop pair unavailable | Dashboard, TV | Same pair rule, independently of TV/dining |
 | Internet WAN disconnected | Dashboard, TV, Lachlan | 15 minutes; clear on valid recovery |
 | Washer unavailable | Dashboard, TV, Lachlan | 15 minutes; separate from washing finished |
 | Kiosk reports off Wi-Fi | Dashboard, TV, Lachlan | 15 minutes; fresh connection evidence required |
@@ -88,6 +94,9 @@ runtime storage or backup contents were read or copied.
 | Fridge plug | `switch.kitchen_fridge_power_plug`, ZHA |
 | LG fridge | `number.refrigerator_fridge_temperature`, LG ThinQ; a setpoint, not measured cooling proof |
 | Dyson | `fan.purifier_hot_cool_de_nox`, Matter; `off` is normal |
+| Living-room TV pair | `light.living_room_tv_light_1` and `_2`, Matter; either unavailable creates the pair fault |
+| Dining-table pair | `light.living_room_dining_table_light_1` and `_2`, Matter; separate pair record |
+| Basketball-hoop pair | `light.living_room_basketball_hoop_light_1` and `_2`, Matter; separate pair record |
 | Internet | `binary_sensor.archer_ax73_wan_status`, UPnP connectivity; `off` is disconnected; registry ID matches existing repair trigger |
 | Washer availability | `sensor.washer_current_status`, LG ThinQ; `initial` is normal |
 | Washing event | `event.washer_notification`, `event_type: washing_is_complete`; state is occurrence timestamp |
@@ -113,8 +122,9 @@ Source rules remain reviewed Git configuration; daily destination values live
 in restored HA state.
 
 The first draft covers backup failures, washing, grouped upgrades and curated
-availability. Lights/group membership, rapid battery-drop thresholds and actionable
-authentication sources have not been agreed/verified and are not silently enabled.
+availability, now including the three reviewed living-room pairs. Other lighting
+groups, rapid battery-drop thresholds and actionable authentication sources have
+not been agreed/verified and are not silently enabled.
 Real battery histories were inspected but do not establish reliable rapid-drain
 rules. Backup staleness, external HA/Pi outage monitoring and causal dependency
 grouping remain outside this slice. The inbox is not whole-house assurance.
@@ -225,7 +235,7 @@ python -m unittest discover -s tests -v
 git diff --check
 ```
 
-Local results: **25 tests passed**, generated-file checks passed, YAML syntax
+Local results: **27 tests passed**, generated-file checks passed, YAML syntax
 passed for 19 repository files, and diff whitespace checks passed. Python
 3.13.18 and the pre-existing ignored `.tools/pydeps` were used because `python`
 on this laptop points to the Windows Store alias. No separate HA installation,
@@ -249,10 +259,13 @@ authentication and strict saved-host verification succeeded during the approved
 trial. Live `configuration.yaml` and `automations.yaml` matched baseline `9b65132`
 byte for byte before staging and installation. All eight new files were absent.
 Rollback copies were saved before installation; all ten installed hashes matched
-`6b36c4a` both before and after the approved restart. No new access method/add-on
+`6b36c4a` both before and after the first approved restart. The later six-file
+extension install similarly matched `3cc4573` before/after its separately
+approved restart, and preserved the original preferences, pauses and compared
+record summaries. No new access method/add-on
 was installed and no credentials were inspected. HA's configuration check passed;
 the store and dashboard configuration loaded. Kiosk is still disabled and actual
-phones/light/UI/restoration acceptance remains pending in the trial record.
+phones/light/UI and pair wall-switch acceptance remains pending in the trial records.
 
 ## Exact-commit trial and rollback
 
