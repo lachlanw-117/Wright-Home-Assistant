@@ -418,6 +418,23 @@ views:
               columns: 6
               rows: 1
 
+          - type: tile
+            entity: binary_sensor.party_mode_active
+            name: Stop Party
+            icon: mdi:stop-circle-outline
+            color: red
+            hide_state: true
+            tap_action:
+              action: perform-action
+              perform_action: script.all_lights_off
+            icon_tap_action:
+              action: none
+            hold_action:
+              action: none
+            grid_options:
+              columns: 6
+              rows: 1
+
           # Dad's desk plug
           - type: tile
             entity: switch.bedroom_dads_desk_plug
