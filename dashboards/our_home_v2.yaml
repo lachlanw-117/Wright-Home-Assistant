@@ -8,6 +8,18 @@ views:
       - type: grid
         cards:
 
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: sensor.pending_updates
+                above: 0
+            card:
+              type: markdown
+              content: |
+                ## Updates available
+
+                {{ state_attr('sensor.pending_updates', 'updates') }}
+
           # -------------------------------------------------
           # Bathroom
           # Card body = More Info

@@ -118,3 +118,28 @@
         - action: scene.turn_on
           target:
             entity_id: scene.fan_swing_off
+
+- sensor:
+    - name: Pending Updates
+      unique_id: pending_updates
+      state: >
+        {%- set ns = namespace(count=0) -%}
+        {%- for update in states.update -%}
+          {%- set skipped = update.attributes.get('skipped_version') -%}
+          {%- if update.state == 'on'
+                and (not skipped or skipped != update.attributes.get('latest_version')) -%}
+            {%- set ns.count = ns.count + 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {{ ns.count }}
+      attributes:
+        updates: >
+          {%- set ns = namespace(updates=[]) -%}
+          {%- for update in states.update -%}
+            {%- set skipped = update.attributes.get('skipped_version') -%}
+            {%- if update.state == 'on'
+                  and (not skipped or skipped != update.attributes.get('latest_version')) -%}
+              {%- set ns.updates = ns.updates + ['- ' ~ update.name ~ ' (' ~ update.attributes.get('latest_version', 'unknown') ~ ')'] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ ns.updates | join('\n') }}
