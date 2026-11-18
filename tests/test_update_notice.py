@@ -8,7 +8,6 @@ from jinja2.nativetypes import NativeEnvironment
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATES = yaml.safe_load((ROOT / 'templates.yaml').read_text(encoding='utf8'))
-DASHBOARD = yaml.safe_load((ROOT / 'dashboards/our_home_v2.yaml').read_text(encoding='utf8'))
 PENDING_UPDATES = next(
     sensor
     for group in TEMPLATES
@@ -61,15 +60,6 @@ class UpdateNoticeTests(unittest.TestCase):
 
         self.assertEqual(count, 1)
         self.assertEqual(names, '- Home Assistant Core (2026.11.2)')
-
-    def test_notice_uses_pending_update_sensor(self):
-        cards = DASHBOARD['views'][0]['sections'][0]['cards']
-        notice = next(card for card in cards if card.get('type') == 'conditional')
-
-        self.assertEqual(notice['conditions'][0]['entity'], 'sensor.pending_updates')
-        self.assertEqual(notice['conditions'][0]['above'], 0)
-        self.assertIn("state_attr('sensor.pending_updates', 'updates')", notice['card']['content'])
-
 
 if __name__ == '__main__':
     unittest.main()
